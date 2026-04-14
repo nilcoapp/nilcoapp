@@ -13,10 +13,19 @@ const DEFAULT_USERS = [
   {id:"rep1",username:"Van",role:"rep",pin:"1001",active:true,sector:""},
   {id:"rep2",username:"TBC",role:"rep",pin:"1002",active:true,sector:""},
   {id:"rep3",username:"Office",role:"rep",pin:"1003",active:true,sector:""},
+  {id:"rep4",username:"No SR",role:"rep",pin:"1004",active:true,sector:""},
+  {id:"rep5",username:"Mohamed Gom3a",role:"rep",pin:"1005",active:true,sector:""},
+  {id:"rep6",username:"Manager",role:"rep",pin:"1006",active:true,sector:""},
+  {id:"rep7",username:"Mahmoud Samir",role:"rep",pin:"1007",active:true,sector:""},
+  {id:"rep8",username:"Maher Moheb",role:"rep",pin:"1008",active:true,sector:""},
+  {id:"rep9",username:"Hassan Mostafa",role:"rep",pin:"1009",active:true,sector:""},
+  {id:"rep10",username:"Halla Hamdy",role:"rep",pin:"1010",active:true,sector:""},
+  {id:"rep11",username:"Ahmed Hosny",role:"rep",pin:"1011",active:true,sector:""},
+  {id:"rep12",username:"Ahmed Farid",role:"rep",pin:"1012",active:true,sector:""},
+  {id:"rep13",username:"Abanoub",role:"rep",pin:"1013",active:true,sector:""},
   {id:"super1",username:"المشرف",role:"supervisor",pin:"3333",active:true,sector:""},
   {id:"admin1",username:"الادمين",role:"admin",pin:"4444",active:true,sector:""}
 ];
-
 const DEFAULT_DATA = {
   users: DEFAULT_USERS,
   clients: [],
