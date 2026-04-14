@@ -1,0 +1,4923 @@
+[
+  {
+    "id": "c1",
+    "code": "40100211",
+    "name": "On The Run - Madinty",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c2",
+    "code": "40100214",
+    "name": "On The Run - New Maadi",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c3",
+    "code": "40100230",
+    "name": "on the run - cfc",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c4",
+    "code": "40100234",
+    "name": "On The Run - Maadi Towers",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c5",
+    "code": "40100233",
+    "name": "On The Run - Marghany",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c6",
+    "code": "40100215",
+    "name": "On The Run - Nour",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c7",
+    "code": "40100218",
+    "name": "On The Run - Orouba",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c8",
+    "code": "40100219",
+    "name": "On The Run - Rehab",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c9",
+    "code": "40100222",
+    "name": "On The Run - Tagamoa",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c10",
+    "code": "40100237",
+    "name": "On The Run- AUC",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c11",
+    "code": "40100236",
+    "name": "On The Run- El Narges2",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c12",
+    "code": "40100238",
+    "name": "On The Run- ElNarges1",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c13",
+    "code": "40100224",
+    "name": "On The Run- mount view",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c14",
+    "code": "4010024",
+    "name": "On The Run - Autostrad",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c15",
+    "code": "4010027",
+    "name": "On The Run - Cornich",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c16",
+    "code": "40100232",
+    "name": "On The Run - Airport",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c17",
+    "code": "4010022",
+    "name": "On The Run - Almaza",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c18",
+    "code": "40100210",
+    "name": "On The Run - Hegaz",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c19",
+    "code": "4010025",
+    "name": "On The Run - Bakry",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c20",
+    "code": "40100220",
+    "name": "On The Run - Roxy",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c21",
+    "code": "40100217",
+    "name": "On The Run - Orabi",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c22",
+    "code": "3011131",
+    "name": "الدوليه للتجاره و الاعمال المتكامله ترانس جيت",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c23",
+    "code": "3010033",
+    "name": "توتال ايجبت - دجله المعادي",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c24",
+    "code": "4018629",
+    "name": "total- Ring Road Suez",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c25",
+    "code": "40186219",
+    "name": "total- Sarai",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c26",
+    "code": "4018626",
+    "name": "total- Katameya",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c27",
+    "code": "40186215",
+    "name": "total- Maadi Corniche",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c28",
+    "code": "40186214",
+    "name": "total- Maadi Autostrad",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c29",
+    "code": "40186216",
+    "name": "total- Total Square",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c30",
+    "code": "4018627",
+    "name": "total-Maadi DEGLA",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c31",
+    "code": "3013381",
+    "name": "توتال بنجور    الاداره",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c32",
+    "code": "40140935",
+    "name": "ElKorba (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c33",
+    "code": "40140948",
+    "name": "El Tunsi (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c34",
+    "code": "40140919",
+    "name": "Mivida 1 (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c35",
+    "code": "40140970",
+    "name": "Maadi club  (TMT)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c36",
+    "code": "4014097",
+    "name": "cfc (tradetop)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c37",
+    "code": "40140921",
+    "name": "El Galaa 1 (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c38",
+    "code": "40140922",
+    "name": "El Galaa 2 (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c39",
+    "code": "4014098",
+    "name": "Elmoshier (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c40",
+    "code": "40140964",
+    "name": "Golf Plaza - Uptown Cairo (mega corp)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c41",
+    "code": "40140915",
+    "name": "Maadi Mobil (megacorp)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c42",
+    "code": "40140944",
+    "name": "midor (tradetop)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c43",
+    "code": "40140923",
+    "name": "rehab 1 (tradetop)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c44",
+    "code": "40140942",
+    "name": "Rehab 2 (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c45",
+    "code": "40140938",
+    "name": "Safir (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c46",
+    "code": "40140947",
+    "name": "Tayaran 2 (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c47",
+    "code": "40140937",
+    "name": "Ck-TmT-الرحاب بوابة23",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c48",
+    "code": "40140924",
+    "name": "Concord Plaza (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c49",
+    "code": "40140913",
+    "name": "Elshahed 1 (mega corp)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c50",
+    "code": "40140945",
+    "name": "الجلاء1 سيركل كي tmt",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c51",
+    "code": "40140949",
+    "name": "سيركل كي tmt - موبيل ميجكورب",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c52",
+    "code": "40140934",
+    "name": "سيركل كيه TMT -(MIDOR)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c53",
+    "code": "40140914",
+    "name": "Almaza Mall (Tmt)",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c54",
+    "code": "3011433",
+    "name": "شركة رواسي التجارية- طريق السويس",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c55",
+    "code": "3011431",
+    "name": "شركه رواسي التجاريه- الشاذلي",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c56",
+    "code": "3011932",
+    "name": "كلاود تريد جروب-سيركل كيه - العبور",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c57",
+    "code": "3010854",
+    "name": "ماستر اكسبريس- السلام",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c58",
+    "code": "30108511",
+    "name": "ماستر اكسبريس - العبور",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c59",
+    "code": "30108529",
+    "name": "ماستر اكسبريس- المقطم",
+    "sector": "القاهرة",
+    "repName": "Van"
+  },
+  {
+    "id": "c60",
+    "code": "40157619",
+    "name": "اس اند ايه للتجارة- المقطم",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c61",
+    "code": "30110220",
+    "name": "سبينيس -العبور",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c62",
+    "code": "3012542",
+    "name": "الراية - المقطم 2",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c63",
+    "code": "4011791",
+    "name": "تويز هوم",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c64",
+    "code": "4010094",
+    "name": "سيف ستورز-العبور",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c65",
+    "code": "3010843",
+    "name": "شركه رؤيه لاداره المشروعات التجاريه- البارون",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c66",
+    "code": "3010846",
+    "name": "شركه رؤيه لاداره المشروعات التجاريه- العبور",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c67",
+    "code": "3010061",
+    "name": "فان فاكتوري",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c68",
+    "code": "3010065",
+    "name": "فان فاكتوري - المقطم",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c69",
+    "code": "3010953",
+    "name": "ماركت المحلاوى - المستقبل",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c70",
+    "code": "3010954",
+    "name": "ماركت المحلاوى _العبور",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c71",
+    "code": "3013621",
+    "name": "مائه في المائه للملابس    الاداره",
+    "sector": "القاهرة",
+    "repName": "TBC"
+  },
+  {
+    "id": "c72",
+    "code": "2010161",
+    "name": "Bukhash Brothers- dubai",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c73",
+    "code": "3014541",
+    "name": "Chuck and Cheese royal mall",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c74",
+    "code": "2010081",
+    "name": "NILE AMUSEMENT CENTERS EQUIPMENT MANUFACTURING LLC    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c75",
+    "code": "30126712",
+    "name": "Rabbit egypt رابت مصر- Abo rawash",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c76",
+    "code": "30126711",
+    "name": "Rabbit egypt رابت مصر- Mivida",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c77",
+    "code": "30126710",
+    "name": "Rabbit egypt رابت مصر- October",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c78",
+    "code": "3010701",
+    "name": "Souq.com for ECommerce LLC-340-035-072",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c79",
+    "code": "3010702",
+    "name": "Souq.com for ECommerce LLC-340-035-072    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c80",
+    "code": "3014901",
+    "name": "اس بي للاستثمار",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c81",
+    "code": "3014991",
+    "name": "افتح توبيك لتوزيع ملابس وادوات الاطفال",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c82",
+    "code": "4018471",
+    "name": "افتح توبيك لتوزيع ملابس وادوات الاطفال",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c83",
+    "code": "3013881",
+    "name": "الاكاديمية العربيه للعلوم و التكنولوجيا والنقل البحرى    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c84",
+    "code": "3015021",
+    "name": "البروج افريكا كريست للاستثمار",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c85",
+    "code": "3011725",
+    "name": "الشركة الاولي للخدمات الغذائية مصر    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c86",
+    "code": "2010191",
+    "name": "اورا ديفيلوبيرز هورايزون المحدودة",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c87",
+    "code": "4016441",
+    "name": "بامبل علي بابك    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c88",
+    "code": "3014971",
+    "name": "بريمير لانشاء وتطوير المنشات التعليمية امبريال كولدج اي",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c89",
+    "code": "3013071",
+    "name": "بي سبورت    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c90",
+    "code": "3014931",
+    "name": "ترنس  التجارية",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c91",
+    "code": "3013501",
+    "name": "حالا للتكنولوجيا والخدمات    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c92",
+    "code": "2010201",
+    "name": "دنيا الألعاب للتوزيع ذ م م",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c93",
+    "code": "3014961",
+    "name": "دولفينا للاستثمار والمشروعات السياحية",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c94",
+    "code": "30127218",
+    "name": "EG- Giza- DS_22_ Zayed",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c95",
+    "code": "30127233",
+    "name": "EG- Giza- DS_36_ Palmhills",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c96",
+    "code": "30127244",
+    "name": "EG- Giza- DS_44_ Hadayek October",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c97",
+    "code": "30127219",
+    "name": "EG- Cairo- DS_3_ Elrehab",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c98",
+    "code": "30127246",
+    "name": "EG- Cairo- DS_45_ Golden Square",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c99",
+    "code": "30127226",
+    "name": "EG- Cairo- DS_8_ Nasr City",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c100",
+    "code": "30127256",
+    "name": "EG-cairo-DS_56_ Rock vera mall",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c101",
+    "code": "30127254",
+    "name": "EG-Giza-DS_54_Mariotia",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c102",
+    "code": "30127216",
+    "name": "EG-Cairo- DS_20_ Fount Mall",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c103",
+    "code": "30127255",
+    "name": "EG- Cairo- DS_55_ Banafseg",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c104",
+    "code": "3012722",
+    "name": "EG- Alex- DS_27_ West",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c105",
+    "code": "3012723",
+    "name": "EG- Alex- DS_41_ wingat",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c106",
+    "code": "30127223",
+    "name": "EG- Giza- DS_5_ lebanon Square",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c107",
+    "code": "30127222",
+    "name": "EG- Cairo- DS_4_ Zahraa Elmaadi",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c108",
+    "code": "30127230",
+    "name": "EG- Cairo- DS_23_ Madinty",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c109",
+    "code": "30127211",
+    "name": "EG- Cairo- DS_16_ Eldaher",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c110",
+    "code": "30127243",
+    "name": "EG- Cairo- DS_39_ Madinty Craft",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c111",
+    "code": "30127250",
+    "name": "EG- Cairo- DS_50_ Elrehab Chillout",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c112",
+    "code": "30127245",
+    "name": "EG- Cairo- DS_46_ Mokattam_Hadaba",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c113",
+    "code": "30127249",
+    "name": "EG- Cairo- DS_49_ Zahraa Elmaadi2",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c114",
+    "code": "30127235",
+    "name": "EG- Cairo- DS_28_ Shobra",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c115",
+    "code": "30127214",
+    "name": "EG- Giza- DS_19_ First Mall",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c116",
+    "code": "30127247",
+    "name": "EG- Giza- DS_47_ Bright star mall",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c117",
+    "code": "30127228",
+    "name": "EG- Giza- DS_42_ Haram2",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c118",
+    "code": "30127227",
+    "name": "EG- Cairo- DS_9_ Maadi Corniche",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c119",
+    "code": "30127221",
+    "name": "EG- Cairo- DS_37_ Tagamoa awl",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c120",
+    "code": "30127239",
+    "name": "EG- Cairo- DS_29_ Elshrouk",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c121",
+    "code": "30127210",
+    "name": "EG- Cairo- DS_15_ Elsayeda Zainab",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c122",
+    "code": "30127236",
+    "name": "EG- Cairo- DS_43_ fifth settelment",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c123",
+    "code": "30127215",
+    "name": "EG- Giza- DS_2_ Eldokki",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c124",
+    "code": "30127217",
+    "name": "EG- Cairo- DS_21_ Qasr ALQouba",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c125",
+    "code": "30127213",
+    "name": "EG- Giza- DS_18_ Hadayek Alahram",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c126",
+    "code": "30127220",
+    "name": "EG- Cairo- DS_31_ Ain Shams",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c127",
+    "code": "30127257",
+    "name": "EG-cairo-DS_57_El Obour Industrial",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c128",
+    "code": "30127242",
+    "name": "EG- Cairo- DS_40_ Nasr City_Hay10",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c129",
+    "code": "30127225",
+    "name": "EG- Giza- DS_7_ Elagouza",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c130",
+    "code": "3012725",
+    "name": "EG-Cairo- DS_1_ Maadi la selky",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c131",
+    "code": "3012728",
+    "name": "EG- Cairo- DS_13_ Elmanial",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c132",
+    "code": "30127252",
+    "name": "EG- Cairo- DS_51_ shrouk_ Mgawra",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c133",
+    "code": "30127232",
+    "name": "EG- Qalyubia- DS_30_ Obour",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c134",
+    "code": "30127240",
+    "name": "EG- Giza- DS_11_ Elharam_ tersa",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c135",
+    "code": "30127248",
+    "name": "EG- Dakahlia- DS_48_ Mansoura2",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c136",
+    "code": "3012721",
+    "name": "EG- Alex- DS77_26_ East",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c137",
+    "code": "30127231",
+    "name": "EG- Dakahlia- DS_ 25_ Elmansoura",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c138",
+    "code": "30127224",
+    "name": "EG- Cairo- DS_6_ Elmokattam",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c139",
+    "code": "30127238",
+    "name": "EG- alsharqiya- DS_33_ zakazik",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c140",
+    "code": "30127237",
+    "name": "EG- Gharbia- DS_24_ Tanta",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c141",
+    "code": "30127229",
+    "name": "EG-Ismailia- DS_34_ Ismailia",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c142",
+    "code": "3012729",
+    "name": "EG- Cairo- DS_14_ Helwan",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c143",
+    "code": "30127234",
+    "name": "EG-Portsaid- DS_32_ Portsaid",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c144",
+    "code": "3012727",
+    "name": "EG- Giza- DS_12_ Icon Mall",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c145",
+    "code": "30127253",
+    "name": "EG- Giza- DS_53_ Sheikh Zayed",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c146",
+    "code": "3012724",
+    "name": "EG- Assuit_ DS_ 35_ Assuit",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c147",
+    "code": "3012726",
+    "name": "EG- Cairo- DS_10_ Hegaz",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c148",
+    "code": "30127212",
+    "name": "EG- Cairo- DS_17_ City stars",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c149",
+    "code": "30127251",
+    "name": "EG- Cairo- DS_52_ Elnozha Elgdeda",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c150",
+    "code": "30127241",
+    "name": "EG- RedSea- DS_38_ Hurghada",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c151",
+    "code": "30127260",
+    "name": "EG-Alexandria-DS_60_Smouha",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c152",
+    "code": "30127259",
+    "name": "EG-cairo-DS_59_Nasr City (3)",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c153",
+    "code": "30127258",
+    "name": "EG-Giza-DS_58_October festival City",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c154",
+    "code": "3014921",
+    "name": "ذا بازل بروجيكت اي جي للحلول الترفيهية",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c155",
+    "code": "3014881",
+    "name": "ذابلاي هاوس لاداره المطاعم والكافيهات",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c156",
+    "code": "3015091",
+    "name": "ريدزي كينجدوم للتسويق الالكتروني وادارة المشروعات",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c157",
+    "code": "3015041",
+    "name": "سيجيديم ايجيبت",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c158",
+    "code": "2010151",
+    "name": "شركة الضيافه الرائده",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c159",
+    "code": "2010171",
+    "name": "شركة العليان للخدمات الغذائية المحدودة",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c160",
+    "code": "3012041",
+    "name": "شركة بريد فاست - الساحل",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c161",
+    "code": "3012042",
+    "name": "شركة بريد فاست    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c162",
+    "code": "3011231",
+    "name": "شركة جودز مارت",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c163",
+    "code": "3013961",
+    "name": "شركة جيمز تو ايجيبت    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c164",
+    "code": "3014802",
+    "name": "شركة عالم المرح- اكستريم لاند مدينتي",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c165",
+    "code": "4015671",
+    "name": "فلكستوك مصر    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c166",
+    "code": "3011947",
+    "name": "فوو للتجارة الالكترونية- المخزن",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c167",
+    "code": "3011946",
+    "name": "فوو للتجارة الالكترونية    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c168",
+    "code": "3011945",
+    "name": "فوو للتجارة الالكترونيه - زايد",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c169",
+    "code": "2010181",
+    "name": "فيرست فود سيرفيسز (ش.ذ.م.م)",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c170",
+    "code": "3011697",
+    "name": "ماجد الفطيم للتسلية و الترفيه- التجمع",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c171",
+    "code": "3015011",
+    "name": "مارش للوساطه التامينيه",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c172",
+    "code": "3014871",
+    "name": "استاندر",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c173",
+    "code": "4015381",
+    "name": "مبيعات اونلاين",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c174",
+    "code": "3015071",
+    "name": "مؤسسة الفارابى لتنمية الموارد البشرية",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c175",
+    "code": "3011541",
+    "name": "نون للتجارة الالكترونيه    الاداره",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c176",
+    "code": "3011542",
+    "name": "نون للتجارة الالكترونيه cfc",
+    "sector": "القاهرة",
+    "repName": "Office"
+  },
+  {
+    "id": "c177",
+    "code": "3014351",
+    "name": "Cow Gifts- كاو",
+    "sector": "القاهرة",
+    "repName": "No SR"
+  },
+  {
+    "id": "c178",
+    "code": "4016591",
+    "name": "Cow Gifts- كاو امانات",
+    "sector": "القاهرة",
+    "repName": "No SR"
+  },
+  {
+    "id": "c179",
+    "code": "3014861",
+    "name": "Huff- degla elmaadi",
+    "sector": "القاهرة",
+    "repName": "No SR"
+  },
+  {
+    "id": "c180",
+    "code": "4018141",
+    "name": "seen heliopolis- misr elgdeda",
+    "sector": "القاهرة",
+    "repName": "No SR"
+  },
+  {
+    "id": "c181",
+    "code": "4015846",
+    "name": "اي ام ال ايجيبت برناسوس- مدينة نصر",
+    "sector": "القاهرة",
+    "repName": "No SR"
+  },
+  {
+    "id": "c182",
+    "code": "3011461",
+    "name": "تريد ميكس انترناشونال الدولية للتجارة",
+    "sector": "القاهرة",
+    "repName": "No SR"
+  },
+  {
+    "id": "c183",
+    "code": "4011161",
+    "name": "فوليوم وان",
+    "sector": "القاهرة",
+    "repName": "No SR"
+  },
+  {
+    "id": "c184",
+    "code": "4011163",
+    "name": "فوليوم وان-المعادى",
+    "sector": "القاهرة",
+    "repName": "No SR"
+  },
+  {
+    "id": "c185",
+    "code": "4014017",
+    "name": "كيدز او تويز kids o toys - المعادى",
+    "sector": "القاهرة",
+    "repName": "No SR"
+  },
+  {
+    "id": "c186",
+    "code": "4011164",
+    "name": "فوليوم وان-المهندسين",
+    "sector": "الجيزه",
+    "repName": "No SR"
+  },
+  {
+    "id": "c187",
+    "code": "3012541",
+    "name": "الراية- المخزن الرئيسي",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c188",
+    "code": "3012905",
+    "name": "ذا جروسر- دريمز دارك ستور التجمع",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c189",
+    "code": "3010107",
+    "name": "كارفور - الماظه",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c190",
+    "code": "3010108",
+    "name": "كارفور - المعادي",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c191",
+    "code": "3010109",
+    "name": "كارفور - كايرو فيستيفال",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c192",
+    "code": "30101010",
+    "name": "كارفور - مدينة العبور",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c193",
+    "code": "30101019",
+    "name": "كارفور اكسبريس- داون تاون التجمع",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c194",
+    "code": "30101020",
+    "name": "كارفور اكسبريس- فيتالي",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c195",
+    "code": "30101017",
+    "name": "كارفور اكسبريس أفينو",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c196",
+    "code": "4010752",
+    "name": "كيدز شوب مدينة نصر",
+    "sector": "القاهرة",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c197",
+    "code": "3010101",
+    "name": "كارفور - داندي مول",
+    "sector": "الجيزه",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c198",
+    "code": "3010102",
+    "name": "كارفور - مول مصر",
+    "sector": "الجيزه",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c199",
+    "code": "30101022",
+    "name": "كارفور اكسبريس- بيفرلي هيلز",
+    "sector": "الجيزه",
+    "repName": "Mohamed Gom3a"
+  },
+  {
+    "id": "c200",
+    "code": "4017221",
+    "name": "3 Boys",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c201",
+    "code": "4018351",
+    "name": "I BOOK- tgmo3",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c202",
+    "code": "4016851",
+    "name": "اخر العنقود اخر مكرم",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c203",
+    "code": "4017231",
+    "name": "اخر العنقود سليم الاول",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c204",
+    "code": "4017121",
+    "name": "المكتبة الفرانكفونية",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c205",
+    "code": "4010058",
+    "name": "اور كيدز    الاداره",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c206",
+    "code": "4016881",
+    "name": "بانوراما الحي العاشر",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c207",
+    "code": "4016741",
+    "name": "برستيج- الادارة",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c208",
+    "code": "4017251",
+    "name": "بيت الهدايا",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c209",
+    "code": "3011271",
+    "name": "بينجو العالمية للتجارة والتوريدات",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c210",
+    "code": "4017481",
+    "name": "تنة ورنة-الاداره",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c211",
+    "code": "4017271",
+    "name": "دلع البنات",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c212",
+    "code": "4013021",
+    "name": "شركة الهدايا للاستيراد والتصدير",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c213",
+    "code": "4013025",
+    "name": "شركة الهدايا للاستيراد والتصدير - اكتوبر",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c214",
+    "code": "4013024",
+    "name": "شركة الهدايا للاستيراد والتصدير - التجمع",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c215",
+    "code": "3010626",
+    "name": "شركه الهدايه للاستيراد والتصدير- التجمع",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c216",
+    "code": "3010625",
+    "name": "*شركه الهدايه للاستيراد والتصدير و التوكيلات التجا",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c217",
+    "code": "30106210",
+    "name": "شركه الهدايه للاستيراد والتصدير- العلمين",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c218",
+    "code": "30106211",
+    "name": "شركه الهدايه للاستيراد والتصدير- مراسي",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c219",
+    "code": "3014061",
+    "name": "متاجركم للتجارة",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c220",
+    "code": "30100214",
+    "name": "مترو- مدينة نصر جنينه مول",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c221",
+    "code": "30100213",
+    "name": "مترو - المعادي",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c222",
+    "code": "30100215",
+    "name": "مترو - هليوبوليس",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c223",
+    "code": "3010027",
+    "name": "فريش فود مارك - بوينت 90",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c224",
+    "code": "4016891",
+    "name": "مكتبة ابو النجا",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c225",
+    "code": "4016941",
+    "name": "مكتبة الجيلاني",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c226",
+    "code": "4017071",
+    "name": "مكتبة صقر- مدينة نصر",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c227",
+    "code": "3012371",
+    "name": "نادي سمسم",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c228",
+    "code": "3010124",
+    "name": "هايبر وان للتجارة - فرع العاشر",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c229",
+    "code": "30101210",
+    "name": "هايبر وان - بدر",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c230",
+    "code": "4016951",
+    "name": "هدايا خريستو- مصر الجديدة",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c231",
+    "code": "4018201",
+    "name": "هدايا رامبو- المطريه",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c232",
+    "code": "4016691",
+    "name": "هدية- مصر الجديدة",
+    "sector": "القاهرة",
+    "repName": "Manager"
+  },
+  {
+    "id": "c233",
+    "code": "3010025",
+    "name": "مترو- بلازا اسبانا",
+    "sector": "الجيزه",
+    "repName": "Manager"
+  },
+  {
+    "id": "c234",
+    "code": "3010024",
+    "name": "مترو - الدقي ميدان المساحة",
+    "sector": "الجيزه",
+    "repName": "Manager"
+  },
+  {
+    "id": "c235",
+    "code": "3010026",
+    "name": "مترو - جامعة الدول العربية",
+    "sector": "الجيزه",
+    "repName": "Manager"
+  },
+  {
+    "id": "c236",
+    "code": "30100216",
+    "name": "مترو- المخزن الرئيسي",
+    "sector": "الجيزه",
+    "repName": "Manager"
+  },
+  {
+    "id": "c237",
+    "code": "3010122",
+    "name": "هايبر وان -فرع سفينكس",
+    "sector": "الجيزه",
+    "repName": "Manager"
+  },
+  {
+    "id": "c238",
+    "code": "3010123",
+    "name": "هايبر وان للتجارة -فرع زايد",
+    "sector": "الجيزه",
+    "repName": "Manager"
+  },
+  {
+    "id": "c239",
+    "code": "3010125",
+    "name": "هايبر وان- اون لاين",
+    "sector": "الجيزه",
+    "repName": "Manager"
+  },
+  {
+    "id": "c240",
+    "code": "4016625",
+    "name": "3A ثري ايه امانات- النزهة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c241",
+    "code": "4016991",
+    "name": "diva- elnozha",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c242",
+    "code": "4018231",
+    "name": "dody home",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c243",
+    "code": "3014671",
+    "name": "ميجا تويز للاستيراد والتصدير والتوكيلات التجارية",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c244",
+    "code": "4013551",
+    "name": "why not-واي نوت",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c245",
+    "code": "4016531",
+    "name": "احمد بدر (مؤسسة الفجالة)    الاداره",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c246",
+    "code": "4017031",
+    "name": "اخر العنقود- خلوصي",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c247",
+    "code": "4017591",
+    "name": "اخر العنقود هندسية شبرا",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c248",
+    "code": "4017011",
+    "name": "اخر فرصه",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c249",
+    "code": "4016661",
+    "name": "الاندلسية- غمرة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c250",
+    "code": "4016921",
+    "name": "الأندلس",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c251",
+    "code": "4017771",
+    "name": "الخواجه",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c252",
+    "code": "4018481",
+    "name": "الصفا والهنا",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c253",
+    "code": "3014941",
+    "name": "العالمية للعب الاطفال",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c254",
+    "code": "4018221",
+    "name": "العالمية للعب الأطفال- الزهة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c255",
+    "code": "4017351",
+    "name": "العبور الحديثة للتجارة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c256",
+    "code": "3014551",
+    "name": "الفاو للتوريدات العمومية-الادارة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c257",
+    "code": "4017411",
+    "name": "الفاو للتوريدات العمومية امانات-الادارة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c258",
+    "code": "4016111",
+    "name": "اول سيزون",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c259",
+    "code": "4016641",
+    "name": "ايزي تويز امانات",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c260",
+    "code": "3013222",
+    "name": "إكس مارت- x mart ابراج نايل سيتى",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c261",
+    "code": "3014581",
+    "name": "أولاد علوش",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c262",
+    "code": "4016811",
+    "name": "بركات- الموسكي",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c263",
+    "code": "4014462",
+    "name": "تويز ستور-النزهه",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c264",
+    "code": "4014461",
+    "name": "تويز ستور",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c265",
+    "code": "4015161",
+    "name": "جولدن جيت تريندج-النزهه الجديدة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c266",
+    "code": "4011982",
+    "name": "حسن يوسف -الموسكى",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c267",
+    "code": "4016631",
+    "name": "خان أغا خان",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c268",
+    "code": "4016411",
+    "name": "دريم للتوريدات والتوكيلات التجارية    الاداره",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c269",
+    "code": "4017681",
+    "name": "دريم ماركت-الادارة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c270",
+    "code": "4016981",
+    "name": "سامي صالح",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c271",
+    "code": "4018211",
+    "name": "سما جروب- النزهة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c272",
+    "code": "4016551",
+    "name": "سمارت كيدز اليمن    الاداره",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c273",
+    "code": "4017721",
+    "name": "سيفو تويز-الادارة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c274",
+    "code": "4018521",
+    "name": "شركة الصفوة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c275",
+    "code": "4018671",
+    "name": "شمندورة لتجارة الجملة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c276",
+    "code": "4013841",
+    "name": "طه سيد - النزهة الجديدة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c277",
+    "code": "4016601",
+    "name": "عالم الالعاب- النزهة امانات",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c278",
+    "code": "3014431",
+    "name": "عالم الالعاب- النزهة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c279",
+    "code": "4017441",
+    "name": "فتكات- روض الفرج",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c280",
+    "code": "4017691",
+    "name": "قدم السعد-الادارة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c281",
+    "code": "4018511",
+    "name": "محسن الفيومي للصناعه والتجاره",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c282",
+    "code": "4016912",
+    "name": "محمد رشدي- الموسكي",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c283",
+    "code": "4016911",
+    "name": "محمد رشدي- النزهة",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c284",
+    "code": "4017451",
+    "name": "مكتبة الفؤاد",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c285",
+    "code": "4017791",
+    "name": "ميجا تويز- امانات",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c286",
+    "code": "4018341",
+    "name": "هابي بوفو لألعاب الأطفال- التجمع",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c287",
+    "code": "4017831",
+    "name": "هدايا ملندس",
+    "sector": "القاهرة",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c288",
+    "code": "4017522",
+    "name": "سنتر الفجالة- اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c289",
+    "code": "4017521",
+    "name": "سنتر الفجالة- الجيزة",
+    "sector": "الجيزه",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c290",
+    "code": "4018581",
+    "name": "سنتر الموسكي",
+    "sector": "الجيزه",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c291",
+    "code": "4018331",
+    "name": "مكتبات الريان",
+    "sector": "الجيزه",
+    "repName": "Mahmoud Samir"
+  },
+  {
+    "id": "c292",
+    "code": "3011761",
+    "name": "بكير للتوريدات الكتابية و المكتبية    الاداره",
+    "sector": "القاهرة",
+    "repName": "Maher Moheb"
+  },
+  {
+    "id": "c293",
+    "code": "3012081",
+    "name": "اور كيدز لتجاره لعب وملابس ومستلزمات الاطفال",
+    "sector": "القاهرة",
+    "repName": "Maher Moheb"
+  },
+  {
+    "id": "c294",
+    "code": "3011411",
+    "name": "تريد توب للتوريدات",
+    "sector": "القاهرة",
+    "repName": "Maher Moheb"
+  },
+  {
+    "id": "c295",
+    "code": "3010261",
+    "name": "تي ام تي للتجارة المتنوعة والتوزيع TMT",
+    "sector": "القاهرة",
+    "repName": "Maher Moheb"
+  },
+  {
+    "id": "c296",
+    "code": "3010051",
+    "name": "ريتيل برو",
+    "sector": "القاهرة",
+    "repName": "Maher Moheb"
+  },
+  {
+    "id": "c297",
+    "code": "3010847",
+    "name": "شركه رؤيه لاداره المشروعات التجاريه    الاداره",
+    "sector": "القاهرة",
+    "repName": "Maher Moheb"
+  },
+  {
+    "id": "c298",
+    "code": "3013651",
+    "name": "ميجكورب للتجارة والتوزيع    الاداره",
+    "sector": "القاهرة",
+    "repName": "Maher Moheb"
+  },
+  {
+    "id": "c299",
+    "code": "3010326",
+    "name": "جمله ماركت- عمارات العبور",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c300",
+    "code": "4018091",
+    "name": "moon book store- Elrehab",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c301",
+    "code": "3010578",
+    "name": "pink elephant el ezaby- الميرغني",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c302",
+    "code": "3010572",
+    "name": "pink eleghant el ezaby-العزبى",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c303",
+    "code": "3010576",
+    "name": "Pink Elephant- Masr El Gdeda",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c304",
+    "code": "40157614",
+    "name": "اس اند ايه للتجارة- الداون تاون",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c305",
+    "code": "40157621",
+    "name": "اس اند ايه للتجارة- ووتر واي",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c306",
+    "code": "40157620",
+    "name": "اس اند ايه للتجارة- روكسي",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c307",
+    "code": "4015763",
+    "name": "اس اند ايه للتجارة-الثورة",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c308",
+    "code": "40157610",
+    "name": "اس اند ايه للتجارة- الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c309",
+    "code": "3011027",
+    "name": "spinneys سبينيس - مكسيم",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c310",
+    "code": "30110226",
+    "name": "سبينس spinneys -  النزهه الجديدة",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c311",
+    "code": "30110232",
+    "name": "سبينيس- جراي التجمع الاول",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c312",
+    "code": "3013812",
+    "name": "مرحبا- سوان ليك",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c313",
+    "code": "3014843",
+    "name": "ارلس للصناعه والاستثمار ش م م- شيراتون",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c314",
+    "code": "3013181",
+    "name": "اسواق فتح الله الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c315",
+    "code": "4010651",
+    "name": "افري مانس Every Manth",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c316",
+    "code": "3011766",
+    "name": "بكير للتوريدات الكتابية و المكتبية- كليوباترا",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c317",
+    "code": "3011391",
+    "name": "اللولو هايبر ماركت-بارك مول",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c318",
+    "code": "3011392",
+    "name": "اللولو هايبر ماركت-وادى دجلة",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c319",
+    "code": "3011393",
+    "name": "اللولو هايبر ماركت -توين بلازا التجمع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c320",
+    "code": "3010093",
+    "name": "امارات -الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c321",
+    "code": "3010097",
+    "name": "امارات مصر - العروبة",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c322",
+    "code": "30100910",
+    "name": "امارات مصر - كايروفيستيفال",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c323",
+    "code": "3014474",
+    "name": "Oscar - Masr Al Gadida",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c324",
+    "code": "3014471",
+    "name": "Oscar- Tagmoaa",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c325",
+    "code": "3010802",
+    "name": "بارتي استيشن the party station",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c326",
+    "code": "4018402",
+    "name": "باسم ماركت- السوق الشرقي",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c327",
+    "code": "4018401",
+    "name": "باسم ماركت- السوق القديم",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c328",
+    "code": "3010373",
+    "name": "بنده- الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c329",
+    "code": "3010374",
+    "name": "بنده - العبور",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c330",
+    "code": "3013612",
+    "name": "بي اس جي اكاديميه الشرطه",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c331",
+    "code": "3012471",
+    "name": "تو لاند للتجاره سيركل ك الحجاز",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c332",
+    "code": "3012906",
+    "name": "ذا جروسر-ليك تاون التجمع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c333",
+    "code": "3012752",
+    "name": "رع ماركت للتجارة والتوزيع الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c334",
+    "code": "3010162",
+    "name": "رويال هاوس- روكسي",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c335",
+    "code": "30127826",
+    "name": "زهران فام بام مول التجمع الاول",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c336",
+    "code": "3011374",
+    "name": "سوبر ماركت السرايا-فونت مول",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c337",
+    "code": "3011379",
+    "name": "سوبر ماركت السرايا - مصر الجديدة",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c338",
+    "code": "3014642",
+    "name": "سويت اون فلافور - التجمع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c339",
+    "code": "3014641",
+    "name": "سويت اون فلافور - التجمع الفوينكات",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c340",
+    "code": "3014643",
+    "name": "سويت اون فلاور صلاح سالم",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c341",
+    "code": "40100920",
+    "name": "سيف ستورز- الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c342",
+    "code": "3012946",
+    "name": "اكسبشن - التجمع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c343",
+    "code": "3014813",
+    "name": "جسر السويس - العميد للمقاولات - سيركل كيت",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c344",
+    "code": "3011718",
+    "name": "شركة الفار  - شارع التسعين الشمالى",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c345",
+    "code": "3011716",
+    "name": "شركة الفار التجار الميرغنى",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c346",
+    "code": "30117113",
+    "name": "شركة الفار التجارية - فرع شيراتون",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c347",
+    "code": "3013412",
+    "name": "المحلاوي ستورز- مارت فيل",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c348",
+    "code": "4013461",
+    "name": "شركة شامر للهداية-التجمع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c349",
+    "code": "3010844",
+    "name": "شركه رؤيه لاداره المشروعات التجاريه- الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c350",
+    "code": "3010848",
+    "name": "شركه رؤيه لاداره المشروعات التجاريه- السوق الشرقي",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c351",
+    "code": "3014072",
+    "name": "صن مول - الجلاء",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c352",
+    "code": "4013031",
+    "name": "عفروتو التجمع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c353",
+    "code": "4013034",
+    "name": "عفروتو محور السادات",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c354",
+    "code": "3014531",
+    "name": "علوش- مصر الجديدة",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c355",
+    "code": "3010062",
+    "name": "فان فاكتوري - ارض الجولف",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c356",
+    "code": "3010064",
+    "name": "فان فاكتوري - الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c357",
+    "code": "3011933",
+    "name": "كلاود تريد جروب-سيركل كيه- شيراتون",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c358",
+    "code": "3010955",
+    "name": "ماركت المحلاوي- التجمع الاول",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c359",
+    "code": "30108532",
+    "name": "ماستر اكسبريس- جامعة ممفيس",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c360",
+    "code": "3010858",
+    "name": "ماستر اكسبريس- روكسي",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c361",
+    "code": "30108512",
+    "name": "ماستر اكسبريس - الميرغني",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c362",
+    "code": "30108513",
+    "name": "ماستر اكسبريس - شيراتون",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c363",
+    "code": "3010859",
+    "name": "ماستر اكسبريس-التجمع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c364",
+    "code": "3013671",
+    "name": "ماكسي ريتيل للاستثمار التجاري",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c365",
+    "code": "4015582",
+    "name": "مداد اي ستورز- الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c366",
+    "code": "3014691",
+    "name": "مداد اي ستورز للتجارة العامة",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c367",
+    "code": "4014381",
+    "name": "مكتبة المهندس الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c368",
+    "code": "4012761",
+    "name": "مكتبة اوسكار",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c369",
+    "code": "4017581",
+    "name": "مكتبة بلبلة-الادارة",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c370",
+    "code": "4010462",
+    "name": "مكتبةABC-شيراتون",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c371",
+    "code": "4010463",
+    "name": "مكتبه ABC- التجمع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c372",
+    "code": "4015811",
+    "name": "مكتبه ابداع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c373",
+    "code": "3012574",
+    "name": "ميدل ايست تاج- شيراتون",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c374",
+    "code": "3012578",
+    "name": "ميدل ايست تاج لتجارة لعب وملابس الاطفال- كايرو فستيفال",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c375",
+    "code": "3014851",
+    "name": "هايبر نجمة هليوبليس- الجامع",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c376",
+    "code": "3012233",
+    "name": "هايبر نجمه هليوبوليس شيراتون",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c377",
+    "code": "4018311",
+    "name": "\"وش السعد \"شيراتون\"",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c378",
+    "code": "4010535",
+    "name": "يلدز YEILDS - مول 2",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c379",
+    "code": "4010532",
+    "name": "يلدز YEILDS- السوق الشرقي",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c380",
+    "code": "4010531",
+    "name": "يلدز YEILDS - الرحاب",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c381",
+    "code": "30101110",
+    "name": "يونيتد جروسرز-سيتي ستارز",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c382",
+    "code": "30101112",
+    "name": "يونيتد جروسرز - ذا ووتر واي",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c383",
+    "code": "30101113",
+    "name": "يونيتد جروسرز - شيراتون",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c384",
+    "code": "30101125",
+    "name": "يونيتد جروسر- روكسي",
+    "sector": "القاهرة",
+    "repName": "Hassan Mostafa"
+  },
+  {
+    "id": "c385",
+    "code": "4016622",
+    "name": "3A ثري ايه- المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c386",
+    "code": "4016624",
+    "name": "ثري ايه 3A- الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c387",
+    "code": "4012881",
+    "name": "all in one دجله المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c388",
+    "code": "4012883",
+    "name": "all in one زهراء المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c389",
+    "code": "4018352",
+    "name": "I BOOK- maadi",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c390",
+    "code": "4013401",
+    "name": "lines - لاينز",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c391",
+    "code": "4015768",
+    "name": "اس اند ايه- مدينتي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c392",
+    "code": "40157618",
+    "name": "اس اند ايه للتجارة- المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c393",
+    "code": "4015765",
+    "name": "اس اند ايه للتجارة - الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c394",
+    "code": "3011024",
+    "name": "spinneys سبينيس - الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c395",
+    "code": "3011026",
+    "name": "spinneys سبينيس - زهراء المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c396",
+    "code": "30110215",
+    "name": "سبينيس - المعادى spinneys",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c397",
+    "code": "4016521",
+    "name": "Toys by Toys - مدينتى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c398",
+    "code": "4016522",
+    "name": "Toys by Toys-الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c399",
+    "code": "3013815",
+    "name": "مرحبا- الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c400",
+    "code": "4017081",
+    "name": "اخر العنقود المعادي 1",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c401",
+    "code": "3014842",
+    "name": "ارلس للصناعه والاستثمار ش م م- زهراء المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c402",
+    "code": "3013044",
+    "name": "اس ايه جروب وصال 1",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c403",
+    "code": "3013043",
+    "name": "اس ايه جروب محمود نصر 2",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c404",
+    "code": "3011762",
+    "name": "بكير للتوريدات الكتابية و المكتبية-المعادى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c405",
+    "code": "3010811",
+    "name": "الشرق للمكتبات",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c406",
+    "code": "3012152",
+    "name": "المعايرجي للتجارة والتوزيع- مدينتي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c407",
+    "code": "3010094",
+    "name": "امارات مصر-مدينتي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c408",
+    "code": "3010098",
+    "name": "امارات مصر - المعراج",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c409",
+    "code": "3014479",
+    "name": "Oscar - Maadi",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c410",
+    "code": "3014472",
+    "name": "Oscar- Madinaty",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c411",
+    "code": "3010378",
+    "name": "بنده_المعادى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c412",
+    "code": "3011561",
+    "name": "تريد مور -trade more- الاسماعليه",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c413",
+    "code": "3012643",
+    "name": "توب سفن __الجبخانه",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c414",
+    "code": "3010035",
+    "name": "توتال ايجيبت-دجلة سكوير",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c415",
+    "code": "3010037",
+    "name": "توتال ايجيبت - اوتواستراد المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c416",
+    "code": "4018628",
+    "name": "total- New Shorouk",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c417",
+    "code": "3012903",
+    "name": "ذا جروسر للتوزيع المعادى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c418",
+    "code": "4018251",
+    "name": "روج ستور- المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c419",
+    "code": "3010161",
+    "name": "رويال هاوس- الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c420",
+    "code": "30127816",
+    "name": "زهران ماركت- بريفادو",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c421",
+    "code": "3011291",
+    "name": "سفن ستارز الشروق    الاداره",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c422",
+    "code": "4010723",
+    "name": "سوبر ماركت الجبلي- الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c423",
+    "code": "3014135",
+    "name": "سوبر ماريو-  الحديقة المركزية",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c424",
+    "code": "3014134",
+    "name": "سوبر مريو- كرافت زوون",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c425",
+    "code": "3014132",
+    "name": "سوبر ماريو- مدينتي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c426",
+    "code": "40100919",
+    "name": "سيف ستورز- اول سيزون",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c427",
+    "code": "4010095",
+    "name": "سيف ستورز-مدينتى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c428",
+    "code": "3012944",
+    "name": "اكسبشن- زهراء المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c429",
+    "code": "3012945",
+    "name": "اكسبشن - مدينتي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c430",
+    "code": "3011717",
+    "name": "شركة الفار  - مدينتى بى 6",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c431",
+    "code": "3011713",
+    "name": "شركة الفار التجارية- مدينتي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c432",
+    "code": "30117112",
+    "name": "شركة الفار التجارية- مدينتي strip zone",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c433",
+    "code": "3012342",
+    "name": "بوني - المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c434",
+    "code": "3011437",
+    "name": "رواسي وصال 2",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c435",
+    "code": "3011436",
+    "name": "شركه رواسي التجاريه-محمود نصر 1",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c436",
+    "code": "3010842",
+    "name": "شركة رؤية للتجارة - مدينتي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c437",
+    "code": "3010845",
+    "name": "شركه رؤيه لاداره المشروعات التجاريه- الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c438",
+    "code": "3010849",
+    "name": "شركه رؤيه لاداره المشروعات التجاريه- الشروق 2",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c439",
+    "code": "3014651",
+    "name": "فاملي جروب لتجارة المواد الغذائية",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c440",
+    "code": "4016421",
+    "name": "فتكات    الاداره",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c441",
+    "code": "3012241",
+    "name": "فن تويز للتجارة العامه-المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c442",
+    "code": "30100418",
+    "name": "كامز - مدينتي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c443",
+    "code": "4018081",
+    "name": "كيدز بلانت- الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c444",
+    "code": "30108518",
+    "name": "ماستر اكسبريس- الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c445",
+    "code": "30108517",
+    "name": "ماستر اكسبريس - زهراء المعادى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c446",
+    "code": "3014631",
+    "name": "ماستر اون جو - مدينتى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c447",
+    "code": "3013973",
+    "name": "شركة النصر الرياضي- المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c448",
+    "code": "30139716",
+    "name": "شركة النصر الرياضي- مدينتي ايست هب",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c449",
+    "code": "4014382",
+    "name": "مكتبة المهندس مدينتى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c450",
+    "code": "4018601",
+    "name": "مكتبة النهى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c451",
+    "code": "4012843",
+    "name": "مكتبة أدم - جراند مول",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c452",
+    "code": "4018071",
+    "name": "مكتبة سمايل- حلوان",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c453",
+    "code": "4010467",
+    "name": "مكتبة abc مدينتى",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c454",
+    "code": "4010468",
+    "name": "مكتبه ABC- الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c455",
+    "code": "4013311",
+    "name": "مكتبه الوان الدولية",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c456",
+    "code": "4011201",
+    "name": "مودي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c457",
+    "code": "3014253",
+    "name": "مؤسسة البلال للاستيراد والتجاره االشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c458",
+    "code": "4018391",
+    "name": "وش السعد- المعادي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c459",
+    "code": "3010116",
+    "name": "يونيتد جروسرز- الشروق",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c460",
+    "code": "30101117",
+    "name": "يونيتد جروسرز مدينتي",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c461",
+    "code": "3010119",
+    "name": "يونيتد جروسرز-المعادى 2",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c462",
+    "code": "30101124",
+    "name": "يونيتد جروسر- المعادي 1",
+    "sector": "القاهرة",
+    "repName": "Halla Hamdy"
+  },
+  {
+    "id": "c463",
+    "code": "30103224",
+    "name": "جملة ماركت - سهل حمزه",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c464",
+    "code": "3010324",
+    "name": "جمله ماركت -اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c465",
+    "code": "30103226",
+    "name": "حدائق الاهرام",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c466",
+    "code": "3014421",
+    "name": "bibliothek- zayed",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c467",
+    "code": "4016611",
+    "name": "Bibliothek Egypt امانات",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c468",
+    "code": "3010573",
+    "name": "Pink Elephant- Zayed",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c469",
+    "code": "4015766",
+    "name": "اس اند ايه للتجارة-أكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c470",
+    "code": "4015764",
+    "name": "اس اند ايه للتجارة-شهاب",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c471",
+    "code": "4015769",
+    "name": "S&A اس اند ايه للتجارة امانات- الزمالك",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c472",
+    "code": "40157613",
+    "name": "اس اند ايه للتجارة- الدقي",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c473",
+    "code": "30110217",
+    "name": "spinneys سبينيس - الهرم",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c474",
+    "code": "30110218",
+    "name": "spinneys سبينيس - مول العرب",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c475",
+    "code": "3011029",
+    "name": "spinneys سبينيس- المهندسين 1 سوريا",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c476",
+    "code": "30110210",
+    "name": "spinneys سبينيس- المهندسين 2 جزيرة العرب",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c477",
+    "code": "3011021",
+    "name": "spinneys سبينيس- سكيب مول",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c478",
+    "code": "30110225",
+    "name": "spinneys سبينيس سوان ليك",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c479",
+    "code": "30110212",
+    "name": "سبينس spinneys - مزار",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c480",
+    "code": "30110223",
+    "name": "سبينيس- استرادا",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c481",
+    "code": "3013816",
+    "name": "مرحبا- السادات",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c482",
+    "code": "3010091",
+    "name": "امارات مصر - السادات",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c483",
+    "code": "3014841",
+    "name": "ارلس للصناعه والاستثمار ش م م- خاتم المرسلين",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c484",
+    "code": "3011764",
+    "name": "بكير للتوريدات الكتابية و المكتبية-اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c485",
+    "code": "3011769",
+    "name": "بكير للتوريدات الكتابية و المكتبية- مول العرب",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c486",
+    "code": "3012545",
+    "name": "الراية - حدائق اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c487",
+    "code": "3011062",
+    "name": "العالمية لتجارة الجملة والتجزئة للأجهزة الكهربائية( العاشر )",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c488",
+    "code": "3011061",
+    "name": "العالمية لتجارة الجملة والتجزئة للأجهزة الكهربائية( زايد )",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c489",
+    "code": "30100911",
+    "name": "امارات مصر- السليمانية",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c490",
+    "code": "3014473",
+    "name": "Oscar- Zayed",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c491",
+    "code": "4016502",
+    "name": "اي كيو - اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c492",
+    "code": "4016501",
+    "name": "اي كيو IQ    الاداره",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c493",
+    "code": "4012831",
+    "name": "برين فاكتورى",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c494",
+    "code": "3011083",
+    "name": "بيست واي ماركت-زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c495",
+    "code": "3010371",
+    "name": "بنده - اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c496",
+    "code": "3012551",
+    "name": "توب توب تويز - زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c497",
+    "code": "3012092",
+    "name": "توب تويز فرع الدقي",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c498",
+    "code": "3012791",
+    "name": "توب تويز- بالم هيلز",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c499",
+    "code": "4012901",
+    "name": "توى ستور",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c500",
+    "code": "4010082",
+    "name": "توي اند جوي - الدقي",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c501",
+    "code": "4010089",
+    "name": "توي اند جوي - بالم هيلز",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c502",
+    "code": "3013732",
+    "name": "توي ورلد- داندي مول",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c503",
+    "code": "3013951",
+    "name": "تويز بوكس toys box    الاداره",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c504",
+    "code": "4018461",
+    "name": "جروب اوف جلوبال للتجارة- زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c505",
+    "code": "4014281",
+    "name": "دينو توي ستورز- حدائق الاهرام",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c506",
+    "code": "4014283",
+    "name": "دينو توي ستورز- شيل أوت حدائق الأهرام",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c507",
+    "code": "4016301",
+    "name": "رنين",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c508",
+    "code": "30127814",
+    "name": "زهران ماركت الشيخ زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c509",
+    "code": "4010096",
+    "name": "سيف ستورز- حدائق الأهرام",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c510",
+    "code": "3011719",
+    "name": "شركة الفار  - المهندسين",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c511",
+    "code": "3011715",
+    "name": "شركة الفار التجارية- زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c512",
+    "code": "3013418",
+    "name": "المحلاوى زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c513",
+    "code": "3014074",
+    "name": "صن مول- الرماية",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c514",
+    "code": "4011162",
+    "name": "فوليوم وان-اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c515",
+    "code": "4016311",
+    "name": "كامن1    الاداره",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c516",
+    "code": "4014012",
+    "name": "كيدز او تويز kids o toys- اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c517",
+    "code": "3014571",
+    "name": "لوتس للادوات المكتبية",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c518",
+    "code": "3010852",
+    "name": "ماستر اكسبريس-الطريق الصحراوي",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c519",
+    "code": "3013978",
+    "name": "شركة النصر الرياضي- اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c520",
+    "code": "4014402",
+    "name": "مكتبات مكتبتي",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c521",
+    "code": "3013191",
+    "name": "مكتبة المنار",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c522",
+    "code": "4011187",
+    "name": "مكتبة بكير - زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c523",
+    "code": "4011188",
+    "name": "مكتبة بكير - مول العرب",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c524",
+    "code": "4015451",
+    "name": "مكتبة بيت اللغات",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c525",
+    "code": "4018072",
+    "name": "مكتبة سمايل- المهندسين",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c526",
+    "code": "4014361",
+    "name": "شخابيط هضبة الهرم",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c527",
+    "code": "4014362",
+    "name": "شخابيط- حدائق اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c528",
+    "code": "4013992",
+    "name": "مكتبة شخابيط- زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c529",
+    "code": "4016971",
+    "name": "مكتبة مكتبتي- حدائق الأهرام",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c530",
+    "code": "4010461",
+    "name": "abc - أكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c531",
+    "code": "3012571",
+    "name": "ميدل ايست تاج- جزيرة العرب",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c532",
+    "code": "3012577",
+    "name": "ميدل ايست تاج- رويال بارك",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c533",
+    "code": "3012572",
+    "name": "ميدل ايست تاج- مول العرب",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c534",
+    "code": "3012101",
+    "name": "نيو توب تويز",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c535",
+    "code": "3014181",
+    "name": "نيو تويز    الاداره",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c536",
+    "code": "4018441",
+    "name": "نيو تويز- حدائق الأهرام",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c537",
+    "code": "3010112",
+    "name": "يونيتد جروسرز- مول العرب",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c538",
+    "code": "3010111",
+    "name": "يونيتد جروسرز - الشيخ زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c539",
+    "code": "3010113",
+    "name": "يونيتد جروسرز - دريم",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c540",
+    "code": "30101111",
+    "name": "يونيتد جروسرز - سوديك",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c541",
+    "code": "3010118",
+    "name": "يونيتد جروسرز- سفنكس",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c542",
+    "code": "30101123",
+    "name": "يونيتد جروسر- الدقي",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c543",
+    "code": "30101122",
+    "name": "يونيتد جروسر- الحكمة",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c544",
+    "code": "30101121",
+    "name": "يونيتد جروسر-الحجاز ميدان المساحة",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c545",
+    "code": "30110222",
+    "name": "سبينيس- الدقي",
+    "sector": "الجيزه",
+    "repName": "Ahmed Hosny"
+  },
+  {
+    "id": "c546",
+    "code": "4017131",
+    "name": "ست الدار- حلوان",
+    "sector": "القاهرة",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c547",
+    "code": "4016841",
+    "name": "لؤلؤه الحدائق",
+    "sector": "القاهرة",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c548",
+    "code": "4017421",
+    "name": "نيو غادة تويز-ا-الادارة",
+    "sector": "القاهرة",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c549",
+    "code": "4017391",
+    "name": "هدايا العجيل (حلوان)-الاداره",
+    "sector": "القاهرة",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c550",
+    "code": "40100212",
+    "name": "On The Run - Manial",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c551",
+    "code": "4010026",
+    "name": "On The Run - Battal",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c552",
+    "code": "4010028",
+    "name": "On The Run - Dokki",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c553",
+    "code": "4010029",
+    "name": "On The Run - Gamaa",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c554",
+    "code": "40100213",
+    "name": "On The Run - Mohandessin",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c555",
+    "code": "40100226",
+    "name": "On The Run - October",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c556",
+    "code": "40100228",
+    "name": "On The Run - Zayed",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c557",
+    "code": "40100229",
+    "name": "On The Run -Maryotia",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c558",
+    "code": "40100216",
+    "name": "On The Run-Bawabat -Sphinx",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c559",
+    "code": "40100225",
+    "name": "On The Run-Remaia",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c560",
+    "code": "40100227",
+    "name": "On The Run - Fardous",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c561",
+    "code": "4017331",
+    "name": "اخر العنقود أكتوبر-الادارة",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c562",
+    "code": "3014711",
+    "name": "الاعمار للخدمات البترولية- اكتوبر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c563",
+    "code": "30100912",
+    "name": "امارات مصر- أبو رواش",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c564",
+    "code": "3010092",
+    "name": "امارات مصر - الواحات",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c565",
+    "code": "4017311",
+    "name": "أخر العنقود (النيل الأبيض)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c566",
+    "code": "4017301",
+    "name": "أخر العنقود (وادي النيل)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c567",
+    "code": "3014381",
+    "name": "بافلي",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c568",
+    "code": "3013203",
+    "name": "تراينجل لاداره وتشغيل المطاعم والكافيهات- ووتر بارك",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c569",
+    "code": "3013202",
+    "name": "تراينجل لادارة المطاعم - سوديك 3",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c570",
+    "code": "3015051",
+    "name": "تريو",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c571",
+    "code": "4018301",
+    "name": "تفاريح",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c572",
+    "code": "3012644",
+    "name": "توب سفن - الزمالك",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c573",
+    "code": "3012641",
+    "name": "توب سفن - حدائق الأهرام",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c574",
+    "code": "4018624",
+    "name": "total- Zayed City",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c575",
+    "code": "4018621",
+    "name": "total-6th October",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c576",
+    "code": "4018623",
+    "name": "total-Desert Road",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c577",
+    "code": "4018622",
+    "name": "total-Beverly Hills",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c578",
+    "code": "4016771",
+    "name": "ست الدار المنيل",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c579",
+    "code": "4017141",
+    "name": "ست الدار الوراق",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c580",
+    "code": "3012432",
+    "name": "سيركل كيه -اونلي فريش مارت للتجارة شيل اوت دوليفين",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c581",
+    "code": "4014093",
+    "name": "Chill Out 1 (Tmt)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c582",
+    "code": "40140926",
+    "name": "Sodic Hub (Tmt)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c583",
+    "code": "4014096",
+    "name": "vodafone 1 (Tmt)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c584",
+    "code": "4014094",
+    "name": "Chill Out 3 (Tmt)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c585",
+    "code": "4014092",
+    "name": "Mehwar 26  (Tmt)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c586",
+    "code": "40140939",
+    "name": "Sodic strip (Tmt)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c587",
+    "code": "40140927",
+    "name": "Tahia Misr 1 (Tmt)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c588",
+    "code": "4014091",
+    "name": "zayed (Tmt)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c589",
+    "code": "40140940",
+    "name": "سوديك 2 الهاب - TMT سيركل كيه",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c590",
+    "code": "4014095",
+    "name": "vodafone 2 (Tmt)",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c591",
+    "code": "40140932",
+    "name": "سيركل كيه TMT- سوديك 1",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c592",
+    "code": "3011434",
+    "name": "شركة رواسي التجارية- سيتي سكيب",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c593",
+    "code": "4018321",
+    "name": "كارما ستور",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c594",
+    "code": "3011981",
+    "name": "ليجو هوسبيتاليتى - الشيخ زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c595",
+    "code": "30108516",
+    "name": "ماستر اكسبريس- دهشور",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c596",
+    "code": "30108510",
+    "name": "ماستر اكسبريس-زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c597",
+    "code": "3010851",
+    "name": "ماستر اكسبريس المهندسين",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c598",
+    "code": "30108519",
+    "name": "ماستر اكسبريس حدائق الاهرام",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c599",
+    "code": "30108526",
+    "name": "ماستر المتحف الكبير",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c600",
+    "code": "3014632",
+    "name": "ماستر اون جو - حدائق الاهرام",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c601",
+    "code": "3014633",
+    "name": "ماستر اون جو لخدمات الطريق- زايد",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c602",
+    "code": "30139715",
+    "name": "شركة النصر الرياضي- مول مصر",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c603",
+    "code": "3013977",
+    "name": "شركة النصر الرياضي الدقي",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c604",
+    "code": "4017341",
+    "name": "مكتبات حسام الدين-الادارة",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c605",
+    "code": "4017501",
+    "name": "مكتبة العطار",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c606",
+    "code": "4016791",
+    "name": "مكتبة الفتح",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c607",
+    "code": "4016781",
+    "name": "مكتبة المصطفى",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c608",
+    "code": "4018001",
+    "name": "مكتبة النور والإيمان- بشتيل",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c609",
+    "code": "4018031",
+    "name": "مكتبة كمال- المنيل",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c610",
+    "code": "4017841",
+    "name": "مكتبة كمال الدين",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c611",
+    "code": "4017531",
+    "name": "مكتبة نون الجيزة",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c612",
+    "code": "3014951",
+    "name": "نيكودا لادارة المطاعم والكافيهات",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c613",
+    "code": "4017961",
+    "name": "وش السعد- المنيل",
+    "sector": "الجيزه",
+    "repName": "Ahmed Farid"
+  },
+  {
+    "id": "c614",
+    "code": "3010321",
+    "name": "جمله ماركت- التجمع الثالث",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c615",
+    "code": "4016621",
+    "name": "3A ثري ايه- التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c616",
+    "code": "4016623",
+    "name": "3A ثري ايه- مدينة نصر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c617",
+    "code": "4015593",
+    "name": "batta toy store - التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c618",
+    "code": "3013541",
+    "name": "المصرية تريدينج ايليت- التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c619",
+    "code": "3012391",
+    "name": "S&A اس اند ايه للتجارة    الاداره",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c620",
+    "code": "40157622",
+    "name": "اس اند ايه للتجارة- م.نصر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c621",
+    "code": "40157611",
+    "name": "اس اند ايه للتجارة- المنهل",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c622",
+    "code": "4015767",
+    "name": "اس اند ايه- الفجالة بلازا",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c623",
+    "code": "3011022",
+    "name": "spinneys- سبينس مدينة نصر2",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c624",
+    "code": "3011023",
+    "name": "spinneys سبينيس - ارينا مول",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c625",
+    "code": "30110214",
+    "name": "سبينس -مول بيرل دي روا-التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c626",
+    "code": "30110224",
+    "name": "سبينيس- ايناوكس التجمع الخامس",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c627",
+    "code": "3013813",
+    "name": "مرحبا- الدبلوماسيين",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c628",
+    "code": "3013814",
+    "name": "مرحبا- سفنكس",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c629",
+    "code": "3014731",
+    "name": "اتجاه للتجاره والتوزيع- مفيدا",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c630",
+    "code": "3011767",
+    "name": "بكير للتوريدات الكتابية و المكتبية- مفيدا",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c631",
+    "code": "3011768",
+    "name": "بكير للتوريدات الكتابية و المكتبية- بوينت 90",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c632",
+    "code": "3011765",
+    "name": "بكير للتوريدات الكتابية و المكتبية-التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c633",
+    "code": "3012543",
+    "name": "الراية - الواحة",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c634",
+    "code": "3012544",
+    "name": "الراية - الوفاء والأمل",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c635",
+    "code": "3011394",
+    "name": "اللولو هايبر ماركت- التجمع الخامس المحكمة",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c636",
+    "code": "3012151",
+    "name": "المعايرجي للتجارة والتوزيع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c637",
+    "code": "3015081",
+    "name": "المنشاوي وشالمه للتجاره",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c638",
+    "code": "3010095",
+    "name": "امارات مصر - التجمع الخامس",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c639",
+    "code": "3014477",
+    "name": "Oscar- waterway A5",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c640",
+    "code": "3011873",
+    "name": "ايه او ان للتجاره العامه البطراوي 2",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c641",
+    "code": "3013224",
+    "name": "إكس مارت- x mart - التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c642",
+    "code": "3013221",
+    "name": "إكس مارت- x mart الدون تاون",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c643",
+    "code": "3013223",
+    "name": "إكس مارت- x mart النرجس",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c644",
+    "code": "3012531",
+    "name": "ألفا مصر للتجارة الفطيم - تويز أر أص",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c645",
+    "code": "4018191",
+    "name": "بازل استيشن",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c646",
+    "code": "3013661",
+    "name": "بترو ارب لمحطات تموين السيارات",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c647",
+    "code": "3010376",
+    "name": "بنده - م.نصر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c648",
+    "code": "3011462",
+    "name": "تري ميكس انترناشونال الدولية للتجارة -سيركل كيه تر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c649",
+    "code": "3012473",
+    "name": "تو لاند - مافيدا",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c650",
+    "code": "3014911",
+    "name": "جادور لادارة المطاعم والكافيهات",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c651",
+    "code": "3014302",
+    "name": "جولف لايف لاينز الدارة المشروعات- النرجس",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c652",
+    "code": "3012904",
+    "name": "ذا جروسر للتوزيع جاردن التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c653",
+    "code": "3012751",
+    "name": "رع ماركت للتجارة والتوزيع- التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c654",
+    "code": "30127811",
+    "name": "زهران ماركت- التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c655",
+    "code": "4015614",
+    "name": "سوبر ماركت الصواف - هايد بارك",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c656",
+    "code": "3012304",
+    "name": "سيركل كي- السنهوري2",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c657",
+    "code": "3012303",
+    "name": "سيركل كي- شينزو ابي2",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c658",
+    "code": "3012302",
+    "name": "سيرا ماركت- السنهوري",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c659",
+    "code": "30117110",
+    "name": "شركة الفار  - التسعين الجنوبي",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c660",
+    "code": "3011711",
+    "name": "شركة الفار التجارية- ارابيلا بلازا",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c661",
+    "code": "3011712",
+    "name": "شركة الفار التجارية- كمبوند ميفيدا",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c662",
+    "code": "3013411",
+    "name": "المحلاوي ستورز- العاشر مدينة نصر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c663",
+    "code": "3010861",
+    "name": "شركه فلامنجو هايبر ماركت",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c664",
+    "code": "3010551",
+    "name": "صبيكو تريد - كيدز بارك",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c665",
+    "code": "3014075",
+    "name": "صن مول- التوفيق",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c666",
+    "code": "4013033",
+    "name": "عفروتو موتن فيو",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c667",
+    "code": "4013032",
+    "name": "عفروتو المحكمة",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c668",
+    "code": "3010063",
+    "name": "فان فاكتوري - التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c669",
+    "code": "3012492",
+    "name": "Food Stuff- Concord",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c670",
+    "code": "3012494",
+    "name": "Food Stuff- Hyde Park",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c671",
+    "code": "3012491",
+    "name": "Food Stuff- Mavida",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c672",
+    "code": "3010045",
+    "name": "كامز - ستي ستار",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c673",
+    "code": "4011621",
+    "name": "كوكيون - KOKKION",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c674",
+    "code": "3011951",
+    "name": "كي ان دي اية لتجارة لعب الاطفال والهدايا",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c675",
+    "code": "4011231",
+    "name": "كيدز بارك- م.نصر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c676",
+    "code": "3010952",
+    "name": "ماركت المحلاوى-التجمع الخامس",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c677",
+    "code": "30108520",
+    "name": "ماستر اكسبريس- السخنة 1",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c678",
+    "code": "3010855",
+    "name": "ماستر اكسبريس- الغابة",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c679",
+    "code": "30108523",
+    "name": "ماستر اكسبريس- القطامية",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c680",
+    "code": "30108514",
+    "name": "ماستر اكسبريس - صلاح سالم",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c681",
+    "code": "30108521",
+    "name": "ماستر اكسبريس الفردوس",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c682",
+    "code": "3010856",
+    "name": "ماستر اكسبريس- جاردينيا",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c683",
+    "code": "3010853",
+    "name": "ماستر اكسبريس- السخنة 2",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c684",
+    "code": "30108515",
+    "name": "ماستر اكسبريس - محمد نجيب",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c685",
+    "code": "3013975",
+    "name": "شركة النصر الرياضي- عباس العقاد مدينة نصر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c686",
+    "code": "3013972",
+    "name": "شركة النصر الرياضي- التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c687",
+    "code": "3013001",
+    "name": "محطة بنزين موبيل حسن المأمون",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c688",
+    "code": "3012661",
+    "name": "مكتبات عالم سمسم العجيب",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c689",
+    "code": "4014393",
+    "name": "مكتبة مستر بن - جاردينيا",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c690",
+    "code": "4010464",
+    "name": "مكتبه ايه بي سي - م. نصر - ABC",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c691",
+    "code": "4014071",
+    "name": "مكتبه خطوط-مدينة نصر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c692",
+    "code": "4014062",
+    "name": "مكتبة عمر وعلي- التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c693",
+    "code": "3014252",
+    "name": "مؤسسة البلال للاستيراد والتجاره مدينه نصر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c694",
+    "code": "3012576",
+    "name": "ميدل ايست تاج- سيتي ستارز",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c695",
+    "code": "3012232",
+    "name": "هايبر نجمة هليوبليس- التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c696",
+    "code": "4011871",
+    "name": "واكي جانج-مدينة نصر",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c697",
+    "code": "30101116",
+    "name": "5يونيتيد جروسرز- ديستريكت",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c698",
+    "code": "30101120",
+    "name": "يونايتد جروسر -  هايد بارك التجمع",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c699",
+    "code": "30101118",
+    "name": "يونايتد جروسر - سوديك إيست",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c700",
+    "code": "3010115",
+    "name": "يونيتد جروسر - مكرم عبيد",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c701",
+    "code": "3010114",
+    "name": "يونيتد جروسر - حسنين هيكل",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c702",
+    "code": "3010117",
+    "name": "يونيتد جروسرز- الطيران",
+    "sector": "القاهرة",
+    "repName": "Abanoub"
+  },
+  {
+    "id": "c703",
+    "code": "4018625",
+    "name": "total- Golf Obour",
+    "sector": "القاهرة",
+    "repName": ""
+  }
+]

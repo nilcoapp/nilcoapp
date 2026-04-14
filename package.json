@@ -1,12 +1,12 @@
 {
-  "name": "nilco-sync-server",
-  "version": "1.0.0",
-  "description": "NILCO INT Sales App Sync Server",
+  "name": "nilcoapp-server",
+  "version": "1.2.0",
+  "description": "NILCO INT web app + sync server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d47a1" />
+  <title>NILCO INT V2.0</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary:#0d47a1;--primary2:#1565c0;--primary-light:#e3f2fd;--bg:#f0f4f8;--card:#fff;--line:#e0e6ed;--text:#1a2332;--muted:#6b7c93;
+      --ok:#2e7d32;--warn:#f57f17;--danger:#c62828;--radius:14px;
+      --shadow:0 2px 12px rgba(13,71,161,.08);--shadow-lg:0 8px 30px rgba(13,71,161,.12);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+    body{font-family:'Cairo',Segoe UI,Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    .app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
+    .screen{display:none;min-height:100vh}.screen.active{display:block}
+    .topbar{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;box-shadow:0 4px 20px rgba(13,71,161,.25)}
+    .topbar h1{font-size:18px;margin:0;flex:1;font-weight:700}
+    .topbar small{display:block;font-size:11px;opacity:.85;margin-top:2px}
+    .sync-indicator{width:8px;height:8px;border-radius:50%;background:#4caf50;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+    .sync-indicator.offline{background:#f44336;animation:none}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .iconbtn,.btn{border:none;border-radius:10px;font-family:inherit;cursor:pointer;transition:all .2s;font-weight:600}
+    .iconbtn{background:rgba(255,255,255,.18);color:#fff;padding:8px 14px;font-size:13px}
+    .iconbtn:hover{background:rgba(255,255,255,.3)}
+    .btn{padding:11px 16px;font-size:13px}
+    .btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(13,71,161,.3)}
+    .btn-primary:hover{background:var(--primary2)}
+    .btn-soft{background:var(--primary-light);color:var(--primary)}
+    .btn-soft:hover{background:#bbdefb}
+    .btn-danger{background:#ffebee;color:var(--danger)}
+    .btn-danger:hover{background:#ffcdd2}
+    .btn-success{background:#e8f5e9;color:var(--ok)}
+    .btn-whatsapp{background:#25D366;color:#fff;box-shadow:0 2px 8px rgba(37,211,102,.3)}
+    .btn-whatsapp:hover{background:#1da851}
+    .btn-print{background:#fff3e0;color:#e65100}
+    .btn-row{display:flex;gap:8px;flex-wrap:wrap}
+    .wrap{padding:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:14px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .logoBox{padding:40px 18px 20px;text-align:center}
+    .logoBox img{width:100px;height:100px;object-fit:contain;border-radius:24px;box-shadow:var(--shadow-lg)}
+    .logoBox .brand{font-size:28px;font-weight:800;color:var(--primary);margin-top:12px;letter-spacing:1px}
+    .logoBox .version{font-size:12px;color:var(--muted);margin-top:4px}
+    .field{margin-bottom:10px}
+    .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+    .input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-family:inherit;font-size:14px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
+    .input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(13,71,161,.1)}
+    .msg{font-size:12px;color:var(--danger);min-height:18px;margin-top:6px}
+    .tag{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+    .tag.ok{background:#e8f5e9;color:var(--ok)}.tag.warn{background:#fff8e1;color:var(--warn)}.tag.danger{background:#ffebee;color:var(--danger)}
+    .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-align:center;box-shadow:var(--shadow)}
+    .kpi .v{font-size:22px;font-weight:800;color:var(--primary)}
+    .kpi .l{font-size:12px;color:var(--muted);margin-top:4px}
+    .tabs{display:flex;gap:6px;overflow:auto;padding-bottom:4px;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tabs button{white-space:nowrap;font-size:13px}
+    .tabs button.active-tab{background:var(--primary);color:#fff}
+    .list{display:flex;flex-direction:column;gap:8px}
+    .item{border:1px solid var(--line);border-radius:var(--radius);padding:12px;background:#fff;transition:all .2s;cursor:pointer}
+    .item:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+    .item .title{font-weight:700;font-size:14px}
+    .item .sub{font-size:12px;color:var(--muted);margin-top:4px}
+    .saleRow{display:grid;grid-template-columns:1.4fr .8fr .8fr auto;gap:6px;align-items:end}
+    .saleRow .small{padding:9px 10px;border-radius:10px;font-size:13px}
+    .resultRow{display:grid;grid-template-columns:1.5fr .7fr .8fr .8fr;gap:6px;margin-top:8px;font-size:13px}
+    .resultRow div{background:var(--primary-light);border:1px solid #bbdefb;padding:8px;border-radius:10px;text-align:center;font-weight:600}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
+    th{color:var(--muted);font-size:11px;font-weight:700;background:#fafbfc}
+    tr:hover td{background:#f8fafc}
+    .stickyInput{position:sticky;top:66px;z-index:4}
+    .hidden{display:none!important}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    .muted{color:var(--muted)}
+    .watermark{position:fixed;left:10px;bottom:8px;font-size:9px;line-height:1;letter-spacing:.2px;color:rgba(24,50,79,.15);z-index:2;pointer-events:none;user-select:none}
+    .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:100;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+    .modal-overlay.active{display:flex}
+    .modal-box{background:#fff;border-radius:18px;padding:20px;width:92%;max-width:440px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    .modal-box .title{font-weight:700;font-size:17px;margin-bottom:10px}
+    .modal-close{background:var(--danger);color:#fff;border:none;border-radius:10px;padding:8px 16px;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px}
+    .inv-detail{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:12px}
+    .inv-detail table{font-size:12px}
+    .inv-detail th{font-size:10px}
+    .inv-number{display:inline-block;background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:12px;font-weight:700}
+    @media print{
+      body{background:#fff!important}
+      .app{max-width:100%!important}
+      .topbar,.tabs,.btn-row,.modal-overlay,.watermark,.stickyInput,.iconbtn,#sale-box .btn,#whatsapp-btn-container{display:none!important}
+      .screen{display:block!important;min-height:auto!important}
+      .card{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid}
+      .print-area{display:block!important}
+    }
+    .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1a2332;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+    .toast.show{opacity:1}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div id="toast" class="toast"></div>
+
+  <section id="login-screen" class="screen active">
+    <div class="logoBox">
+      <img src="./nilco-logo.png" alt="NILCO" />
+      <div class="brand">NILCO INT.</div>
+      <div class="version">V2.0 — Sales Management System</div>
+    </div>
+    <div class="wrap">
+      <div class="card">
+        <div class="field">
+          <label>المستخدم</label>
+          <select id="login-user"></select>
+        </div>
+        <div class="field">
+          <label>الرقم السري</label>
+          <input id="login-pin" class="input" type="password" inputmode="numeric" placeholder="أدخل الرقم السري" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px" onclick="login()">تسجيل الدخول</button>
+        <div id="login-msg" class="msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rep-screen" class="screen">
+    <div class="topbar">
+      <button class="iconbtn" onclick="logout()">خروج</button>
+      <h1 id="rep-title">NILCO <span class="sync-indicator" id="sync-dot"></span></h1>
+    </div>
+    <div class="wrap">
+      <div class="card">
+        <div class="grid2">
+          <div class="field"><label>القطاع</label><select id="rep-sector" onchange="renderRepClients()"></select></div>
+          <div class="field"><label>العميل</label><select id="rep-client" onchange="onClientChange()"></select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>الحالة</label>
+            <select id="rep-status" onchange="toggleStatusMode()">
+              <option value="invoice">فاتورة</option>
+              <option value="followup">متابعة</option>
+              <option value="inventory">جرد</option>
+            </select>
+          </div>
+          <div class="field"><label>كود العميل</label><input id="rep-client-code" class="input" disabled /></div>
+        </div>
+        <div id="followup-box" class="field hidden">
+          <label>ملاحظة</label>
+          <textarea id="rep-note" rows="3" placeholder="اكتب ملاحظة المتابعة..."></textarea>
+          <button class="btn btn-soft" style="margin-top:8px;width:100%" onclick="saveFollowup()">حفظ المتابعة</button>
+        </div>
+        <div id="inventory-box" class="hidden">
+          <div class="field" style="margin-bottom:8px">
+            <label>بحث الصنف (اسم / باركود / كود)</label>
+            <div style="display:flex;gap:6px">
+              <input id="inv-product-search" class="input small" placeholder="اسكان الباركود أو ابحث..." />
+              <button class="btn btn-soft" onclick="invSearchProduct()">بحث</button>
+              <button class="btn btn-soft" onclick="openScanner('inventory')" style="font-size:16px;padding:6px 10px">📷</button>
+              <button class="btn btn-primary" onclick="invAddLine()">إضافة</button>
+            </div>
+          </div>
+          <div class="item" style="background:#fbfdff;cursor:default;overflow-x:auto">
+            <table>
+              <thead><tr><th>الصنف</th><th>الباركود</th><th>جرد العميل</th><th>الاستوك</th><th>الطلبية</th><th></th></tr></thead>
+              <tbody id="inventory-lines"></tbody>
+            </table>
+          </div>
+          <div class="btn-row" style="margin-top:10px">
+            <button class="btn btn-primary" onclick="saveInventory()">حفظ الجرد</button>
+            <button class="btn btn-soft" onclick="exportInventoryExcel()">تصدير Excel</button>
+            <button class="btn btn-whatsapp" onclick="sendInventoryWhatsApp()">إرسال واتساب</button>
+            <button class="btn btn-danger" onclick="clearInventory()">مسح</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="sale-box" class="card">
+        <div class="stickyInput">
+          <div class="card" style="margin:0;padding:10px">
+            <div class="field" style="margin-bottom:8px">
+              <label>بحث الصنف (اسم / باركود / كود)</label>
+              <div style="display:flex;gap:6px">
+                <input id="product-search" class="input small" placeholder="ابحث هنا..." />
+                <button class="btn btn-soft" onclick="filterProducts()">بحث</button>
+                <button class="btn btn-soft" onclick="openScanner('invoice')" style="font-size:16px;padding:6px 10px">📷</button>
+              </div>
+            </div>
+            <div class="saleRow">
+              <div class="field" style="margin:0"><label>الصنف</label><select id="product-select" class="small" onchange="onSelectProduct()"></select></div>
+              <div class="field" style="margin:0"><label>المخزن</label><input id="stock-view" class="input small" disabled /></div>
+              <div class="field" style="margin:0"><label>الكمية</label><input id="qty-input" class="input small" type="text" inputmode="numeric" placeholder="0" /></div>
+              <button class="btn btn-primary" onclick="addLine()">+</button>
+            </div>
+            <div class="resultRow">
+              <div id="prod-name-box">—</div>
+              <div id="qty-box">—</div>
+              <div id="price-box">—</div>
+              <div id="line-total-box">—</div>
+            </div>
+          </div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="item" style="background:#fbfdff;cursor:default">
+          <table>
+            <thead><tr><th>الصنف</th><th>الباركود</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead>
+            <tbody id="invoice-lines"></tbody>
+          </table>
+        </div>
+        <div class="card" style="margin-top:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="title">إجمالي الفاتورة</div>
+            <div id="invoice-total" style="font-size:24px;font-weight:800;color:var(--primary)">0 ج</div>
+          </div>
+          <div id="invoice-items-count" style="font-size:12px;color:var(--muted);margin-bottom:8px">0 صنف</div>
+          <div class="btn-row" style="margin-top:10px">
+            <button class="btn btn-primary" onclick="saveInvoice()">حفظ الفاتورة</button>
+            <button class="btn btn-soft" onclick="exportInvoiceExcel()">Excel</button>
+            <button class="btn btn-print" onclick="printCurrentInvoice()">طباعة</button>
+            <button class="btn btn-soft" onclick="openMyInvoices()">فواتيري</button>
+          </div>
+          <div id="whatsapp-btn-container" class="hidden" style="margin-top:8px">
+            <button class="btn btn-whatsapp" style="width:100%" onclick="sendWhatsApp()">إرسال واتساب</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="desk-screen" class="screen">
+    <div class="topbar">
+      <button class="iconbtn" onclick="logout()">خروج</button>
+      <h1 id="desk-title">لوحة التحكم <span class="sync-indicator" id="sync-dot-desk"></span></h1>
+    </div>
+    <div class="wrap">
+      <div class="tabs" id="desk-tabs">
+        <button class="btn btn-soft" data-tab="dashboard" onclick="setDeskTab('dashboard')">الرئيسية</button>
+        <button class="btn btn-soft" data-tab="reports" onclick="setDeskTab('reports')">التقارير</button>
+        <button class="btn btn-soft" data-tab="stock" onclick="setDeskTab('stock')">الاستوك</button>
+        <button class="btn btn-soft" data-tab="clients" onclick="setDeskTab('clients')">العملاء</button>
+        <button class="btn btn-soft" data-tab="users" onclick="setDeskTab('users')">المستخدمون</button>
+        <button class="btn btn-soft" data-tab="messages" onclick="setDeskTab('messages')">الرسائل</button>
+      </div>
+      <div id="desk-body" style="margin-top:12px"></div>
+    </div>
+  </section>
+</div>
+
+<div id="my-invoices-modal" class="modal-overlay" onclick="if(event.target===this)closeMyInvoices()">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="title" style="margin:0">فواتيري</div>
+      <button class="modal-close" onclick="closeMyInvoices()">✕</button>
+    </div>
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="field"><label>من</label><input id="my-inv-from" class="input" type="date" onchange="renderMyInvoices()" /></div>
+      <div class="field"><label>إلى</label><input id="my-inv-to" class="input" type="date" onchange="renderMyInvoices()" /></div>
+    </div>
+    <div id="my-invoices-list"></div>
+  </div>
+</div>
+
+<div id="invoice-detail-modal" class="modal-overlay" onclick="if(event.target===this)closeInvoiceDetail()">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="title" style="margin:0" id="inv-detail-title">تفاصيل الفاتورة</div>
+      <button class="modal-close" onclick="closeInvoiceDetail()">✕</button>
+    </div>
+    <div id="invoice-detail-body"></div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-soft" onclick="exportDetailInvoiceExcel()">Excel</button>
+      <button class="btn btn-print" onclick="printDetailInvoice()">طباعة</button>
+      <button class="btn btn-whatsapp" onclick="sendDetailWhatsApp()">واتساب</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirm-modal" class="modal-overlay" onclick="if(event.target===this)closeConfirm()">
+  <div class="modal-box" style="max-width:320px;text-align:center">
+    <div class="title" id="confirm-title">تأكيد الحذف</div>
+    <p id="confirm-msg" style="margin:12px 0;color:var(--muted)">هل أنت متأكد من حذف هذا السطر؟</p>
+    <div class="btn-row" style="justify-content:center">
+      <button class="btn btn-danger" id="confirm-yes" onclick="confirmAction()">نعم، احذف</button>
+      <button class="btn btn-soft" onclick="closeConfirm()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="scanner-modal" class="modal-overlay" onclick="if(event.target===this)closeScanner()" style="display:none">
+  <div class="modal-box" style="max-width:400px;padding:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="title" style="margin:0">سكان الباركود</div>
+      <button class="modal-close" onclick="closeScanner()">✕</button>
+    </div>
+    <div id="scanner-reader" style="width:100%"></div>
+    <p id="scanner-result" style="text-align:center;margin-top:8px;font-weight:600;color:var(--primary)"></p>
+  </div>
+</div>
+
+<div class="watermark">Emad A.Elnasser — NILCO V2.0</div>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="./script.js"></script>
+</body>
+</html>
