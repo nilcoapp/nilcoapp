@@ -1,5 +1,5 @@
 /* ===== NILCO INT V2.0 - Sales Management System ===== */
-// fix deploy
+
 /* ===== SERVER SYNC CONFIG ===== */
 const JSON_BIN_URL = 'https://nilcoapp.onrender.com/api/state';
 const API_KEY = 'nilco123';
