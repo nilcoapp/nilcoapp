@@ -1,15 +1,8 @@
-# script.js
-
-```javascript
-const JSON_BIN_URL = 'https://nilcoapp.onrender.com/api/state';
-const API_KEY = 'nilco123';
-
 /* ===== NILCO INT V2.0 - Sales Management System ===== */
 
 /* ===== SERVER SYNC CONFIG ===== */
 const JSON_BIN_URL = 'https://nilcoapp.onrender.com/api/state';
 const API_KEY = 'nilco123';
-/* ============================== */
 /* ============================== */
 
 const STORAGE_KEY = 'nilco-int-v2';
@@ -483,9 +476,8 @@ function sendWhatsAppForInvoice(inv){
 /* ===== SERVER SYNC ===== */
 async function pullFromServer(){
   try {
-    fetch(JSON_BIN_URL, {cache:'no-store', headers:{'x-api-key': API_KEY}});
-    if(!r.ok) return;
-    const remote = await r.json();
+    const r = await fetch(JSON_BIN_URL, {cache:'no-store', headers:{'x-api-key': API_KEY}});
+const remote = await r.json();
     if(!remote || typeof remote !== 'object') return;
     state.data = {
       ...state.data,
