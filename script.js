@@ -243,11 +243,9 @@ function setupRepScreen(){
     .concat(sectors.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`)).join('');
   renderRepClients();
   toggleStatusMode();
-  filterProducts();
-  renderInvoiceLines();
-  hideWhatsAppBtn();
-  saveSession();
-}
+    await syncInvoice(inv);
+    await pullFromServer();
+    filterProducts();
 
 function renderRepClients(){
   const list = repClients();
@@ -383,7 +381,7 @@ function renderInvoiceLines(){
   if(countEl) countEl.textContent = state.workingInvoice.length + ' صنف';
 }
 
-function saveInvoice(){
+async function saveInvoice(){
   const client = getSelectedClient();
   if(!client) return alert('اختر العميل');
   if(!state.workingInvoice.length) return alert('أضف صنفًا واحدًا على الأقل');
@@ -420,8 +418,9 @@ function saveInvoice(){
   saveSession();
   renderInvoiceLines();
   filterProducts();
-  syncInvoice(inv);
-  showWhatsAppBtn();
+    await syncInvoice(inv);
+    await pullFromServer();
+filterProducts();
   showToast('تم حفظ الفاتورة رقم ' + invNumber);
 }
 
