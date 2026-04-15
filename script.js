@@ -44,6 +44,7 @@ const state = {
   currentUser: null,
   deskTab: 'dashboard',
   workingInvoice: [],
+  workingInvoiceDiscount: 0,
   workingInventory: [],
   filteredProducts: [],
   reportRep: 'all',
@@ -90,7 +91,10 @@ function saveSession(){
 
 function saveDraft(){
   try {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ workingInvoice: state.workingInvoice || [] }));
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      workingInvoice: state.workingInvoice || [],
+      workingInvoiceDiscount: state.workingInvoiceDiscount || 0
+    }));
     saveSession();
   } catch(e) {}
 }
@@ -109,6 +113,7 @@ function restoreSession(){
     const session = rawSession ? JSON.parse(rawSession) : null;
     const draft = rawDraft ? JSON.parse(rawDraft) : null;
     if(draft && Array.isArray(draft.workingInvoice)) state.workingInvoice = draft.workingInvoice;
+    if(draft) state.workingInvoiceDiscount = normalizeDiscountValue(draft.workingInvoiceDiscount);
     if(!session || !session.userId) return false;
     const user = state.data.users.find(u => u.id === session.userId && u.active !== false);
     if(!user) return false;
@@ -131,6 +136,7 @@ function restoreSession(){
       if(byId('rep-note')) byId('rep-note').value = session.repNote || '';
       onClientChange();
       toggleStatusMode();
+      setInvoiceDiscount(state.workingInvoiceDiscount);
       renderInvoiceLines();
       onSelectProduct();
     } else {
@@ -213,6 +219,7 @@ function login(){
 function logout(){
   state.currentUser = null;
   state.workingInvoice = [];
+  state.workingInvoiceDiscount = 0;
   state.lastSavedInvoice = null;
   clearDraftAndSession();
   renderLoginUsers();
@@ -258,6 +265,64 @@ function getSavedInvoiceForExport(){
   return state.lastSavedInvoice;
 }
 
+function normalizeDiscountValue(value){
+  if(value === '' || value == null) return 0;
+  const num = Number(value);
+  if(!Number.isFinite(num)) return 0;
+  return Math.min(100, Math.max(0, num));
+}
+
+function getInvoiceDiscount(){
+  return normalizeDiscountValue(byId('invoice-discount')?.value);
+}
+
+function setInvoiceDiscount(value, syncInput=true){
+  state.workingInvoiceDiscount = normalizeDiscountValue(value);
+  if(syncInput && byId('invoice-discount')) {
+    byId('invoice-discount').value = state.workingInvoiceDiscount ? String(state.workingInvoiceDiscount) : '';
+  }
+}
+
+function getInvoiceTotals(lines = state.workingInvoice, discount = getInvoiceDiscount()){
+  const originalTotal = lines.reduce((s,l)=>s+Number(l.total||0),0);
+  const discountPercentage = normalizeDiscountValue(discount);
+  const discountAmount = originalTotal * (discountPercentage / 100);
+  const finalTotal = Math.max(0, originalTotal - discountAmount);
+  return { originalTotal, discountPercentage, discountAmount, finalTotal };
+}
+
+function createMessage(target, text){
+  return {
+    id: 'msg_'+Date.now(),
+    senderId: state.currentUser.id,
+    senderName: state.currentUser.username,
+    target,
+    text,
+    readBy: [state.currentUser.id],
+    createdAt: new Date().toISOString()
+  };
+}
+
+function persistMessage(message){
+  if(!state.data.messages) state.data.messages = [];
+  state.data.messages.unshift(message);
+  if(state.data.messages.length > 100) state.data.messages = state.data.messages.slice(0, 100);
+  save();
+  syncToServer();
+}
+
+function markMessagesRead(messages){
+  let changed = false;
+  messages.forEach(m => {
+    if(!m.readBy) m.readBy = [];
+    if(!m.readBy.includes(state.currentUser.id)) {
+      m.readBy.push(state.currentUser.id);
+      changed = true;
+    }
+  });
+  if(changed) save();
+}
+
 function repClients(){
   const repName = state.currentUser.username;
   const sector = byId('rep-sector')?.value || state.currentUser.sector || '';
@@ -265,7 +330,7 @@ function repClients(){
 }
 
 function setupRepScreen(){
-  state.workingInvoice = [];
+  if(!Array.isArray(state.workingInvoice)) state.workingInvoice = [];
   const repName = state.currentUser.username;
   const repClientList = state.data.clients.filter(c => c.repName === repName);
   const sectors = [...new Set(repClientList.map(c => c.sector).filter(Boolean))];
@@ -274,7 +339,9 @@ function setupRepScreen(){
   renderRepClients();
   toggleStatusMode();
   filterProducts();
+  setInvoiceDiscount(state.workingInvoiceDiscount);
   renderInvoiceLines();
+  renderRepMessages();
   hideWhatsAppBtn();
   saveSession();
 }
@@ -307,6 +374,8 @@ function toggleStatusMode(){
   byId('followup-box').classList.toggle('hidden', mode !== 'followup');
   byId('sale-box').classList.toggle('hidden', mode !== 'invoice');
   byId('inventory-box').classList.toggle('hidden', mode !== 'inventory');
+  const repMessagesBox = byId('rep-messages-box');
+  if(repMessagesBox) repMessagesBox.classList.toggle('hidden', mode !== 'invoice');
   saveSession();
 }
 
@@ -413,8 +482,15 @@ function renderInvoiceLines(){
     <td><button class="btn btn-danger" style="padding:6px 10px;font-size:11px" onclick="removeLine(${i})">حذف</button></td>
   </tr>`).join('');
   tbody.innerHTML = rows || '<tr><td colspan="6" class="muted">لا توجد أصناف مضافة</td></tr>';
-  const total = state.workingInvoice.reduce((s,l)=>s+Number(l.total||0),0);
-  byId('invoice-total').textContent = money(total);
+  const totals = getInvoiceTotals();
+  byId('invoice-total').textContent = money(totals.finalTotal);
+  const discountSummary = byId('invoice-discount-summary');
+  if(discountSummary) discountSummary.textContent = 'خصم: ' + totals.discountPercentage + '%';
+  const originalTotalEl = byId('invoice-original-total');
+  if(originalTotalEl){
+    originalTotalEl.textContent = totals.discountPercentage > 0 ? ('الإجمالي قبل الخصم: ' + money(totals.originalTotal)) : '';
+    originalTotalEl.classList.toggle('hidden', totals.discountPercentage <= 0);
+  }
   const countEl = byId('invoice-items-count');
   if(countEl) countEl.textContent = state.workingInvoice.length + ' صنف';
 }
@@ -438,6 +514,7 @@ async function saveInvoice(){
     if(prod) prod.stock = Number(prod.stock||0) - Number(line.qty||0);
   });
 
+  const totals = getInvoiceTotals();
   const inv = {
     id:'i_'+Date.now(),
     invoiceNumber: invNumber,
@@ -447,16 +524,21 @@ async function saveInvoice(){
     sector: client.sector || '',
     repId: state.currentUser.id,
     repName: state.currentUser.username,
-    total: state.workingInvoice.reduce((s,l)=>s+Number(l.total||0),0),
+    total: totals.finalTotal,
+    originalTotal: totals.originalTotal,
+    discountPercentage: totals.discountPercentage,
+    discountAmount: totals.discountAmount,
     lines: JSON.parse(JSON.stringify(state.workingInvoice)),
     createdAt: new Date().toISOString()
   };
   state.data.invoices.unshift(inv);
   state.lastSavedInvoice = inv;
   state.workingInvoice = [];
+  state.workingInvoiceDiscount = 0;
   save();
   localStorage.removeItem(DRAFT_KEY);
   saveSession();
+  setInvoiceDiscount(0);
   renderInvoiceLines();
 
   await syncInvoice(inv);
@@ -490,6 +572,7 @@ function sendWhatsAppForInvoice(inv){
   data.push(['رقم الفاتورة:', '#' + (inv.invoiceNumber || '—'), '', 'التاريخ:', String(inv.createdAt).slice(0,10)]);
   data.push(['العميل:', inv.customer, '', 'كود العميل:', inv.customerCode || '']);
   data.push(['المندوب:', inv.repName, '', 'القطاع:', inv.sector || '']);
+  if(normalizeDiscountValue(inv.discountPercentage) > 0) data.push(['الخصم:', `${normalizeDiscountValue(inv.discountPercentage)}%`, '', 'الإجمالي قبل الخصم:', inv.originalTotal ?? inv.total]);
   data.push([]);
   data.push(['الصنف', 'الباركود', 'الكود', 'الكمية', 'السعر', 'الإجمالي']);
   (inv.lines || []).forEach(l => {
@@ -507,13 +590,13 @@ function sendWhatsAppForInvoice(inv){
   const file = new File([blob], fileName, {type: blob.type});
   // Try Web Share API (works on mobile with WhatsApp)
   if(navigator.canShare && navigator.canShare({files:[file]})){
-    navigator.share({title:'فاتورة NILCO', text:`فاتورة #${inv.invoiceNumber||'—'} — ${inv.customer} — الإجمالي: ${Number(inv.total).toLocaleString('ar-EG')} ج`, files:[file]}).catch(()=>{});
+    navigator.share({title:'فاتورة NILCO', text:`فاتورة #${inv.invoiceNumber||'—'} — ${inv.customer}${normalizeDiscountValue(inv.discountPercentage) > 0 ? ` — خصم ${normalizeDiscountValue(inv.discountPercentage)}%` : ''} — الإجمالي: ${Number(inv.total).toLocaleString('ar-EG')} ج`, files:[file]}).catch(()=>{});
   } else {
     // Fallback: download the file and open WhatsApp with a short message
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = fileName; a.click();
     URL.revokeObjectURL(url);
-    const text = `فاتورة NILCO رقم #${inv.invoiceNumber||'—'}\nالعميل: ${inv.customer}\nالإجمالي: ${Number(inv.total).toLocaleString('ar-EG')} ج\n\n(الفاتورة مرفقة كملف Excel)`;
+    const text = `فاتورة NILCO رقم #${inv.invoiceNumber||'—'}\nالعميل: ${inv.customer}\n${normalizeDiscountValue(inv.discountPercentage) > 0 ? `الخصم: ${normalizeDiscountValue(inv.discountPercentage)}%\n` : ''}الإجمالي: ${Number(inv.total).toLocaleString('ar-EG')} ج\n\n(الفاتورة مرفقة كملف Excel)`;
     setTimeout(()=>{ window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }, 500);
   }
 }
@@ -553,7 +636,7 @@ function renderMyInvoices(){
           <div class="title">${escapeHtml(inv.customer)}</div>
           <span class="inv-number">#${inv.invoiceNumber || '—'}</span>
         </div>
-        <div class="sub">${escapeHtml(inv.repName)} — ${String(inv.createdAt).slice(0,10)} — ${inv.lines ? inv.lines.length : 0} صنف — ${money(inv.total)}</div>
+        <div class="sub">${escapeHtml(inv.repName)} — ${String(inv.createdAt).slice(0,10)} — ${inv.lines ? inv.lines.length : 0} صنف — ${money(inv.total)}${normalizeDiscountValue(inv.discountPercentage) > 0 ? ' — خصم ' + normalizeDiscountValue(inv.discountPercentage) + '%' : ''}</div>
       </div>`;
     });
     html += '</div>';
@@ -573,12 +656,14 @@ function viewInvoiceDetail(invId){
       <div><strong>المندوب:</strong> ${escapeHtml(inv.repName)}</div>
       <div><strong>التاريخ:</strong> ${String(inv.createdAt).slice(0,10)}</div>
       <div><strong>القطاع:</strong> ${escapeHtml(inv.sector||'—')}</div>
+      <div><strong>الخصم:</strong> ${normalizeDiscountValue(inv.discountPercentage)}%</div>
     </div>
     <div class="inv-detail">
       <table>
         <thead><tr><th>الصنف</th><th>الباركود</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead>
         <tbody>
           ${(inv.lines||[]).map(l => `<tr><td>${escapeHtml(l.name)}</td><td style="font-size:10px">${escapeHtml(l.barcode||'—')}</td><td>${l.qty}</td><td>${money(l.price)}</td><td>${money(l.total)}</td></tr>`).join('')}
+          ${normalizeDiscountValue(inv.discountPercentage) > 0 ? `<tr><td colspan="4">الإجمالي قبل الخصم</td><td>${money(inv.originalTotal ?? inv.total)}</td></tr>` : ''}
           <tr style="font-weight:800;background:#e3f2fd"><td colspan="4">الإجمالي</td><td>${money(inv.total)}</td></tr>
         </tbody>
       </table>
@@ -617,6 +702,7 @@ function exportInvoiceExcelForInv(inv){
   data.push(['رقم الفاتورة:', '#' + (inv.invoiceNumber || '—'), '', 'التاريخ:', String(inv.createdAt).slice(0,10)]);
   data.push(['العميل:', inv.customer, '', 'كود العميل:', inv.customerCode || '']);
   data.push(['المندوب:', inv.repName, '', 'القطاع:', inv.sector || '']);
+  if(normalizeDiscountValue(inv.discountPercentage) > 0) data.push(['الخصم:', `${normalizeDiscountValue(inv.discountPercentage)}%`, '', 'الإجمالي قبل الخصم:', inv.originalTotal ?? inv.total]);
   data.push([]);
   // Table header
   data.push(['الصنف', 'الباركود', 'الكود', 'الكمية', 'السعر', 'الإجمالي']);
@@ -645,10 +731,14 @@ function printCurrentInvoice(){
   } else if(state.workingInvoice.length){
     const client = getSelectedClient();
     if(!client) return alert('اختر العميل');
+    const totals = getInvoiceTotals();
     printInvoiceData({
       customer: client.name, customerCode: client.code||'', repName: state.currentUser.username,
       createdAt: new Date().toISOString(), invoiceNumber: '—', lines: state.workingInvoice,
-      total: state.workingInvoice.reduce((s,l)=>s+Number(l.total||0),0)
+      total: totals.finalTotal,
+      originalTotal: totals.originalTotal,
+      discountPercentage: totals.discountPercentage,
+      discountAmount: totals.discountAmount
     });
   } else { alert('لا توجد فاتورة للطباعة'); }
 }
@@ -681,11 +771,13 @@ function printInvoiceData(inv){
       <div><strong>كود العميل:</strong> ${escapeHtml(inv.customerCode||'')}</div>
       <div><strong>المندوب:</strong> ${escapeHtml(inv.repName)}</div>
       <div><strong>التاريخ:</strong> ${String(inv.createdAt).slice(0,10)}</div>
+      <div><strong>الخصم:</strong> ${normalizeDiscountValue(inv.discountPercentage)}%</div>
     </div>
     <table>
       <thead><tr><th>#</th><th>الصنف</th><th>الباركود</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead>
       <tbody>
         ${(inv.lines||[]).map((l,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(l.name)}</td><td>${escapeHtml(l.barcode||'')}</td><td>${l.qty}</td><td>${Number(l.price).toLocaleString('ar-EG')} ج</td><td>${Number(l.total).toLocaleString('ar-EG')} ج</td></tr>`).join('')}
+        ${normalizeDiscountValue(inv.discountPercentage) > 0 ? `<tr><td colspan="5">الإجمالي قبل الخصم</td><td>${Number(inv.originalTotal ?? inv.total).toLocaleString('ar-EG')} ج</td></tr>` : ''}
         <tr class="total-row"><td colspan="5">الإجمالي</td><td>${Number(inv.total).toLocaleString('ar-EG')} ج</td></tr>
       </tbody>
     </table>
@@ -1282,12 +1374,7 @@ function renderMessagesAdmin(){
   const availableTargets = r === 'rep' ? getSupervisors() : getRepUsers();
   const msgs = (state.data.messages || []).filter(m => isMessageVisibleToUser(m, state.currentUser)).slice(0, 50);
   const unread = msgs.filter(m => !m.readBy || !m.readBy.includes(state.currentUser.id));
-  // Mark messages as read
-  msgs.forEach(m => {
-    if(!m.readBy) m.readBy = [];
-    if(!m.readBy.includes(state.currentUser.id)) m.readBy.push(state.currentUser.id);
-  });
-  save();
+  markMessagesRead(msgs);
   return `
     ${canSend ? `
     <div class="card">
@@ -1324,19 +1411,8 @@ function sendMessage(){
   if(!target) return alert('اختر المستخدم');
   if(!text) return alert('اكتب الرسالة');
   if(!allowedTargets.includes(target)) return alert('المرسل إليه غير متاح');
-  if(!state.data.messages) state.data.messages = [];
-  state.data.messages.unshift({
-    id: 'msg_'+Date.now(),
-    senderId: state.currentUser.id,
-    senderName: state.currentUser.username,
-    target: target,
-    text: text,
-    readBy: [state.currentUser.id],
-    createdAt: new Date().toISOString()
-  });
-  // Keep only last 100 messages
-  if(state.data.messages.length > 100) state.data.messages = state.data.messages.slice(0, 100);
-  save(); syncToServer(); renderDesk();
+  persistMessage(createMessage(target, text));
+  renderDesk();
   showToast('تم إرسال الرسالة');
 }
 function replyToMessage(userId){
@@ -1345,6 +1421,65 @@ function replyToMessage(userId){
   byId('msg-target').value = user.id;
   byId('msg-text')?.focus();
 }
+
+function renderRepMessages(){
+  const box = byId('rep-messages-box');
+  if(!box || !state.currentUser || state.currentUser.role !== 'rep') return;
+  const supervisors = getSupervisors();
+  const msgs = (state.data.messages || []).filter(m => isMessageVisibleToUser(m, state.currentUser)).slice(0, 20);
+  const unread = msgs.filter(m => !m.readBy || !m.readBy.includes(state.currentUser.id));
+  markMessagesRead(msgs);
+  box.innerHTML = `
+    <div class="title">الرسائل ${unread.length ? '(<span style="color:var(--danger)">' + unread.length + ' جديدة</span>)' : ''}</div>
+    <div class="field" style="margin-top:10px">
+      <label>إلى</label>
+      <select id="rep-msg-target" class="input">
+        <option value="">اختر المشرف</option>
+        ${supervisors.map(u => `<option value="${u.id}">${escapeHtml(u.username)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field">
+      <label>الرسالة</label>
+      <textarea id="rep-msg-text" rows="3" class="input" placeholder="اكتب رسالتك..."></textarea>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="sendRepMessage()">إرسال الرد</button>
+    <div class="list" style="margin-top:10px">
+      ${msgs.length ? msgs.map(m => {
+        const otherUserId = m.senderId === state.currentUser.id ? m.target : m.senderId;
+        const otherUserName = state.data.users.find(u => u.id === otherUserId)?.username || '';
+        const replyButton = m.senderId !== state.currentUser.id ? `<button class="btn btn-soft" style="font-size:11px;padding:2px 8px" onclick="prefillRepReply('${m.senderId}')">رد</button>` : '';
+        return `<div class="item" style="cursor:default">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div class="title">${m.senderId === state.currentUser.id ? 'إلى: ' + escapeHtml(otherUserName) : 'من: ' + escapeHtml(m.senderName)}</div>
+            ${replyButton}
+          </div>
+          <div style="margin:4px 0;font-size:13px">${escapeHtml(m.text || '')}</div>
+          <div class="sub">${new Date(m.createdAt).toLocaleString('ar-EG', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+        </div>`;
+      }).join('') : '<div class="muted">لا توجد رسائل</div>'}
+    </div>`;
+}
+
+function prefillRepReply(userId){
+  const target = byId('rep-msg-target');
+  const text = byId('rep-msg-text');
+  if(target) target.value = userId;
+  if(text) text.focus();
+}
+
+function sendRepMessage(){
+  const target = byId('rep-msg-target')?.value;
+  const text = byId('rep-msg-text')?.value.trim();
+  const allowedTargets = getSupervisors().map(u => u.id);
+  if(!target) return alert('اختر المشرف');
+  if(!text) return alert('اكتب الرسالة');
+  if(!allowedTargets.includes(target)) return alert('المرسل إليه غير متاح');
+  persistMessage(createMessage(target, text));
+  if(byId('rep-msg-text')) byId('rep-msg-text').value = '';
+  renderRepMessages();
+  showToast('تم إرسال الرسالة');
+}
+
 function checkNewMessages(){
   if(!state.data || !state.data.messages || !state.currentUser) return;
   const myMsgs = state.data.messages.filter(m => isMessageVisibleToUser(m, state.currentUser));
@@ -1571,6 +1706,7 @@ async function pullFromServer(){
       }
       if(state.currentUser && state.currentUser.role === 'rep') {
         filterProducts();
+        renderRepMessages();
         checkNewMessages();
       }
     }
@@ -1610,20 +1746,29 @@ async function pushToServer(){
       if(r && typeof r === 'object') remote = r;
     }
 
-    if(isAdmin && state.data.products.length > 0) {
-      remote.products = state.data.products;
-    } else if(remote.products && remote.products.length > 0) {
-      state.data.products = remote.products;
-    }
-
+    const remoteProducts = Array.isArray(remote.products) ? remote.products.map(p => ({...p})) : [];
     const allInvoices = [...(remote.invoices || [])];
     const remoteIds = new Set(allInvoices.map(i => i.id));
+    const newInvoices = [];
     (state.data.invoices || []).forEach(inv => {
       if(!remoteIds.has(inv.id)) {
         allInvoices.push(inv);
         remoteIds.add(inv.id);
+        newInvoices.push(inv);
       }
     });
+    if(isAdmin && state.data.products.length > 0) {
+      remote.products = state.data.products;
+    } else if(remoteProducts.length > 0) {
+      newInvoices.forEach(inv => {
+        (inv.lines || []).forEach(line => {
+          const prod = remoteProducts.find(p => p.id === line.productId);
+          if(prod) prod.stock = Math.max(0, Number(prod.stock || 0) - Number(line.qty || 0));
+        });
+      });
+      remote.products = remoteProducts;
+      state.data.products = remoteProducts;
+    }
     allInvoices.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
     remote.invoices = allInvoices;
     state.data.invoices = allInvoices;
@@ -1787,9 +1932,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const restored = restoreSession();
   const productSearch = byId('product-search');
   const qtyInput = byId('qty-input');
+  const invoiceDiscountInput = byId('invoice-discount');
   const repNote = byId('rep-note');
   if(productSearch) productSearch.addEventListener('input', filterProducts);
   if(qtyInput) qtyInput.addEventListener('input', () => { onSelectProduct(); saveSession(); });
+  if(invoiceDiscountInput) invoiceDiscountInput.addEventListener('input', () => {
+    setInvoiceDiscount(invoiceDiscountInput.value, false);
+    invoiceDiscountInput.value = state.workingInvoiceDiscount ? String(state.workingInvoiceDiscount) : '';
+    saveDraft();
+    renderInvoiceLines();
+  });
   if(repNote) repNote.addEventListener('input', saveSession);
   if(!restored) show('login-screen');
   if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
@@ -1843,6 +1995,9 @@ window.closeMyInvoices = closeMyInvoices;
 window.renderMyInvoices = renderMyInvoices;
 window.sendWhatsApp = sendWhatsApp;
 window.replyToMessage = replyToMessage;
+window.renderRepMessages = renderRepMessages;
+window.prefillRepReply = prefillRepReply;
+window.sendRepMessage = sendRepMessage;
 window.exportSalesReport = exportSalesReport;
 window.exportNoInvoiceReport = exportNoInvoiceReport;
 window.exportClientStatusReport = exportClientStatusReport;

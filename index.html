@@ -108,6 +108,7 @@
     <div class="logoBox">
       <img src="./nilco-logo.png" alt="NILCO" />
       <div class="brand">NILCO INT.</div>
+      <div class="version">بضاعة صح × ستاند صح × مكان صح = طلبية مضمونة</div>
       <div class="version">V2.0 — Sales Management System</div>
     </div>
     <div class="wrap">
@@ -194,6 +195,10 @@
               <div class="field" style="margin:0"><label>الكمية</label><input id="qty-input" class="input small" type="text" inputmode="numeric" placeholder="0" /></div>
               <button class="btn btn-primary" onclick="addLine()">+</button>
             </div>
+            <div class="field" style="margin-top:8px">
+              <label>نسبة الخصم</label>
+              <input id="invoice-discount" class="input small" type="number" inputmode="decimal" min="0" max="100" step="0.01" placeholder="0" />
+            </div>
             <div class="resultRow">
               <div id="prod-name-box">—</div>
               <div id="qty-box">—</div>
@@ -214,6 +219,8 @@
             <div class="title">إجمالي الفاتورة</div>
             <div id="invoice-total" style="font-size:24px;font-weight:800;color:var(--primary)">0 ج</div>
           </div>
+          <div id="invoice-original-total" style="font-size:12px;color:var(--muted);margin-top:4px" class="hidden"></div>
+          <div id="invoice-discount-summary" style="font-size:12px;color:var(--muted);margin-top:4px">خصم: 0%</div>
           <div id="invoice-items-count" style="font-size:12px;color:var(--muted);margin-bottom:8px">0 صنف</div>
           <div class="btn-row" style="margin-top:10px">
             <button class="btn btn-primary" onclick="saveInvoice()">حفظ الفاتورة</button>
@@ -226,6 +233,7 @@
           </div>
         </div>
       </div>
+      <div id="rep-messages-box" class="card"></div>
     </div>
   </section>
 
