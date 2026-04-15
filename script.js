@@ -327,7 +327,7 @@ function addLine(){
   const qty = Number(qtyText);
   if(!p) return alert('اختر الصنف');
   if(!qtyText || !qty || qty < 1) return alert('اكتب كمية صحيحة');
-  if(Number(p.stock || 0) <= 50) return alert('هذا الصنف رصيده 50 أو أقل وغير متاح للطلب');
+  if(Number(p.stock || 0) <= 20) return alert('هذا الصنف رصيده 20 أو أقل وغير متاح للطلب');
   if(qty > Number(p.stock || 0)) return alert('الكمية المطلوبة أكبر من المخزون');
   state.workingInvoice.push({
     productId:p.id, name:p.name, code:p.code||'', barcode:p.barcode||'', price:Number(p.price||0), qty, total:Number(p.price||0)*qty
@@ -698,7 +698,7 @@ function renderDashboard(){
   const todayStr = today();
   const todayInvoices = state.data.invoices.filter(x => String(x.createdAt).slice(0,10) === todayStr);
   const low100 = state.data.products.filter(p => Number(p.stock||0) < 100);
-  const low50 = state.data.products.filter(p => Number(p.stock||0) <= 50);
+  const low20 = state.data.products.filter(p => Number(p.stock||0) <= 20);
   const totalSales = todayInvoices.reduce((s,x)=>s+Number(x.total||0),0);
   const recent = [
     ...todayInvoices.slice(0,10).map(x => `<div class="item" onclick="viewInvoiceDetail('${x.id}')"><div class="title">${escapeHtml(x.customer)} — <span class="inv-number">#${x.invoiceNumber||''}</span></div><div class="sub">${escapeHtml(x.repName)} — ${money(x.total)}</div></div>`),
@@ -709,7 +709,7 @@ function renderDashboard(){
       <div class="kpi"><div class="v">${money(totalSales)}</div><div class="l">مبيعات اليوم</div></div>
       <div class="kpi"><div class="v">${todayInvoices.length}</div><div class="l">فواتير اليوم</div></div>
       <div class="kpi"><div class="v">${low100.length}</div><div class="l">أصناف أقل من 100</div></div>
-      <div class="kpi"><div class="v">${low50.length}</div><div class="l">غير متاحة (50 أو أقل)</div></div>
+      <div class="kpi"><div class="v">${low20.length}</div><div class="l">غير متاحة (20 أو أقل)</div></div>
       <div class="kpi"><div class="v">${getOnlineUsersCount()}</div><div class="l">متصل الآن</div></div>
     </div>
     <div class="card" style="margin-top:12px">
