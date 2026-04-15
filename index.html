@@ -46,6 +46,11 @@
     .logoBox img{width:100px;height:100px;object-fit:contain;border-radius:24px;box-shadow:var(--shadow-lg)}
     .logoBox .brand{font-size:28px;font-weight:800;color:var(--primary);margin-top:12px;letter-spacing:1px}
     .logoBox .version{font-size:12px;color:var(--muted);margin-top:4px}
+    .logoBox .slogan{font-size:15px;color:var(--text);font-weight:800;margin-top:10px;line-height:1.7}
+    .login-footnote{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+    .compact-inline{display:flex;align-items:center;gap:8px;margin-top:8px}
+    .compact-inline label{margin:0;white-space:nowrap}
+    .compact-inline .input{max-width:110px;padding:8px 10px;font-size:13px}
     .field{margin-bottom:10px}
     .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
     .input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-family:inherit;font-size:14px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
@@ -108,8 +113,7 @@
     <div class="logoBox">
       <img src="./nilco-logo.png" alt="NILCO" />
       <div class="brand">NILCO INT.</div>
-      <div class="version">بضاعة صح × ستاند صح × مكان صح = طلبية مضمونة</div>
-      <div class="version">V2.0 — Sales Management System</div>
+      <div class="slogan">بضاعة صح × ستاند صح × مكان صح = طلبية مضمونة</div>
     </div>
     <div class="wrap">
       <div class="card">
@@ -124,6 +128,7 @@
         <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px" onclick="login()">تسجيل الدخول</button>
         <div id="login-msg" class="msg"></div>
       </div>
+      <div class="login-footnote">V2.0 — Sales Management System</div>
     </div>
   </section>
 
@@ -148,6 +153,7 @@
           </div>
           <div class="field"><label>كود العميل</label><input id="rep-client-code" class="input" disabled /></div>
         </div>
+        <button id="rep-messages-open-btn" class="btn btn-soft" style="width:100%;margin-bottom:10px" onclick="openRepMessagesModal()">الرسائل</button>
         <div id="followup-box" class="field hidden">
           <label>ملاحظة</label>
           <textarea id="rep-note" rows="3" placeholder="اكتب ملاحظة المتابعة..."></textarea>
@@ -195,8 +201,8 @@
               <div class="field" style="margin:0"><label>الكمية</label><input id="qty-input" class="input small" type="text" inputmode="numeric" placeholder="0" /></div>
               <button class="btn btn-primary" onclick="addLine()">+</button>
             </div>
-            <div class="field" style="margin-top:8px">
-              <label>نسبة الخصم</label>
+            <div class="compact-inline">
+              <label for="invoice-discount">نسبة الخصم</label>
               <input id="invoice-discount" class="input small" type="number" inputmode="decimal" min="0" max="100" step="0.01" placeholder="0" />
             </div>
             <div class="resultRow">
@@ -233,7 +239,6 @@
           </div>
         </div>
       </div>
-      <div id="rep-messages-box" class="card"></div>
     </div>
   </section>
 
@@ -282,6 +287,16 @@
       <button class="btn btn-print" onclick="printDetailInvoice()">طباعة</button>
       <button class="btn btn-whatsapp" onclick="sendDetailWhatsApp()">واتساب</button>
     </div>
+  </div>
+</div>
+
+<div id="rep-messages-modal" class="modal-overlay" onclick="if(event.target===this)closeRepMessagesModal()">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="title" style="margin:0">الرسائل</div>
+      <button class="modal-close" onclick="closeRepMessagesModal()">×</button>
+    </div>
+    <div id="rep-messages-modal-body"></div>
   </div>
 </div>
 

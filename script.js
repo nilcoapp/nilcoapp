@@ -47,6 +47,8 @@ const state = {
   workingInvoiceDiscount: 0,
   workingInventory: [],
   filteredProducts: [],
+  productOptionsCacheKey: '',
+  repClientOptionsCacheKey: '',
   reportRep: 'all',
   reportFrom: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0,10),
   reportTo: new Date().toISOString().slice(0,10),
@@ -164,6 +166,12 @@ async function loadExternalClients(){
       else { ex.code = ex.code || c.code; ex.sector = ex.sector || c.sector; ex.repName = c.repName || ex.repName || ''; }
     });
     save();
+    if(state.currentUser?.role === 'rep') {
+      state.repClientOptionsCacheKey = '';
+      setupRepScreen();
+    } else if(state.currentUser && (state.currentUser.role === 'admin' || state.currentUser.role === 'supervisor') && state.deskTab === 'clients') {
+      renderDesk();
+    }
   } catch(e) { console.log('Could not load external clients.json', e); }
 }
 
@@ -341,16 +349,20 @@ function setupRepScreen(){
   filterProducts();
   setInvoiceDiscount(state.workingInvoiceDiscount);
   renderInvoiceLines();
-  renderRepMessages();
   hideWhatsAppBtn();
   saveSession();
 }
 
 function renderRepClients(){
   const list = repClients();
-  byId('rep-client').innerHTML = list.length
+  const markup = list.length
     ? list.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')
     : '<option value="">لا يوجد عملاء لهذا المندوب</option>';
+  const key = `${state.currentUser?.id || ''}|${byId('rep-sector')?.value || ''}|${list.length}|${list.map(c => c.id).join(',')}`;
+  if(state.repClientOptionsCacheKey !== key) {
+    byId('rep-client').innerHTML = markup;
+    state.repClientOptionsCacheKey = key;
+  }
   onClientChange();
 }
 
@@ -374,8 +386,8 @@ function toggleStatusMode(){
   byId('followup-box').classList.toggle('hidden', mode !== 'followup');
   byId('sale-box').classList.toggle('hidden', mode !== 'invoice');
   byId('inventory-box').classList.toggle('hidden', mode !== 'inventory');
-  const repMessagesBox = byId('rep-messages-box');
-  if(repMessagesBox) repMessagesBox.classList.toggle('hidden', mode !== 'invoice');
+  const repMessagesBtn = byId('rep-messages-open-btn');
+  if(repMessagesBtn) repMessagesBtn.classList.toggle('hidden', mode !== 'invoice');
   saveSession();
 }
 
@@ -406,7 +418,12 @@ function filterProducts(){
   const q = (byId('product-search').value || '').trim().toLowerCase();
   const products = state.data.products.filter(p => !q || String(p.name||'').toLowerCase().includes(q) || String(p.barcode||'').includes(q) || String(p.code||'').includes(q));
   state.filteredProducts = products;
-  byId('product-select').innerHTML = products.map(p => `<option value="${p.id}">${escapeHtml(p.name)}${isLowStock(p.stock)?' - غير متاح':''}</option>`).join('');
+  const optionsMarkup = products.map(p => `<option value="${p.id}">${escapeHtml(p.name)}${isLowStock(p.stock)?' - غير متاح':''}</option>`).join('');
+  const key = `${q}|${products.length}|${products.map(p => `${p.id}:${p.stock}`).join(',')}`;
+  if(state.productOptionsCacheKey !== key) {
+    byId('product-select').innerHTML = optionsMarkup;
+    state.productOptionsCacheKey = key;
+  }
   onSelectProduct();
 }
 
@@ -535,6 +552,7 @@ async function saveInvoice(){
   state.lastSavedInvoice = inv;
   state.workingInvoice = [];
   state.workingInvoiceDiscount = 0;
+  state.productOptionsCacheKey = '';
   save();
   localStorage.removeItem(DRAFT_KEY);
   saveSession();
@@ -1423,7 +1441,7 @@ function replyToMessage(userId){
 }
 
 function renderRepMessages(){
-  const box = byId('rep-messages-box');
+  const box = byId('rep-messages-modal-body');
   if(!box || !state.currentUser || state.currentUser.role !== 'rep') return;
   const supervisors = getSupervisors();
   const msgs = (state.data.messages || []).filter(m => isMessageVisibleToUser(m, state.currentUser)).slice(0, 20);
@@ -1458,6 +1476,15 @@ function renderRepMessages(){
         </div>`;
       }).join('') : '<div class="muted">لا توجد رسائل</div>'}
     </div>`;
+}
+
+function openRepMessagesModal(){
+  renderRepMessages();
+  byId('rep-messages-modal')?.classList.add('active');
+}
+
+function closeRepMessagesModal(){
+  byId('rep-messages-modal')?.classList.remove('active');
 }
 
 function prefillRepReply(userId){
@@ -1854,6 +1881,7 @@ function mergeServerData(serverData){
 
   if(serverData.products && serverData.products.length > 0) {
     state.data.products = serverData.products;
+    state.productOptionsCacheKey = '';
   }
 
   if(serverData.invoices && Array.isArray(serverData.invoices)) {
@@ -1927,7 +1955,6 @@ function mergeServerData(serverData){
 /* ===== INIT ===== */
 document.addEventListener('DOMContentLoaded', async () => {
   loadData();
-  await loadExternalClients();
   renderLoginUsers();
   const restored = restoreSession();
   const productSearch = byId('product-search');
@@ -1948,6 +1975,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   startSyncPolling();
   // Update online status on load if user is logged in
   if(state.currentUser) updateOnlineStatus();
+  loadExternalClients();
 });
 
 /* ===== GLOBAL EXPORTS ===== */
@@ -1996,6 +2024,8 @@ window.renderMyInvoices = renderMyInvoices;
 window.sendWhatsApp = sendWhatsApp;
 window.replyToMessage = replyToMessage;
 window.renderRepMessages = renderRepMessages;
+window.openRepMessagesModal = openRepMessagesModal;
+window.closeRepMessagesModal = closeRepMessagesModal;
 window.prefillRepReply = prefillRepReply;
 window.sendRepMessage = sendRepMessage;
 window.exportSalesReport = exportSalesReport;
