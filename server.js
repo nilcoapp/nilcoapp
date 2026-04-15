@@ -21,6 +21,13 @@ const DEFAULT_STORE = {
   followups: [],
   inventories: [],
   messages: [],
+  clientsLastUpdatedAt: 0,
+  productsLastUpdatedAt: 0,
+  invoicesLastUpdatedAt: 0,
+  followupsLastUpdatedAt: 0,
+  messagesLastUpdatedAt: 0,
+  usersLastUpdatedAt: 0,
+  inventoriesLastUpdatedAt: 0,
   onlineUsers: {},
   stockAlertsSeenAt: '',
   invoiceCounter: 0,
@@ -33,13 +40,20 @@ function normalizeStore(data) {
     ...DEFAULT_STORE,
     ...parsed,
     users: Array.isArray(parsed.users) ? parsed.users : [],
-    clients: Array.isArray(parsed.clients) ? parsed.users : [],
+    clients: Array.isArray(parsed.clients) ? parsed.clients : [],
     products: Array.isArray(parsed.products) ? parsed.products : [],
     invoices: Array.isArray(parsed.invoices) ? parsed.invoices : [],
     followups: Array.isArray(parsed.followups) ? parsed.followups : [],
     inventories: Array.isArray(parsed.inventories) ? parsed.inventories : [],
     messages: Array.isArray(parsed.messages) ? parsed.messages : [],
-    onlineUsers: parsed.onlineUsers && typeof parsed.onlineUsers === 'object' ? parsed.onlineUsers : {}
+    onlineUsers: parsed.onlineUsers && typeof parsed.onlineUsers === 'object' ? parsed.onlineUsers : {},
+    clientsLastUpdatedAt: Number(parsed.clientsLastUpdatedAt || 0),
+    productsLastUpdatedAt: Number(parsed.productsLastUpdatedAt || 0),
+    invoicesLastUpdatedAt: Number(parsed.invoicesLastUpdatedAt || 0),
+    followupsLastUpdatedAt: Number(parsed.followupsLastUpdatedAt || 0),
+    messagesLastUpdatedAt: Number(parsed.messagesLastUpdatedAt || 0),
+    usersLastUpdatedAt: Number(parsed.usersLastUpdatedAt || 0),
+    inventoriesLastUpdatedAt: Number(parsed.inventoriesLastUpdatedAt || 0)
   };
 }
 
@@ -118,7 +132,16 @@ function serveFile(res, filePath) {
     if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
       return false;
     }
-    res.writeHead(200, { 'Content-Type': getContentType(filePath) });
+    const ext = path.extname(filePath).toLowerCase();
+    const headers = { 'Content-Type': getContentType(filePath) };
+    if (['.html', '.js', '.json', '.webmanifest'].includes(ext)) {
+      headers['Cache-Control'] = 'no-store, no-cache, must-revalidate';
+      headers['Pragma'] = 'no-cache';
+      headers['Expires'] = '0';
+    } else {
+      headers['Cache-Control'] = 'public, max-age=86400';
+    }
+    res.writeHead(200, headers);
     fs.createReadStream(filePath).pipe(res);
     return true;
   } catch (error) {
@@ -152,7 +175,12 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/') {
       const indexPath = path.join(ROOT, 'index.html');
       if (fs.existsSync(indexPath)) {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.writeHead(200, {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        });
         return fs.createReadStream(indexPath).pipe(res);
       }
     }

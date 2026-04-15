@@ -10,6 +10,17 @@ const SESSION_KEY = STORAGE_KEY + '-session';
 const DRAFT_KEY = STORAGE_KEY + '-draft';
 const LOW_STOCK_THRESHOLD = 20;
 const CLIENTS_OVERWRITE_GRACE_MS = 8000;
+const COLLECTION_OVERWRITE_GRACE_MS = 8000;
+const SYNC_POLL_INTERVAL_MS = 15000;
+const COLLECTION_TIMESTAMP_FIELDS = {
+  clients: 'clientsLastUpdatedAt',
+  products: 'productsLastUpdatedAt',
+  invoices: 'invoicesLastUpdatedAt',
+  followups: 'followupsLastUpdatedAt',
+  messages: 'messagesLastUpdatedAt',
+  users: 'usersLastUpdatedAt',
+  inventories: 'inventoriesLastUpdatedAt'
+};
 const DEFAULT_USERS = [
   {id:"rep1",username:"Van",role:"rep",pin:"1001",active:true,sector:""},
   {id:"rep2",username:"TBC",role:"rep",pin:"1002",active:true,sector:""},
@@ -32,12 +43,20 @@ const DEFAULT_CLIENTS = [];
 const DEFAULT_DATA = {
   users: DEFAULT_USERS,
   clients: DEFAULT_CLIENTS,
-  clientsLastUpdatedAt: 0,
   products: [],
   invoices: [],
   followups: [],
-  stockAlertsSeenAt: '',
+  inventories: [],
   messages: [],
+  onlineUsers: {},
+  clientsLastUpdatedAt: 0,
+  productsLastUpdatedAt: 0,
+  invoicesLastUpdatedAt: 0,
+  followupsLastUpdatedAt: 0,
+  messagesLastUpdatedAt: 0,
+  usersLastUpdatedAt: 0,
+  inventoriesLastUpdatedAt: 0,
+  stockAlertsSeenAt: '',
   invoiceCounter: 0
 };
 
@@ -176,7 +195,7 @@ async function loadExternalClients(){
         ex.repId = ex.repId || normalizedClient.repId || '';
       }
     });
-    markClientsUpdated();
+    markCollectionUpdated('clients');
     save();
     if(state.currentUser?.role === 'rep') {
       state.repClientOptionsCacheKey = '';
@@ -198,8 +217,14 @@ function loadData(){
   if(!Array.isArray(state.data.products)) state.data.products = [];
   if(!Array.isArray(state.data.invoices)) state.data.invoices = [];
   if(!Array.isArray(state.data.followups)) state.data.followups = [];
+  if(!Array.isArray(state.data.inventories)) state.data.inventories = [];
+  if(!Array.isArray(state.data.messages)) state.data.messages = [];
+  if(!state.data.onlineUsers || typeof state.data.onlineUsers !== 'object') state.data.onlineUsers = {};
   if(!state.data.invoiceCounter) state.data.invoiceCounter = 0;
   if(!state.data.clientsLastUpdatedAt) state.data.clientsLastUpdatedAt = 0;
+  Object.values(COLLECTION_TIMESTAMP_FIELDS).forEach(field => {
+    if(!state.data[field]) state.data[field] = 0;
+  });
   DEFAULT_USERS.forEach(u => {
     const ex = state.data.users.find(x => x.id === u.id || x.username === u.username);
     if(!ex) state.data.users.push({...u});
@@ -220,7 +245,7 @@ function show(screenId){
   byId(screenId).classList.add('active');
 }
 
-function login(){
+async function login(){
   const userId = byId('login-user').value;
   const pin = byId('login-pin').value.trim();
   const msg = byId('login-msg');
@@ -229,8 +254,10 @@ function login(){
   if(!user){ msg.textContent = 'بيانات الدخول غير صحيحة'; return; }
   state.currentUser = user;
   byId('login-pin').value = '';
+  await pullFromServer();
+  state.currentUser = state.data.users.find(u => u.id === userId && u.active !== false) || user;
   saveSession();
-  if(user.role === 'rep'){
+  if(state.currentUser.role === 'rep'){
     byId('rep-title').innerHTML = 'NILCO <span class="sync-indicator" id="sync-dot"></span>';
     setupRepScreen();
     show('rep-screen');
@@ -239,8 +266,8 @@ function login(){
     renderDesk();
     show('desk-screen');
   }
-  pullFromServer();
   updateOnlineStatus();
+  syncToServer();
   showToast('مرحباً ' + user.username);
 }
 
@@ -313,6 +340,22 @@ function normalizeClientRepLink(client = {}){
 
 function markClientsUpdated(timestamp = Date.now()){
   state.data.clientsLastUpdatedAt = Math.max(Number(state.data.clientsLastUpdatedAt || 0), Number(timestamp || 0));
+}
+
+function getCollectionTimestamp(collectionName){
+  const field = COLLECTION_TIMESTAMP_FIELDS[collectionName];
+  return field ? Number(state.data[field] || 0) : 0;
+}
+
+function markCollectionUpdated(collectionName, timestamp = Date.now()){
+  const field = COLLECTION_TIMESTAMP_FIELDS[collectionName];
+  if(!field) return;
+  state.data[field] = Math.max(Number(state.data[field] || 0), Number(timestamp || 0));
+}
+
+function getServerCollectionTimestamp(serverData, collectionName){
+  const field = COLLECTION_TIMESTAMP_FIELDS[collectionName];
+  return field ? Number(serverData?.[field] || 0) : 0;
 }
 
 function getRepUserByClient(client){
@@ -415,6 +458,7 @@ function persistMessage(message){
   if(!state.data.messages) state.data.messages = [];
   state.data.messages.unshift(message);
   if(state.data.messages.length > 100) state.data.messages = state.data.messages.slice(0, 100);
+  markCollectionUpdated('messages');
   save();
   syncToServer();
 }
@@ -428,7 +472,11 @@ function markMessagesRead(messages){
       changed = true;
     }
   });
-  if(changed) save();
+  if(changed) {
+    markCollectionUpdated('messages');
+    save();
+    syncToServer();
+  }
 }
 
 function repClients(){
@@ -505,6 +553,7 @@ function saveFollowup(){
     createdAt: new Date().toISOString()
   };
   state.data.followups.unshift(followup);
+  markCollectionUpdated('followups');
   byId('rep-note').value = '';
   save();
   saveSession();
@@ -647,6 +696,8 @@ async function saveInvoice(){
     createdAt: new Date().toISOString()
   };
   state.data.invoices.unshift(inv);
+  markCollectionUpdated('invoices');
+  markCollectionUpdated('products');
   state.lastSavedInvoice = inv;
   state.workingInvoice = [];
   state.workingInvoiceDiscount = 0;
@@ -1166,6 +1217,7 @@ function importStockExcel(ev){
           updatedCount++;
         }
       });
+      markCollectionUpdated('products');
       save();
       syncToServer();
       renderDesk();
@@ -1180,6 +1232,7 @@ function importStockExcel(ev){
         stock: Number(p.stock || 0),
         barcode: p.barcode || ''
       }));
+      markCollectionUpdated('products');
       save();
       syncToServer();
       renderDesk();
@@ -1198,6 +1251,7 @@ function addProduct(){
   const stock = Number(byId('new-product-stock')?.value || 0);
   if(!name) return alert('اكتب اسم الصنف');
   state.data.products.unshift({ id:'p_'+Date.now(), code, name, barcode, price: Number.isFinite(price)?price:0, stock: Number.isFinite(stock)?stock:0 });
+  markCollectionUpdated('products');
   save();
   syncToServer();
   renderDesk();
@@ -1282,6 +1336,7 @@ function saveClient(){
       ...validation.payload
     });
   }
+  markCollectionUpdated('clients');
   save();
   syncToServer();
   renderDesk();
@@ -1309,6 +1364,7 @@ function deleteClient(clientId){
   if(!client) return;
   if(!confirm('هل تريد حذف العميل: ' + client.name + '؟')) return;
   state.data.clients = state.data.clients.filter(c => c.id !== clientId);
+  markCollectionUpdated('clients');
   save();
   syncToServer();
   renderDesk();
@@ -1341,7 +1397,7 @@ async function importClientsExcel(ev){
     };
   }).filter(x => x.name);
   state.data.clients = clients;
-  markClientsUpdated();
+  markCollectionUpdated('clients');
   save();
   await syncToServer();
   renderDesk();
@@ -1411,7 +1467,7 @@ function addUser(){
   const sector = byId('new-user-sector').value.trim();
   if(!username || !pin) return alert('اكمل البيانات');
   state.data.users.push({id:'u_'+Date.now(), username, pin, role, sector, active:true});
-  save(); syncToServer(); renderDesk(); renderLoginUsers();
+  markCollectionUpdated('users'); save(); syncToServer(); renderDesk(); renderLoginUsers();
   showToast('تمت إضافة المستخدم');
 }
 function editUser(uid){
@@ -1451,8 +1507,12 @@ function saveEditUser(){
     });
     if(state.data.onlineUsers && state.data.onlineUsers[uid]) state.data.onlineUsers[uid].username = newUsername;
     if(state.currentUser && state.currentUser.id === uid) state.currentUser.username = newUsername;
+    markCollectionUpdated('clients');
+    markCollectionUpdated('invoices');
+    markCollectionUpdated('followups');
+    markCollectionUpdated('messages');
   }
-  save(); syncToServer(); renderDesk(); renderLoginUsers();
+  markCollectionUpdated('users'); save(); syncToServer(); renderDesk(); renderLoginUsers();
   showToast('تم تعديل المستخدم');
 }
 function toggleUser(uid){
@@ -1460,7 +1520,7 @@ function toggleUser(uid){
   if(!u) return;
   if(u.id === state.currentUser.id) return alert('لا يمكنك إيقاف حسابك');
   u.active = u.active === false ? true : false;
-  save(); syncToServer(); renderDesk(); renderLoginUsers();
+  markCollectionUpdated('users'); save(); syncToServer(); renderDesk(); renderLoginUsers();
   showToast(u.active ? 'تم تفعيل المستخدم' : 'تم إيقاف المستخدم');
 }
 function deleteUser(uid){
@@ -1469,7 +1529,7 @@ function deleteUser(uid){
   if(u.id === state.currentUser.id) return alert('لا يمكنك حذف حسابك');
   if(!confirm('هل تريد حذف المستخدم: ' + u.username + '؟')) return;
   state.data.users = state.data.users.filter(x=>x.id!==uid);
-  save(); syncToServer(); renderDesk(); renderLoginUsers();
+  markCollectionUpdated('users'); save(); syncToServer(); renderDesk(); renderLoginUsers();
   showToast('تم حذف المستخدم');
 }
 
@@ -1764,6 +1824,7 @@ function saveInventory(){
   };
   if(!state.data.inventories) state.data.inventories = [];
   state.data.inventories.unshift(inv);
+  markCollectionUpdated('inventories');
   state.lastSavedInventory = inv;
   save(); syncToServer();
   showToast('تم حفظ الجرد بنجاح');
@@ -1823,6 +1884,9 @@ function sendInventoryWhatsApp(){
 
 /* ===== SERVER SYNC (Render API) ===== */
 let _syncBusy = false;
+let _syncQueued = false;
+let _syncPromise = Promise.resolve();
+let _syncPollingStarted = false;
 
 function updateSyncIndicator(online){
   state.serverOnline = online;
@@ -1830,6 +1894,113 @@ function updateSyncIndicator(online){
   dots.forEach(d => {
     if(d) d.classList.toggle('offline', !online);
   });
+}
+
+function cloneSyncValue(value){
+  return JSON.parse(JSON.stringify(value == null ? null : value));
+}
+
+function normalizeSyncedArray(collectionName, items){
+  const list = Array.isArray(items) ? items : [];
+  if(collectionName === 'clients'){
+    return list.map(client => {
+      const normalizedClient = normalizeClientRepLink(client || {});
+      return {
+        ...normalizedClient,
+        repMatchType: undefined
+      };
+    });
+  }
+  if(collectionName === 'messages'){
+    return list.map(message => ({
+      ...message,
+      readBy: Array.isArray(message?.readBy) ? [...new Set(message.readBy)] : []
+    }));
+  }
+  return list.map(item => ({...(item || {})}));
+}
+
+function normalizeServerState(serverData){
+  const normalized = {
+    ...cloneSyncValue(DEFAULT_DATA),
+    ...(serverData && typeof serverData === 'object' ? serverData : {})
+  };
+  ['clients','products','invoices','followups','messages','users','inventories'].forEach(collectionName => {
+    normalized[collectionName] = normalizeSyncedArray(collectionName, normalized[collectionName]);
+    const field = COLLECTION_TIMESTAMP_FIELDS[collectionName];
+    normalized[field] = Number(normalized[field] || 0);
+  });
+  normalized.onlineUsers = normalized.onlineUsers && typeof normalized.onlineUsers === 'object' ? normalized.onlineUsers : {};
+  normalized.invoiceCounter = Number(normalized.invoiceCounter || 0);
+  normalized.lastUpdated = Number(normalized.lastUpdated || 0);
+  return normalized;
+}
+
+function isLocalCollectionProtected(collectionName){
+  const localAt = getCollectionTimestamp(collectionName);
+  const graceMs = collectionName === 'clients' ? CLIENTS_OVERWRITE_GRACE_MS : COLLECTION_OVERWRITE_GRACE_MS;
+  return localAt > 0 && (Date.now() - localAt) <= graceMs;
+}
+
+function maxCreatedAt(items){
+  return (Array.isArray(items) ? items : []).reduce((latest, item) => {
+    const createdAt = Number(new Date(item?.createdAt || 0).getTime() || 0);
+    return Math.max(latest, createdAt);
+  }, 0);
+}
+
+function mergeById(remoteItems, localItems, mergeExisting){
+  const map = new Map();
+  (Array.isArray(remoteItems) ? remoteItems : []).forEach(item => {
+    if(!item || !item.id) return;
+    map.set(item.id, {...item});
+  });
+  (Array.isArray(localItems) ? localItems : []).forEach(item => {
+    if(!item || !item.id) return;
+    if(!map.has(item.id)) {
+      map.set(item.id, {...item});
+      return;
+    }
+    const remoteItem = map.get(item.id);
+    map.set(item.id, mergeExisting ? mergeExisting(remoteItem, item) : {...remoteItem, ...item});
+  });
+  return [...map.values()];
+}
+
+function mergeMessages(remoteItems, localItems){
+  return mergeById(remoteItems, localItems, (remoteItem, localItem) => ({
+    ...remoteItem,
+    ...localItem,
+    readBy: [...new Set([...(remoteItem.readBy || []), ...(localItem.readBy || [])])]
+  })).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 100);
+}
+
+function mergeOnlineUsers(remoteUsers, localUsers){
+  const merged = {...(remoteUsers || {})};
+  Object.entries(localUsers || {}).forEach(([id, user]) => {
+    if(!merged[id] || Number(user?.lastSeen || 0) > Number(merged[id]?.lastSeen || 0)) {
+      merged[id] = user;
+    }
+  });
+  return merged;
+}
+
+function replaceLocalCollection(collectionName, items, timestamp){
+  const field = COLLECTION_TIMESTAMP_FIELDS[collectionName];
+  state.data[collectionName] = normalizeSyncedArray(collectionName, items);
+  state.data[field] = Math.max(Number(timestamp || 0), Number(state.data[field] || 0));
+  if(collectionName === 'clients') state.repClientOptionsCacheKey = '';
+  if(collectionName === 'products') state.productOptionsCacheKey = '';
+  if(collectionName === 'users') {
+    renderLoginUsers();
+    if(state.currentUser) {
+      state.currentUser = state.data.users.find(u => u.id === state.currentUser.id) || state.currentUser;
+    }
+  }
+}
+
+function syncLog(action, details){
+  console.log(`[sync] ${action}`, details);
 }
 
 /* Read remote data */
@@ -1842,15 +2013,22 @@ async function pullFromServer(){
     });
     if(!resp.ok) throw new Error('HTTP ' + resp.status);
 
-    const serverData = await resp.json();
+    const serverData = normalizeServerState(await resp.json());
     if(serverData && typeof serverData === 'object') {
       mergeServerData(serverData);
       updateSyncIndicator(true);
+      syncLog('pull', {
+        lastUpdated: serverData.lastUpdated,
+        clientsAt: serverData.clientsLastUpdatedAt,
+        productsAt: serverData.productsLastUpdatedAt,
+        invoicesAt: serverData.invoicesLastUpdatedAt
+      });
 
-      if(state.currentUser && state.currentUser.role !== 'rep' && (state.deskTab === 'stock' || state.deskTab === 'dashboard' || state.deskTab === 'reports')) {
+      if(state.currentUser && state.currentUser.role !== 'rep' && ['dashboard','stock','reports','clients','users','messages'].includes(state.deskTab)) {
         renderDesk();
       }
       if(state.currentUser && state.currentUser.role === 'rep') {
+        renderRepClients();
         filterProducts();
         renderRepMessages();
         checkNewMessages();
@@ -1862,10 +2040,7 @@ async function pullFromServer(){
   }
 }
 
-/* Write full state to remote */
-async function pushToServer(){
-  if(!JSON_BIN_URL || _syncBusy) return;
-  _syncBusy = true;
+async function pushToServerOnce(){
   try {
     const isAdmin = state.currentUser && (state.currentUser.role === 'admin' || state.currentUser.role === 'supervisor');
 
@@ -1874,103 +2049,88 @@ async function pushToServer(){
       headers:{ 'x-api-key': API_KEY }
     });
 
-    let remote = {
-      products:[],
-      invoices:[],
-      followups:[],
-      clients:[],
-      clientsLastUpdatedAt: 0,
-      users:[],
-      messages:[],
-      onlineUsers:{},
-      inventories:[],
-      lastUpdated:0,
-      invoiceCounter:0
-    };
+    let remote = normalizeServerState({});
 
     if(getResp.ok) {
-      const r = await getResp.json();
-      if(r && typeof r === 'object') remote = r;
+      remote = normalizeServerState(await getResp.json());
     }
 
-    const remoteProducts = Array.isArray(remote.products) ? remote.products.map(p => ({...p})) : [];
-    const allInvoices = [...(remote.invoices || [])];
-    const remoteIds = new Set(allInvoices.map(i => i.id));
+    const remoteInvoiceIds = new Set((remote.invoices || []).map(i => i.id));
     const newInvoices = [];
     (state.data.invoices || []).forEach(inv => {
-      if(!remoteIds.has(inv.id)) {
-        allInvoices.push(inv);
-        remoteIds.add(inv.id);
+      if(!remoteInvoiceIds.has(inv.id)) {
         newInvoices.push(inv);
       }
     });
-    if(isAdmin && state.data.products.length > 0) {
-      remote.products = state.data.products;
-    } else if(remoteProducts.length > 0) {
+    remote.invoices = mergeById(remote.invoices, state.data.invoices).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const mergedInvoicesAt = Math.max(getCollectionTimestamp('invoices'), getServerCollectionTimestamp(remote, 'invoices'), maxCreatedAt(remote.invoices));
+    remote.invoicesLastUpdatedAt = mergedInvoicesAt;
+    replaceLocalCollection('invoices', remote.invoices, mergedInvoicesAt);
+
+    remote.followups = mergeById(remote.followups, state.data.followups).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const mergedFollowupsAt = Math.max(getCollectionTimestamp('followups'), getServerCollectionTimestamp(remote, 'followups'), maxCreatedAt(remote.followups));
+    remote.followupsLastUpdatedAt = mergedFollowupsAt;
+    replaceLocalCollection('followups', remote.followups, mergedFollowupsAt);
+
+    remote.messages = mergeMessages(remote.messages, state.data.messages);
+    const mergedMessagesAt = Math.max(getCollectionTimestamp('messages'), getServerCollectionTimestamp(remote, 'messages'), maxCreatedAt(remote.messages));
+    remote.messagesLastUpdatedAt = mergedMessagesAt;
+    replaceLocalCollection('messages', remote.messages, mergedMessagesAt);
+
+    remote.inventories = mergeById(remote.inventories, state.data.inventories).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const mergedInventoriesAt = Math.max(getCollectionTimestamp('inventories'), getServerCollectionTimestamp(remote, 'inventories'), maxCreatedAt(remote.inventories));
+    remote.inventoriesLastUpdatedAt = mergedInventoriesAt;
+    replaceLocalCollection('inventories', remote.inventories, mergedInventoriesAt);
+
+    const localClientsAt = getCollectionTimestamp('clients');
+    const remoteClientsAt = getServerCollectionTimestamp(remote, 'clients');
+    const preferLocalClients = localClientsAt > remoteClientsAt || (localClientsAt === remoteClientsAt && isLocalCollectionProtected('clients'));
+    if(preferLocalClients || !remote.clients.length) {
+      remote.clients = normalizeSyncedArray('clients', state.data.clients);
+      remote.clientsLastUpdatedAt = Math.max(localClientsAt, remoteClientsAt);
+      replaceLocalCollection('clients', remote.clients, remote.clientsLastUpdatedAt);
+    } else {
+      replaceLocalCollection('clients', remote.clients, remoteClientsAt);
+    }
+
+    const localUsersAt = getCollectionTimestamp('users');
+    const remoteUsersAt = getServerCollectionTimestamp(remote, 'users');
+    if(isAdmin && (localUsersAt > remoteUsersAt || (localUsersAt === remoteUsersAt && isLocalCollectionProtected('users')) || !remote.users.length)) {
+      remote.users = normalizeSyncedArray('users', state.data.users);
+      remote.usersLastUpdatedAt = Math.max(localUsersAt, remoteUsersAt);
+      replaceLocalCollection('users', remote.users, remote.usersLastUpdatedAt);
+    } else if(!remote.users.length && state.data.users.length) {
+      remote.users = normalizeSyncedArray('users', state.data.users);
+      remote.usersLastUpdatedAt = Math.max(localUsersAt, remoteUsersAt);
+      replaceLocalCollection('users', remote.users, remote.usersLastUpdatedAt);
+    } else if(remote.users.length) {
+      replaceLocalCollection('users', remote.users, remoteUsersAt);
+    }
+
+    const localProductsAt = getCollectionTimestamp('products');
+    const remoteProductsAt = getServerCollectionTimestamp(remote, 'products');
+    let mergedProducts = normalizeSyncedArray('products', remote.products.length ? remote.products : state.data.products);
+    let usingLocalProducts = false;
+    if(isAdmin && (localProductsAt > remoteProductsAt || (localProductsAt === remoteProductsAt && isLocalCollectionProtected('products')) || !remote.products.length)) {
+      mergedProducts = normalizeSyncedArray('products', state.data.products);
+      usingLocalProducts = true;
+    } else if(!remote.products.length && state.data.products.length) {
+      mergedProducts = normalizeSyncedArray('products', state.data.products);
+      usingLocalProducts = true;
+    }
+    if(!usingLocalProducts && newInvoices.length) {
       newInvoices.forEach(inv => {
         (inv.lines || []).forEach(line => {
-          const prod = remoteProducts.find(p => p.id === line.productId);
-          if(prod) prod.stock = Math.max(0, Number(prod.stock || 0) - Number(line.qty || 0));
+          const product = mergedProducts.find(p => p.id === line.productId);
+          if(product) product.stock = Math.max(0, Number(product.stock || 0) - Number(line.qty || 0));
         });
       });
-      remote.products = remoteProducts;
-      state.data.products = remoteProducts;
     }
-    allInvoices.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-    remote.invoices = allInvoices;
-    state.data.invoices = allInvoices;
+    remote.products = mergedProducts;
+    remote.productsLastUpdatedAt = Math.max(remoteProductsAt, localProductsAt, newInvoices.length ? Date.now() : 0);
+    replaceLocalCollection('products', remote.products, remote.productsLastUpdatedAt);
 
-    const allFollowups = [...(remote.followups || [])];
-    const remoteFollowIds = new Set(allFollowups.map(f => f.id));
-    (state.data.followups || []).forEach(f => {
-      if(!remoteFollowIds.has(f.id)) {
-        allFollowups.push(f);
-        remoteFollowIds.add(f.id);
-      }
-    });
-    remote.followups = allFollowups;
-    state.data.followups = allFollowups;
-
-    const localClientsAt = Number(state.data.clientsLastUpdatedAt || 0);
-    const remoteClientsAt = Number(remote.clientsLastUpdatedAt || 0);
-    if(localClientsAt >= remoteClientsAt) {
-      remote.clients = state.data.clients;
-      remote.clientsLastUpdatedAt = localClientsAt;
-    } else if(remote.clients && remote.clients.length >= 0) {
-      state.data.clients = remote.clients;
-      state.data.clientsLastUpdatedAt = remoteClientsAt;
-    }
-
-    if(isAdmin && state.data.users.length > 0) {
-      remote.users = state.data.users;
-    } else if(remote.users && remote.users.length > 0) {
-      state.data.users = remote.users;
-    }
-
-    if(!remote.messages) remote.messages = [];
-    if(state.data.messages && state.data.messages.length) {
-      const remoteMsgIds = new Set(remote.messages.map(m => m.id));
-      state.data.messages.forEach(m => {
-        if(!remoteMsgIds.has(m.id)) {
-          remote.messages.push(m);
-          remoteMsgIds.add(m.id);
-        }
-      });
-    }
-
-    remote.onlineUsers = {
-      ...(remote.onlineUsers || {}),
-      ...(state.data.onlineUsers || {})
-    };
-
-    if(state.data.inventories && state.data.inventories.length) {
-      const remoteInvIds = new Set((remote.inventories || []).map(i => i.id));
-      if(!remote.inventories) remote.inventories = [];
-      state.data.inventories.forEach(inv => {
-        if(!remoteInvIds.has(inv.id)) remote.inventories.push(inv);
-      });
-    }
-
+    remote.onlineUsers = mergeOnlineUsers(remote.onlineUsers, state.data.onlineUsers);
     remote.invoiceCounter = Math.max(remote.invoiceCounter || 0, state.data.invoiceCounter || 0);
     remote.lastUpdated = Date.now();
 
@@ -1985,15 +2145,40 @@ async function pushToServer(){
 
     if(!putResp.ok) throw new Error('HTTP ' + putResp.status);
 
+    const savedRemote = normalizeServerState(await putResp.json());
+    mergeServerData(savedRemote);
     updateSyncIndicator(true);
-    state.data = remote;
-    save();
+    syncLog('push', {
+      lastUpdated: savedRemote.lastUpdated,
+      clientsAt: savedRemote.clientsLastUpdatedAt,
+      productsAt: savedRemote.productsLastUpdatedAt,
+      invoicesAt: savedRemote.invoicesLastUpdatedAt
+    });
   } catch(e) {
     console.log('Push failed:', e);
     updateSyncIndicator(false);
-  } finally {
-    _syncBusy = false;
   }
+}
+
+/* Write full state to remote */
+async function pushToServer(){
+  if(!JSON_BIN_URL) return;
+  if(_syncBusy) {
+    _syncQueued = true;
+    return _syncPromise;
+  }
+  _syncPromise = (async () => {
+    _syncBusy = true;
+    try {
+      do {
+        _syncQueued = false;
+        await pushToServerOnce();
+      } while(_syncQueued);
+    } finally {
+      _syncBusy = false;
+    }
+  })();
+  return _syncPromise;
 }
 
 function syncToServer(){ return pushToServer(); }
@@ -2002,83 +2187,70 @@ async function syncFollowup(followup){ await pushToServer(); }
 
 function mergeServerData(serverData){
   if(!serverData || typeof serverData !== 'object') return;
+  const normalizedServer = normalizeServerState(serverData);
 
-  if(serverData.products && serverData.products.length > 0) {
-    state.data.products = serverData.products;
-    state.productOptionsCacheKey = '';
+  ['clients','products','users'].forEach(collectionName => {
+    const remoteAt = getServerCollectionTimestamp(normalizedServer, collectionName);
+    const localAt = getCollectionTimestamp(collectionName);
+    if(remoteAt > localAt && !isLocalCollectionProtected(collectionName)) {
+      replaceLocalCollection(collectionName, normalizedServer[collectionName], remoteAt);
+    }
+  });
+
+  const mergedInvoices = mergeById(normalizedServer.invoices, state.data.invoices).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  replaceLocalCollection('invoices', mergedInvoices, Math.max(getCollectionTimestamp('invoices'), getServerCollectionTimestamp(normalizedServer, 'invoices'), maxCreatedAt(mergedInvoices)));
+
+  const mergedFollowups = mergeById(normalizedServer.followups, state.data.followups).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  replaceLocalCollection('followups', mergedFollowups, Math.max(getCollectionTimestamp('followups'), getServerCollectionTimestamp(normalizedServer, 'followups'), maxCreatedAt(mergedFollowups)));
+
+  const mergedMessages = mergeMessages(normalizedServer.messages, state.data.messages);
+  replaceLocalCollection('messages', mergedMessages, Math.max(getCollectionTimestamp('messages'), getServerCollectionTimestamp(normalizedServer, 'messages'), maxCreatedAt(mergedMessages)));
+
+  const mergedInventories = mergeById(normalizedServer.inventories, state.data.inventories).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  replaceLocalCollection('inventories', mergedInventories, Math.max(getCollectionTimestamp('inventories'), getServerCollectionTimestamp(normalizedServer, 'inventories'), maxCreatedAt(mergedInventories)));
+
+  if(normalizedServer.invoiceCounter > (state.data.invoiceCounter||0)) {
+    state.data.invoiceCounter = normalizedServer.invoiceCounter;
   }
 
-  if(serverData.invoices && Array.isArray(serverData.invoices)) {
-    const localIds = new Set(state.data.invoices.map(i => i.id));
-    serverData.invoices.forEach(i => {
-      if(!localIds.has(i.id)) state.data.invoices.push(i);
-    });
-    state.data.invoices.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }
-
-  if(serverData.followups && Array.isArray(serverData.followups)) {
-    const localIds = new Set(state.data.followups.map(f => f.id));
-    serverData.followups.forEach(f => {
-      if(!localIds.has(f.id)) {
-        state.data.followups.push(f);
-      }
-    });
-  }
-
-  const localClientsAt = Number(state.data.clientsLastUpdatedAt || 0);
-  const remoteClientsAt = Number(serverData.clientsLastUpdatedAt || 0);
-  const localClientsUpdatedRecently = localClientsAt > 0 && (Date.now() - localClientsAt) <= CLIENTS_OVERWRITE_GRACE_MS;
-  if(!localClientsUpdatedRecently && remoteClientsAt > localClientsAt && Array.isArray(serverData.clients)) {
-    state.data.clients = serverData.clients;
-    state.data.clientsLastUpdatedAt = remoteClientsAt;
-  }
-
-  if(serverData.users && serverData.users.length > 0) {
-    state.data.users = serverData.users;
-  }
-
-  if(serverData.invoiceCounter && serverData.invoiceCounter > (state.data.invoiceCounter||0)) {
-    state.data.invoiceCounter = serverData.invoiceCounter;
-  }
-
-  if(serverData.onlineUsers && typeof serverData.onlineUsers === 'object') {
-    if(!state.data.onlineUsers) state.data.onlineUsers = {};
-    Object.entries(serverData.onlineUsers).forEach(([id, u]) => {
-      if(!state.data.onlineUsers[id] || u.lastSeen > state.data.onlineUsers[id].lastSeen) {
-        state.data.onlineUsers[id] = u;
-      }
-    });
-  }
-
-  if(serverData.messages && Array.isArray(serverData.messages)) {
-    if(!state.data.messages) state.data.messages = [];
-    const localMsgIds = new Set(state.data.messages.map(m => m.id));
-    serverData.messages.forEach(m => {
-      if(!localMsgIds.has(m.id)) {
-        state.data.messages.push(m);
-      } else {
-        const local = state.data.messages.find(lm => lm.id === m.id);
-        if(local && m.readBy) {
-          if(!local.readBy) local.readBy = [];
-          m.readBy.forEach(r => {
-            if(!local.readBy.includes(r)) local.readBy.push(r);
-          });
-        }
-      }
-    });
-    state.data.messages.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }
-
-  if(serverData.inventories && Array.isArray(serverData.inventories)) {
-    if(!state.data.inventories) state.data.inventories = [];
-    const localInvIds = new Set(state.data.inventories.map(i => i.id));
-    serverData.inventories.forEach(inv => {
-      if(!localInvIds.has(inv.id)) state.data.inventories.push(inv);
-    });
-  }
+  state.data.onlineUsers = mergeOnlineUsers(normalizedServer.onlineUsers, state.data.onlineUsers);
 
   save();
   checkNewMessages();
+}
+
+function startSyncPolling(){
+  if(_syncPollingStarted) return;
+  _syncPollingStarted = true;
+  setInterval(() => {
+    if(document.visibilityState === 'visible') {
+      pullFromServer();
+    }
+  }, SYNC_POLL_INTERVAL_MS);
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible') {
+      pullFromServer();
+      if(state.currentUser) {
+        updateOnlineStatus();
+        syncToServer();
+      }
+    }
+  });
+  window.addEventListener('focus', () => {
+    pullFromServer();
+    if(state.currentUser) {
+      updateOnlineStatus();
+      syncToServer();
+    }
+  });
+  window.addEventListener('online', () => {
+    pullFromServer();
+    if(state.currentUser) {
+      updateOnlineStatus();
+      syncToServer();
+    }
+  });
+  pullFromServer();
 }
 /* ===== INIT ===== */
 document.addEventListener('DOMContentLoaded', async () => {
