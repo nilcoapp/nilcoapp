@@ -162,8 +162,14 @@ async function loadExternalClients(){
     if(!Array.isArray(clients) || !clients.length) return;
     clients.forEach(c => {
       const ex = state.data.clients.find(x => String(x.code||'') === String(c.code||'') || x.name === c.name);
-      if(!ex) state.data.clients.push({...c});
-      else { ex.code = ex.code || c.code; ex.sector = ex.sector || c.sector; ex.repName = c.repName || ex.repName || ''; }
+      const repUser = state.data.users.find(u => u.role === 'rep' && u.username === c.repName);
+      if(!ex) state.data.clients.push({...c, repId: c.repId || repUser?.id || ''});
+      else {
+        ex.code = ex.code || c.code;
+        ex.sector = ex.sector || c.sector;
+        ex.repName = c.repName || ex.repName || '';
+        ex.repId = ex.repId || c.repId || repUser?.id || '';
+      }
     });
     save();
     if(state.currentUser?.role === 'rep') {
@@ -187,6 +193,16 @@ function loadData(){
   if(!Array.isArray(state.data.invoices)) state.data.invoices = [];
   if(!Array.isArray(state.data.followups)) state.data.followups = [];
   if(!state.data.invoiceCounter) state.data.invoiceCounter = 0;
+  state.data.clients = state.data.clients.map(c => {
+    const repUser = c?.repId
+      ? state.data.users.find(u => u.id === c.repId && u.role === 'rep')
+      : state.data.users.find(u => u.role === 'rep' && u.username === c?.repName);
+    return {
+      ...c,
+      repId: repUser?.id || c?.repId || '',
+      repName: repUser?.username || c?.repName || ''
+    };
+  });
   DEFAULT_USERS.forEach(u => {
     const ex = state.data.users.find(x => x.id === u.id || x.username === u.username);
     if(!ex) state.data.users.push({...u});
@@ -250,6 +266,40 @@ function isLowStock(stock){
 
 function getRepUsers(){
   return state.data.users.filter(u => u.role === 'rep' && u.active !== false);
+}
+
+function getRepUserByClient(client){
+  if(!client) return null;
+  if(client.repId) {
+    const byIdUser = state.data.users.find(u => u.id === client.repId && u.role === 'rep');
+    if(byIdUser) return byIdUser;
+  }
+  if(client.repName) {
+    return state.data.users.find(u => u.role === 'rep' && u.username === client.repName) || null;
+  }
+  return null;
+}
+
+function getClientRepDisplayName(client){
+  return getRepUserByClient(client)?.username || client?.repName || '';
+}
+
+function isClientAssignedToRep(client, repUser = state.currentUser){
+  if(!client || !repUser) return false;
+  if(client.repId && client.repId === repUser.id) return true;
+  if(client.repName && client.repName === repUser.username) return true;
+  return false;
+}
+
+function buildClientPayload({name, code, sector, repId}){
+  const repUser = state.data.users.find(u => u.id === repId && u.role === 'rep');
+  return {
+    name,
+    code,
+    sector,
+    repId: repUser?.id || '',
+    repName: repUser?.username || ''
+  };
 }
 
 function getSupervisors(){
@@ -332,15 +382,13 @@ function markMessagesRead(messages){
 }
 
 function repClients(){
-  const repName = state.currentUser.username;
   const sector = byId('rep-sector')?.value || state.currentUser.sector || '';
-  return state.data.clients.filter(c => c.repName === repName && (!sector || c.sector === sector));
+  return state.data.clients.filter(c => isClientAssignedToRep(c, state.currentUser) && (!sector || c.sector === sector));
 }
 
 function setupRepScreen(){
   if(!Array.isArray(state.workingInvoice)) state.workingInvoice = [];
-  const repName = state.currentUser.username;
-  const repClientList = state.data.clients.filter(c => c.repName === repName);
+  const repClientList = state.data.clients.filter(c => isClientAssignedToRep(c, state.currentUser));
   const sectors = [...new Set(repClientList.map(c => c.sector).filter(Boolean))];
   byId('rep-sector').innerHTML = ['<option value="">كل القطاعات</option>']
     .concat(sectors.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`)).join('');
@@ -1126,7 +1174,7 @@ function renderClientsAdmin(){
           <div class="field"><label>اسم العميل</label><input id="new-client-name" class="input" /></div>
           <div class="field"><label>كود العميل</label><input id="new-client-code" class="input" /></div>
           <div class="field"><label>القطاع</label><input id="new-client-sector" class="input" /></div>
-          <div class="field"><label>اسم المندوب</label><select id="new-client-rep" class="input"><option value="">اختر المندوب</option>${reps.map(r => `<option value="${escapeHtml(r.username)}" ${currentRep===r.username?'selected':''}>${escapeHtml(r.username)}</option>`).join('')}</select></div>
+          <div class="field"><label>اسم المندوب</label><select id="new-client-rep" class="input"><option value="">اختر المندوب</option>${reps.map(r => `<option value="${r.id}" ${currentRep===r.id?'selected':''}>${escapeHtml(r.username)}</option>`).join('')}</select></div>
         </div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="saveClient()">${editingId ? 'حفظ التعديل' : 'إضافة عميل'}</button>
@@ -1137,7 +1185,7 @@ function renderClientsAdmin(){
     <div class="card">
       <table>
         <thead><tr><th>الكود</th><th>العميل</th><th>القطاع</th><th>المندوب</th>${canManage?'<th>إجراءات</th>':''}</tr></thead>
-        <tbody>${state.data.clients.slice(0,500).map(c => `<tr><td>${escapeHtml(c.code||'')}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.sector||'')}</td><td>${escapeHtml(c.repName||'')}</td>${canManage?`<td style="white-space:nowrap"><button class="btn btn-soft" style="font-size:11px;padding:2px 8px" onclick="editClient('${c.id}')">تعديل</button> <button class="btn btn-soft" style="font-size:11px;padding:2px 8px;color:var(--danger)" onclick="deleteClient('${c.id}')">حذف</button></td>`:''}</tr>`).join('')}</tbody>
+        <tbody>${state.data.clients.slice(0,500).map(c => `<tr><td>${escapeHtml(c.code||'')}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.sector||'')}</td><td>${escapeHtml(getClientRepDisplayName(c))}</td>${canManage?`<td style="white-space:nowrap"><button class="btn btn-soft" style="font-size:11px;padding:2px 8px" onclick="editClient('${c.id}')">تعديل</button> <button class="btn btn-soft" style="font-size:11px;padding:2px 8px;color:var(--danger)" onclick="deleteClient('${c.id}')">حذف</button></td>`:''}</tr>`).join('')}</tbody>
       </table>
     </div>`;
 }
@@ -1146,16 +1194,16 @@ function validateClientForm(clientId=''){
   const name = byId('new-client-name')?.value.trim() || '';
   const code = byId('new-client-code')?.value.trim() || '';
   const sector = byId('new-client-sector')?.value.trim() || '';
-  const repName = byId('new-client-rep')?.value || '';
+  const repId = byId('new-client-rep')?.value || '';
   if(!name) return {ok:false, message:'اكتب اسم العميل'};
   if(!code) return {ok:false, message:'اكتب كود العميل'};
   if(!sector) return {ok:false, message:'اكتب القطاع'};
-  if(!repName) return {ok:false, message:'اختر المندوب'};
+  if(!repId) return {ok:false, message:'اختر المندوب'};
   const duplicateCode = state.data.clients.find(c => c.id !== clientId && String(c.code||'').trim() === code);
   if(duplicateCode) return {ok:false, message:'كود العميل مستخدم بالفعل'};
   const duplicateName = state.data.clients.find(c => c.id !== clientId && String(c.name||'').trim().toLowerCase() === name.toLowerCase());
   if(duplicateName) return {ok:false, message:'اسم العميل موجود بالفعل'};
-  return {ok:true, payload:{name, code, sector, repName}};
+  return {ok:true, payload:buildClientPayload({name, code, sector, repId})};
 }
 
 function fillClientForm(client){
@@ -1163,7 +1211,7 @@ function fillClientForm(client){
   byId('new-client-name').value = client?.name || '';
   byId('new-client-code').value = client?.code || '';
   byId('new-client-sector').value = client?.sector || '';
-  byId('new-client-rep').value = client?.repName || '';
+  byId('new-client-rep').value = client?.repId || getRepUserByClient(client)?.id || '';
 }
 
 function clearClientForm(){
@@ -1231,8 +1279,18 @@ function importClientsExcel(ev){
       code: String(r['Branch/Code'] || r['Branch Code'] || r.code || r['كود العميل'] || '').replace('.0','').trim(),
       name: String(r['Branch/Name'] || r['Branch Name'] || r.name || r['اسم العميل'] || '').trim(),
       sector: String(r['القطاع'] || r.sector || '').trim(),
-      repName: String(r['المندوب'] || r.repName || r['اسم المندوب'] || '').trim()
-    })).filter(x => x.name);
+      repName: String(r['المندوب'] || r.repName || r['اسم المندوب'] || '').trim(),
+      repId: String(r.repId || '').trim()
+    })).filter(x => x.name).map(c => {
+      const repUser = c.repId
+        ? state.data.users.find(u => u.id === c.repId && u.role === 'rep')
+        : state.data.users.find(u => u.role === 'rep' && u.username === c.repName);
+      return {
+        ...c,
+        repId: repUser?.id || c.repId || '',
+        repName: repUser?.username || c.repName || ''
+      };
+    });
     state.data.clients = clients;
     save(); syncToServer(); renderDesk();
     showToast('تم تحميل ' + clients.length + ' عميل');
@@ -1324,7 +1382,12 @@ function saveEditUser(){
   u.sector = byId('edit-user-sector').value.trim();
   if(!u.username || !u.pin) return alert('اكمل البيانات');
   if(oldUsername !== newUsername){
-    state.data.clients.forEach(c => { if(c.repName === oldUsername) c.repName = newUsername; });
+    state.data.clients.forEach(c => {
+      if(c.repId === uid || (!c.repId && c.repName === oldUsername)) {
+        c.repId = uid;
+        c.repName = newUsername;
+      }
+    });
     state.data.invoices.forEach(inv => { if(inv.repId === uid && inv.repName === oldUsername) inv.repName = newUsername; });
     state.data.followups.forEach(f => { if(f.repId === uid && f.repName === oldUsername) f.repName = newUsername; });
     (state.data.messages || []).forEach(m => {
