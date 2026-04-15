@@ -162,13 +162,16 @@ async function loadExternalClients(){
     if(!Array.isArray(clients) || !clients.length) return;
     clients.forEach(c => {
       const ex = state.data.clients.find(x => String(x.code||'') === String(c.code||'') || x.name === c.name);
-      const repUser = state.data.users.find(u => u.role === 'rep' && u.username === c.repName);
-      if(!ex) state.data.clients.push({...c, repId: c.repId || repUser?.id || ''});
+      const normalizedClient = normalizeClientRepLink(c);
+      if(!ex) state.data.clients.push({
+        ...normalizedClient,
+        repMatchType: undefined
+      });
       else {
         ex.code = ex.code || c.code;
         ex.sector = ex.sector || c.sector;
-        ex.repName = c.repName || ex.repName || '';
-        ex.repId = ex.repId || c.repId || repUser?.id || '';
+        ex.repName = normalizedClient.repName || ex.repName || '';
+        ex.repId = ex.repId || normalizedClient.repId || '';
       }
     });
     save();
@@ -193,20 +196,17 @@ function loadData(){
   if(!Array.isArray(state.data.invoices)) state.data.invoices = [];
   if(!Array.isArray(state.data.followups)) state.data.followups = [];
   if(!state.data.invoiceCounter) state.data.invoiceCounter = 0;
-  state.data.clients = state.data.clients.map(c => {
-    const repUser = c?.repId
-      ? state.data.users.find(u => u.id === c.repId && u.role === 'rep')
-      : state.data.users.find(u => u.role === 'rep' && u.username === c?.repName);
-    return {
-      ...c,
-      repId: repUser?.id || c?.repId || '',
-      repName: repUser?.username || c?.repName || ''
-    };
-  });
   DEFAULT_USERS.forEach(u => {
     const ex = state.data.users.find(x => x.id === u.id || x.username === u.username);
     if(!ex) state.data.users.push({...u});
     else { if(!ex.pin) ex.pin = u.pin; if(ex.active == null) ex.active = true; if(!ex.role) ex.role = u.role; if(ex.sector == null) ex.sector = u.sector || ''; }
+  });
+  state.data.clients = state.data.clients.map(c => {
+    const normalizedClient = normalizeClientRepLink(c);
+    return {
+      ...normalizedClient,
+      repMatchType: undefined
+    };
   });
   save();
 }
@@ -268,6 +268,45 @@ function getRepUsers(){
   return state.data.users.filter(u => u.role === 'rep' && u.active !== false);
 }
 
+function normalizeRepLinkText(value){
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[.,،;؛:_\-()[\]{}'"`~!@#$%^&*+=\\/|<>?]+/g, '')
+    .toLowerCase();
+}
+
+function findRepUserByImportedValue({repId='', repName=''} = {}){
+  const reps = getRepUsers();
+  if(repId){
+    const byIdUser = reps.find(u => u.id === repId);
+    if(byIdUser) return { user: byIdUser, matchType: 'repId' };
+  }
+  if(repName){
+    const exactUser = reps.find(u => u.username === repName);
+    if(exactUser) return { user: exactUser, matchType: 'exactUsername' };
+    const normalizedName = normalizeRepLinkText(repName);
+    if(normalizedName){
+      const normalizedUser = reps.find(u => normalizeRepLinkText(u.username) === normalizedName);
+      if(normalizedUser) return { user: normalizedUser, matchType: 'normalizedUsername' };
+    }
+  }
+  return { user: null, matchType: 'unmatched' };
+}
+
+function normalizeClientRepLink(client = {}){
+  const repMatch = findRepUserByImportedValue({
+    repId: client.repId || '',
+    repName: client.repName || ''
+  });
+  return {
+    ...client,
+    repId: repMatch.user?.id || client.repId || '',
+    repName: repMatch.user?.username || client.repName || '',
+    repMatchType: repMatch.matchType
+  };
+}
+
 function getRepUserByClient(client){
   if(!client) return null;
   if(client.repId) {
@@ -275,7 +314,10 @@ function getRepUserByClient(client){
     if(byIdUser) return byIdUser;
   }
   if(client.repName) {
-    return state.data.users.find(u => u.role === 'rep' && u.username === client.repName) || null;
+    const exactUser = state.data.users.find(u => u.role === 'rep' && u.username === client.repName);
+    if(exactUser) return exactUser;
+    const normalizedName = normalizeRepLinkText(client.repName);
+    return state.data.users.find(u => u.role === 'rep' && normalizeRepLinkText(u.username) === normalizedName) || null;
   }
   return null;
 }
@@ -287,7 +329,7 @@ function getClientRepDisplayName(client){
 function isClientAssignedToRep(client, repUser = state.currentUser){
   if(!client || !repUser) return false;
   if(client.repId && client.repId === repUser.id) return true;
-  if(client.repName && client.repName === repUser.username) return true;
+  if(client.repName && normalizeRepLinkText(client.repName) === normalizeRepLinkText(repUser.username)) return true;
   return false;
 }
 
@@ -1274,26 +1316,32 @@ function importClientsExcel(ev){
     const wb = XLSX.read(e.target.result, {type:'array'});
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
-    const clients = rows.map((r, idx) => ({
-      id: 'c_' + (Date.now() + idx),
-      code: String(r['Branch/Code'] || r['Branch Code'] || r.code || r['كود العميل'] || '').replace('.0','').trim(),
-      name: String(r['Branch/Name'] || r['Branch Name'] || r.name || r['اسم العميل'] || '').trim(),
-      sector: String(r['القطاع'] || r.sector || '').trim(),
-      repName: String(r['المندوب'] || r.repName || r['اسم المندوب'] || '').trim(),
-      repId: String(r.repId || '').trim()
-    })).filter(x => x.name).map(c => {
-      const repUser = c.repId
-        ? state.data.users.find(u => u.id === c.repId && u.role === 'rep')
-        : state.data.users.find(u => u.role === 'rep' && u.username === c.repName);
-      return {
-        ...c,
-        repId: repUser?.id || c.repId || '',
-        repName: repUser?.username || c.repName || ''
+    const stats = { repId: 0, exactUsername: 0, normalizedUsername: 0, unmatched: 0 };
+    const clients = rows.map((r, idx) => {
+      const baseClient = {
+        id: 'c_' + (Date.now() + idx),
+        code: String(r['Branch/Code'] || r['Branch Code'] || r.code || r['كود العميل'] || '').replace('.0','').trim(),
+        name: String(r['Branch/Name'] || r['Branch Name'] || r.name || r['اسم العميل'] || '').trim(),
+        sector: String(r['القطاع'] || r.sector || '').trim(),
+        repName: String(r['المندوب'] || r.repName || r['اسم المندوب'] || '').trim(),
+        repId: String(r.repId || '').trim()
       };
-    });
+      const normalizedClient = normalizeClientRepLink(baseClient);
+      stats[normalizedClient.repMatchType] = (stats[normalizedClient.repMatchType] || 0) + 1;
+      return {
+        ...normalizedClient,
+        repMatchType: undefined
+      };
+    }).filter(x => x.name);
     state.data.clients = clients;
     save(); syncToServer(); renderDesk();
-    showToast('تم تحميل ' + clients.length + ' عميل');
+    console.log('Client import rep matching stats:', {
+      matchedByRepId: stats.repId,
+      matchedByExactUsername: stats.exactUsername,
+      matchedByNormalizedUsername: stats.normalizedUsername,
+      unmatched: stats.unmatched
+    });
+    showToast(`تم تحميل ${clients.length} عميل | ID:${stats.repId} | اسم:${stats.exactUsername} | مطابق:${stats.normalizedUsername} | غير مطابق:${stats.unmatched}`, 4500);
   };
   reader.readAsArrayBuffer(file);
 }
