@@ -9,6 +9,7 @@ const STORAGE_KEY = 'nilco-int-v2';
 const SESSION_KEY = STORAGE_KEY + '-session';
 const DRAFT_KEY = STORAGE_KEY + '-draft';
 const LOW_STOCK_THRESHOLD = 20;
+const CLIENTS_OVERWRITE_GRACE_MS = 8000;
 const DEFAULT_USERS = [
   {id:"rep1",username:"Van",role:"rep",pin:"1001",active:true,sector:""},
   {id:"rep2",username:"TBC",role:"rep",pin:"1002",active:true,sector:""},
@@ -31,6 +32,7 @@ const DEFAULT_CLIENTS = [];
 const DEFAULT_DATA = {
   users: DEFAULT_USERS,
   clients: DEFAULT_CLIENTS,
+  clientsLastUpdatedAt: 0,
   products: [],
   invoices: [],
   followups: [],
@@ -174,6 +176,7 @@ async function loadExternalClients(){
         ex.repId = ex.repId || normalizedClient.repId || '';
       }
     });
+    markClientsUpdated();
     save();
     if(state.currentUser?.role === 'rep') {
       state.repClientOptionsCacheKey = '';
@@ -196,6 +199,7 @@ function loadData(){
   if(!Array.isArray(state.data.invoices)) state.data.invoices = [];
   if(!Array.isArray(state.data.followups)) state.data.followups = [];
   if(!state.data.invoiceCounter) state.data.invoiceCounter = 0;
+  if(!state.data.clientsLastUpdatedAt) state.data.clientsLastUpdatedAt = 0;
   DEFAULT_USERS.forEach(u => {
     const ex = state.data.users.find(x => x.id === u.id || x.username === u.username);
     if(!ex) state.data.users.push({...u});
@@ -305,6 +309,10 @@ function normalizeClientRepLink(client = {}){
     repName: repMatch.user?.username || client.repName || '',
     repMatchType: repMatch.matchType
   };
+}
+
+function markClientsUpdated(timestamp = Date.now()){
+  state.data.clientsLastUpdatedAt = Math.max(Number(state.data.clientsLastUpdatedAt || 0), Number(timestamp || 0));
 }
 
 function getRepUserByClient(client){
@@ -1307,43 +1315,43 @@ function deleteClient(clientId){
   showToast('تم حذف العميل');
 }
 
-function importClientsExcel(ev){
+async function importClientsExcel(ev){
   const file = ev.target.files && ev.target.files[0];
   if(!file) return;
   if(typeof XLSX === 'undefined') return alert('مكتبة Excel لم تُحمّل');
-  const reader = new FileReader();
-  reader.onload = e => {
-    const wb = XLSX.read(e.target.result, {type:'array'});
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
-    const stats = { repId: 0, exactUsername: 0, normalizedUsername: 0, unmatched: 0 };
-    const clients = rows.map((r, idx) => {
-      const baseClient = {
-        id: 'c_' + (Date.now() + idx),
-        code: String(r['Branch/Code'] || r['Branch Code'] || r.code || r['كود العميل'] || '').replace('.0','').trim(),
-        name: String(r['Branch/Name'] || r['Branch Name'] || r.name || r['اسم العميل'] || '').trim(),
-        sector: String(r['القطاع'] || r.sector || '').trim(),
-        repName: String(r['المندوب'] || r.repName || r['اسم المندوب'] || '').trim(),
-        repId: String(r.repId || '').trim()
-      };
-      const normalizedClient = normalizeClientRepLink(baseClient);
-      stats[normalizedClient.repMatchType] = (stats[normalizedClient.repMatchType] || 0) + 1;
-      return {
-        ...normalizedClient,
-        repMatchType: undefined
-      };
-    }).filter(x => x.name);
-    state.data.clients = clients;
-    save(); syncToServer(); renderDesk();
-    console.log('Client import rep matching stats:', {
-      matchedByRepId: stats.repId,
-      matchedByExactUsername: stats.exactUsername,
-      matchedByNormalizedUsername: stats.normalizedUsername,
-      unmatched: stats.unmatched
-    });
-    showToast(`تم تحميل ${clients.length} عميل | ID:${stats.repId} | اسم:${stats.exactUsername} | مطابق:${stats.normalizedUsername} | غير مطابق:${stats.unmatched}`, 4500);
-  };
-  reader.readAsArrayBuffer(file);
+  const buffer = await file.arrayBuffer();
+  const wb = XLSX.read(buffer, {type:'array'});
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+  const stats = { repId: 0, exactUsername: 0, normalizedUsername: 0, unmatched: 0 };
+  const clients = rows.map((r, idx) => {
+    const baseClient = {
+      id: 'c_' + (Date.now() + idx),
+      code: String(r['Branch/Code'] || r['Branch Code'] || r.code || r['كود العميل'] || '').replace('.0','').trim(),
+      name: String(r['Branch/Name'] || r['Branch Name'] || r.name || r['اسم العميل'] || '').trim(),
+      sector: String(r['القطاع'] || r.sector || '').trim(),
+      repName: String(r['المندوب'] || r.repName || r['اسم المندوب'] || '').trim(),
+      repId: String(r.repId || '').trim()
+    };
+    const normalizedClient = normalizeClientRepLink(baseClient);
+    stats[normalizedClient.repMatchType] = (stats[normalizedClient.repMatchType] || 0) + 1;
+    return {
+      ...normalizedClient,
+      repMatchType: undefined
+    };
+  }).filter(x => x.name);
+  state.data.clients = clients;
+  markClientsUpdated();
+  save();
+  await syncToServer();
+  renderDesk();
+  console.log('Client import rep matching stats:', {
+    matchedByRepId: stats.repId,
+    matchedByExactUsername: stats.exactUsername,
+    matchedByNormalizedUsername: stats.normalizedUsername,
+    unmatched: stats.unmatched
+  });
+  showToast(`تم تحميل ${clients.length} عميل | ID:${stats.repId} | اسم:${stats.exactUsername} | مطابق:${stats.normalizedUsername} | غير مطابق:${stats.unmatched}`, 4500);
 }
 
 /* ===== USERS ===== */
@@ -1871,6 +1879,7 @@ async function pushToServer(){
       invoices:[],
       followups:[],
       clients:[],
+      clientsLastUpdatedAt: 0,
       users:[],
       messages:[],
       onlineUsers:{},
@@ -1922,10 +1931,14 @@ async function pushToServer(){
     remote.followups = allFollowups;
     state.data.followups = allFollowups;
 
-    if(isAdmin && state.data.clients.length > 0) {
+    const localClientsAt = Number(state.data.clientsLastUpdatedAt || 0);
+    const remoteClientsAt = Number(remote.clientsLastUpdatedAt || 0);
+    if(localClientsAt >= remoteClientsAt) {
       remote.clients = state.data.clients;
-    } else if(remote.clients && remote.clients.length > 0) {
+      remote.clientsLastUpdatedAt = localClientsAt;
+    } else if(remote.clients && remote.clients.length >= 0) {
       state.data.clients = remote.clients;
+      state.data.clientsLastUpdatedAt = remoteClientsAt;
     }
 
     if(isAdmin && state.data.users.length > 0) {
@@ -2012,8 +2025,12 @@ function mergeServerData(serverData){
     });
   }
 
-  if(serverData.clients && serverData.clients.length > 0) {
+  const localClientsAt = Number(state.data.clientsLastUpdatedAt || 0);
+  const remoteClientsAt = Number(serverData.clientsLastUpdatedAt || 0);
+  const localClientsUpdatedRecently = localClientsAt > 0 && (Date.now() - localClientsAt) <= CLIENTS_OVERWRITE_GRACE_MS;
+  if(!localClientsUpdatedRecently && remoteClientsAt > localClientsAt && Array.isArray(serverData.clients)) {
     state.data.clients = serverData.clients;
+    state.data.clientsLastUpdatedAt = remoteClientsAt;
   }
 
   if(serverData.users && serverData.users.length > 0) {
