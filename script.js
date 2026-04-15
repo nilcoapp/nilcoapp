@@ -8,6 +8,7 @@ const API_KEY = 'nilco123';
 const STORAGE_KEY = 'nilco-int-v2';
 const SESSION_KEY = STORAGE_KEY + '-session';
 const DRAFT_KEY = STORAGE_KEY + '-draft';
+const LOW_STOCK_THRESHOLD = 20;
 const DEFAULT_USERS = [
   {id:"rep1",username:"Van",role:"rep",pin:"1001",active:true,sector:""},
   {id:"rep2",username:"TBC",role:"rep",pin:"1002",active:true,sector:""},
@@ -228,6 +229,35 @@ function escapeHtml(s){
   return String(s ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 }
 
+function isLowStock(stock){
+  return Number(stock || 0) <= LOW_STOCK_THRESHOLD;
+}
+
+function getRepUsers(){
+  return state.data.users.filter(u => u.role === 'rep' && u.active !== false);
+}
+
+function getSupervisors(){
+  return state.data.users.filter(u => u.role === 'supervisor' && u.active !== false);
+}
+
+function isMessageVisibleToUser(message, user){
+  if(!message || !user) return false;
+  return message.senderId === user.id || message.target === user.id;
+}
+
+function getSavedInvoiceForExport(){
+  if(state.workingInvoice.length) {
+    alert('احفظ الفاتورة أولاً ثم صدّرها أو أرسلها');
+    return null;
+  }
+  if(!state.lastSavedInvoice) {
+    alert('لا توجد فاتورة محفوظة');
+    return null;
+  }
+  return state.lastSavedInvoice;
+}
+
 function repClients(){
   const repName = state.currentUser.username;
   const sector = byId('rep-sector')?.value || state.currentUser.sector || '';
@@ -260,6 +290,10 @@ function renderRepClients(){
 function onClientChange(){
   const client = getSelectedClient();
   byId('rep-client-code').value = client ? client.code || '' : '';
+  if(state.workingInvoice.length){
+    state.lastSavedInvoice = null;
+    hideWhatsAppBtn();
+  }
   saveSession();
 }
 
@@ -303,7 +337,7 @@ function filterProducts(){
   const q = (byId('product-search').value || '').trim().toLowerCase();
   const products = state.data.products.filter(p => !q || String(p.name||'').toLowerCase().includes(q) || String(p.barcode||'').includes(q) || String(p.code||'').includes(q));
   state.filteredProducts = products;
-  byId('product-select').innerHTML = products.map(p => `<option value="${p.id}">${escapeHtml(p.name)}${p.stock<=50?' - غير متاح':''}</option>`).join('');
+  byId('product-select').innerHTML = products.map(p => `<option value="${p.id}">${escapeHtml(p.name)}${isLowStock(p.stock)?' - غير متاح':''}</option>`).join('');
   onSelectProduct();
 }
 
@@ -327,8 +361,10 @@ function addLine(){
   const qty = Number(qtyText);
   if(!p) return alert('اختر الصنف');
   if(!qtyText || !qty || qty < 1) return alert('اكتب كمية صحيحة');
-  if(Number(p.stock || 0) <= 20) return alert('هذا الصنف رصيده 20 أو أقل وغير متاح للطلب');
+  if(isLowStock(p.stock)) return alert(`هذا الصنف رصيده ${LOW_STOCK_THRESHOLD} أو أقل وغير متاح للطلب`);
   if(qty > Number(p.stock || 0)) return alert('الكمية المطلوبة أكبر من المخزون');
+  state.lastSavedInvoice = null;
+  hideWhatsAppBtn();
   state.workingInvoice.push({
     productId:p.id, name:p.name, code:p.code||'', barcode:p.barcode||'', price:Number(p.price||0), qty, total:Number(p.price||0)*qty
   });
@@ -441,8 +477,8 @@ function hideWhatsAppBtn(){
   if(container) container.classList.add('hidden');
 }
 function sendWhatsApp(){
-  const inv = state.lastSavedInvoice;
-  if(!inv) return alert('لا توجد فاتورة محفوظة');
+  const inv = getSavedInvoiceForExport();
+  if(!inv) return;
   sendWhatsAppForInvoice(inv);
 }
 function sendWhatsAppForInvoice(inv){
@@ -567,18 +603,8 @@ function sendDetailWhatsApp(){
 
 /* ===== EXPORT INVOICE EXCEL (Professional) ===== */
 function exportInvoiceExcel(){
-  if(typeof XLSX === 'undefined') return alert('مكتبة Excel لم تُحمّل');
-  const client = getSelectedClient();
-  if(!client || !state.workingInvoice.length) return alert('أضف أصنافًا أولاً');
-  const inv = {
-    customer: client.name,
-    customerCode: client.code || '',
-    repName: state.currentUser.username,
-    createdAt: new Date().toISOString(),
-    invoiceNumber: '—',
-    lines: state.workingInvoice,
-    total: state.workingInvoice.reduce((s,l)=>s+Number(l.total||0),0)
-  };
+  const inv = getSavedInvoiceForExport();
+  if(!inv) return;
   exportInvoiceExcelForInv(inv);
 }
 
@@ -720,7 +746,7 @@ function renderDashboard(){
       <div class="title">تنبيه المخزون</div>
       <div class="sub" style="margin:6px 0 10px">${low100.length ? 'يوجد أصناف تحتاج متابعة' : 'لا يوجد تنبيه اليوم'}</div>
       <div class="list">
-        ${low100.slice(0,20).map(p => `<div class="item" style="cursor:default"><div class="title">${escapeHtml(p.name)}</div><div class="sub">الرصيد: ${p.stock}${Number(p.stock)<=50?' — غير متاح للطلب':''}</div></div>`).join('') || '<div class="muted">لا يوجد</div>'}
+        ${low100.slice(0,20).map(p => `<div class="item" style="cursor:default"><div class="title">${escapeHtml(p.name)}</div><div class="sub">الرصيد: ${p.stock}${isLowStock(p.stock)?' — غير متاح للطلب':''}</div></div>`).join('') || '<div class="muted">لا يوجد</div>'}
       </div>
     </div>
     <div class="card">
@@ -877,7 +903,7 @@ function renderStock(){
       <table>
         <thead><tr><th>الكود</th><th>الصنف</th><th>الباركود</th><th>السعر</th><th>الرصيد</th></tr></thead>
         <tbody>
-          ${state.data.products.map(p => `<tr><td>${escapeHtml(p.code||'')}</td><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.barcode||'')}</td><td>${money(p.price)}</td><td style="font-weight:700;color:${Number(p.stock)<=50?'var(--danger)':Number(p.stock)<100?'var(--warn)':'var(--ok)'}">${p.stock}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">لا توجد أصناف</td></tr>'}
+          ${state.data.products.map(p => `<tr><td>${escapeHtml(p.code||'')}</td><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.barcode||'')}</td><td>${money(p.price)}</td><td style="font-weight:700;color:${isLowStock(p.stock)?'var(--danger)':Number(p.stock)<100?'var(--warn)':'var(--ok)'}">${p.stock}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">لا توجد أصناف</td></tr>'}
         </tbody>
       </table>
     </div>`;
@@ -973,6 +999,9 @@ function addProduct(){
 /* ===== CLIENTS ===== */
 function renderClientsAdmin(){
   const canManage = state.currentUser.role === 'admin' || state.currentUser.role === 'supervisor';
+  const reps = getRepUsers();
+  const currentRep = byId('new-client-rep')?.value || '';
+  const editingId = byId('editing-client-id')?.value || '';
   return `
     <div class="card">
       <div class="title">العملاء</div>
@@ -983,33 +1012,99 @@ function renderClientsAdmin(){
           <input type="file" accept=".xlsx,.xls" onchange="importClientsExcel(event)" />
         </div>
         <div class="grid2" style="margin-top:10px">
+          <input id="editing-client-id" type="hidden" value="${escapeHtml(editingId)}" />
           <div class="field"><label>اسم العميل</label><input id="new-client-name" class="input" /></div>
           <div class="field"><label>كود العميل</label><input id="new-client-code" class="input" /></div>
           <div class="field"><label>القطاع</label><input id="new-client-sector" class="input" /></div>
-          <div class="field"><label>اسم المندوب</label><input id="new-client-rep" class="input" /></div>
+          <div class="field"><label>اسم المندوب</label><select id="new-client-rep" class="input"><option value="">اختر المندوب</option>${reps.map(r => `<option value="${escapeHtml(r.username)}" ${currentRep===r.username?'selected':''}>${escapeHtml(r.username)}</option>`).join('')}</select></div>
         </div>
-        <button class="btn btn-primary" onclick="addClient()">إضافة عميل</button>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveClient()">${editingId ? 'حفظ التعديل' : 'إضافة عميل'}</button>
+          ${editingId ? '<button class="btn btn-soft" onclick="cancelClientEdit()">إلغاء</button>' : ''}
+        </div>
       ` : ''}
     </div>
     <div class="card">
       <table>
-        <thead><tr><th>الكود</th><th>العميل</th><th>القطاع</th><th>المندوب</th></tr></thead>
-        <tbody>${state.data.clients.slice(0,500).map(c => `<tr><td>${escapeHtml(c.code||'')}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.sector||'')}</td><td>${escapeHtml(c.repName||'')}</td></tr>`).join('')}</tbody>
+        <thead><tr><th>الكود</th><th>العميل</th><th>القطاع</th><th>المندوب</th>${canManage?'<th>إجراءات</th>':''}</tr></thead>
+        <tbody>${state.data.clients.slice(0,500).map(c => `<tr><td>${escapeHtml(c.code||'')}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.sector||'')}</td><td>${escapeHtml(c.repName||'')}</td>${canManage?`<td style="white-space:nowrap"><button class="btn btn-soft" style="font-size:11px;padding:2px 8px" onclick="editClient('${c.id}')">تعديل</button> <button class="btn btn-soft" style="font-size:11px;padding:2px 8px;color:var(--danger)" onclick="deleteClient('${c.id}')">حذف</button></td>`:''}</tr>`).join('')}</tbody>
       </table>
     </div>`;
 }
 
+function validateClientForm(clientId=''){
+  const name = byId('new-client-name')?.value.trim() || '';
+  const code = byId('new-client-code')?.value.trim() || '';
+  const sector = byId('new-client-sector')?.value.trim() || '';
+  const repName = byId('new-client-rep')?.value || '';
+  if(!name) return {ok:false, message:'اكتب اسم العميل'};
+  if(!code) return {ok:false, message:'اكتب كود العميل'};
+  if(!sector) return {ok:false, message:'اكتب القطاع'};
+  if(!repName) return {ok:false, message:'اختر المندوب'};
+  const duplicateCode = state.data.clients.find(c => c.id !== clientId && String(c.code||'').trim() === code);
+  if(duplicateCode) return {ok:false, message:'كود العميل مستخدم بالفعل'};
+  const duplicateName = state.data.clients.find(c => c.id !== clientId && String(c.name||'').trim().toLowerCase() === name.toLowerCase());
+  if(duplicateName) return {ok:false, message:'اسم العميل موجود بالفعل'};
+  return {ok:true, payload:{name, code, sector, repName}};
+}
+
+function fillClientForm(client){
+  byId('editing-client-id').value = client?.id || '';
+  byId('new-client-name').value = client?.name || '';
+  byId('new-client-code').value = client?.code || '';
+  byId('new-client-sector').value = client?.sector || '';
+  byId('new-client-rep').value = client?.repName || '';
+}
+
+function clearClientForm(){
+  fillClientForm(null);
+}
+
+function saveClient(){
+  const clientId = byId('editing-client-id')?.value || '';
+  const validation = validateClientForm(clientId);
+  if(!validation.ok) return alert(validation.message);
+  if(clientId){
+    const client = state.data.clients.find(c => c.id === clientId);
+    if(!client) return alert('العميل غير موجود');
+    Object.assign(client, validation.payload);
+  } else {
+    state.data.clients.unshift({
+      id: 'c_'+Date.now(),
+      ...validation.payload
+    });
+  }
+  save();
+  syncToServer();
+  renderDesk();
+  showToast(clientId ? 'تم تعديل العميل' : 'تمت إضافة العميل');
+}
+
 function addClient(){
-  const name = byId('new-client-name').value.trim();
-  if(!name) return alert('اكتب اسم العميل');
-  state.data.clients.unshift({
-    id: 'c_'+Date.now(),
-    code: byId('new-client-code').value.trim(),
-    name,
-    sector: byId('new-client-sector').value.trim(),
-    repName: byId('new-client-rep').value.trim()
-  });
-  save(); syncToServer(); renderDesk();
+  saveClient();
+}
+
+function editClient(clientId){
+  const client = state.data.clients.find(c => c.id === clientId);
+  if(!client) return;
+  renderDesk();
+  fillClientForm(client);
+}
+
+function cancelClientEdit(){
+  clearClientForm();
+  renderDesk();
+}
+
+function deleteClient(clientId){
+  const client = state.data.clients.find(c => c.id === clientId);
+  if(!client) return;
+  if(!confirm('هل تريد حذف العميل: ' + client.name + '؟')) return;
+  state.data.clients = state.data.clients.filter(c => c.id !== clientId);
+  save();
+  syncToServer();
+  renderDesk();
+  showToast('تم حذف العميل');
 }
 
 function importClientsExcel(ev){
@@ -1111,11 +1206,23 @@ function saveEditUser(){
   const uid = byId('edit-user-id').value;
   const u = state.data.users.find(x=>x.id===uid);
   if(!u) return;
-  u.username = byId('edit-user-name').value.trim();
+  const oldUsername = u.username;
+  const newUsername = byId('edit-user-name').value.trim();
+  u.username = newUsername;
   u.pin = byId('edit-user-pin').value.trim();
   u.role = byId('edit-user-role').value;
   u.sector = byId('edit-user-sector').value.trim();
   if(!u.username || !u.pin) return alert('اكمل البيانات');
+  if(oldUsername !== newUsername){
+    state.data.clients.forEach(c => { if(c.repName === oldUsername) c.repName = newUsername; });
+    state.data.invoices.forEach(inv => { if(inv.repId === uid && inv.repName === oldUsername) inv.repName = newUsername; });
+    state.data.followups.forEach(f => { if(f.repId === uid && f.repName === oldUsername) f.repName = newUsername; });
+    (state.data.messages || []).forEach(m => {
+      if(m.senderId === uid && m.senderName === oldUsername) m.senderName = newUsername;
+    });
+    if(state.data.onlineUsers && state.data.onlineUsers[uid]) state.data.onlineUsers[uid].username = newUsername;
+    if(state.currentUser && state.currentUser.id === uid) state.currentUser.username = newUsername;
+  }
   save(); syncToServer(); renderDesk(); renderLoginUsers();
   showToast('تم تعديل المستخدم');
 }
@@ -1171,8 +1278,9 @@ setInterval(updateOnlineStatus, 20000);
 /* ===== MESSAGES SYSTEM ===== */
 function renderMessagesAdmin(){
   const r = state.currentUser.role;
-  const canSend = r === 'admin' || r === 'supervisor';
-  const msgs = (state.data.messages || []).slice(0, 50);
+  const canSend = r === 'admin' || r === 'supervisor' || r === 'rep';
+  const availableTargets = r === 'rep' ? getSupervisors() : getRepUsers();
+  const msgs = (state.data.messages || []).filter(m => isMessageVisibleToUser(m, state.currentUser)).slice(0, 50);
   const unread = msgs.filter(m => !m.readBy || !m.readBy.includes(state.currentUser.id));
   // Mark messages as read
   msgs.forEach(m => {
@@ -1187,9 +1295,8 @@ function renderMessagesAdmin(){
       <div class="field" style="margin-top:8px">
         <label>إلى</label>
         <select id="msg-target">
-          <option value="all">جميع المستخدمين</option>
-          <option value="reps">المندوبين فقط</option>
-          ${state.data.users.filter(u=>u.active!==false).map(u => `<option value="${u.id}">${escapeHtml(u.username)}</option>`).join('')}
+          <option value="">اختر المستخدم</option>
+          ${availableTargets.map(u => `<option value="${u.id}">${escapeHtml(u.username)}</option>`).join('')}
         </select>
       </div>
       <div class="field">
@@ -1203,8 +1310,9 @@ function renderMessagesAdmin(){
       <div class="list" style="margin-top:8px">
         ${msgs.length ? msgs.map(m => {
           const time = new Date(m.createdAt).toLocaleString('ar-EG', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-          const targetLabel = m.target === 'all' ? 'الكل' : m.target === 'reps' ? 'المندوبين' : (state.data.users.find(u=>u.id===m.target)?.username || m.target);
-          return `<div class="item" style="cursor:default"><div class="title">من: ${escapeHtml(m.senderName)} → ${escapeHtml(targetLabel)}</div><div style="margin:4px 0;font-size:13px">${escapeHtml(m.text)}</div><div class="sub">${time}</div></div>`;
+          const targetLabel = state.data.users.find(u=>u.id===m.target)?.username || m.target;
+          const replyButton = m.senderId !== state.currentUser.id ? `<button class="btn btn-soft" style="font-size:11px;padding:2px 8px" onclick="replyToMessage('${m.senderId}')">رد</button>` : '';
+          return `<div class="item" style="cursor:default"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><div class="title">من: ${escapeHtml(m.senderName)} → ${escapeHtml(targetLabel)}</div>${replyButton}</div><div style="margin:4px 0;font-size:13px">${escapeHtml(m.text)}</div><div class="sub">${time}</div></div>`;
         }).join('') : '<div class="muted">لا توجد رسائل</div>'}
       </div>
     </div>`;
@@ -1212,7 +1320,10 @@ function renderMessagesAdmin(){
 function sendMessage(){
   const target = byId('msg-target')?.value;
   const text = byId('msg-text')?.value.trim();
+  const allowedTargets = (state.currentUser.role === 'rep' ? getSupervisors() : getRepUsers()).map(u => u.id);
+  if(!target) return alert('اختر المستخدم');
   if(!text) return alert('اكتب الرسالة');
+  if(!allowedTargets.includes(target)) return alert('المرسل إليه غير متاح');
   if(!state.data.messages) state.data.messages = [];
   state.data.messages.unshift({
     id: 'msg_'+Date.now(),
@@ -1228,14 +1339,15 @@ function sendMessage(){
   save(); syncToServer(); renderDesk();
   showToast('تم إرسال الرسالة');
 }
+function replyToMessage(userId){
+  const user = state.data.users.find(u => u.id === userId && u.active !== false);
+  if(!user) return;
+  byId('msg-target').value = user.id;
+  byId('msg-text')?.focus();
+}
 function checkNewMessages(){
   if(!state.data || !state.data.messages || !state.currentUser) return;
-  const myMsgs = state.data.messages.filter(m => {
-    if(m.target === 'all') return true;
-    if(m.target === 'reps' && state.currentUser.role === 'rep') return true;
-    if(m.target === state.currentUser.id) return true;
-    return false;
-  });
+  const myMsgs = state.data.messages.filter(m => isMessageVisibleToUser(m, state.currentUser));
   const unread = myMsgs.filter(m => !m.readBy || !m.readBy.includes(state.currentUser.id));
   if(unread.length > 0){
     showToast('لديك ' + unread.length + ' رسالة جديدة');
@@ -1704,6 +1816,10 @@ window.importStockExcel = importStockExcel;
 window.addProduct = addProduct;
 window.importClientsExcel = importClientsExcel;
 window.addClient = addClient;
+window.saveClient = saveClient;
+window.editClient = editClient;
+window.cancelClientEdit = cancelClientEdit;
+window.deleteClient = deleteClient;
 window.addUser = addUser;
 window.editUser = editUser;
 window.saveEditUser = saveEditUser;
@@ -1726,6 +1842,7 @@ window.openMyInvoices = openMyInvoices;
 window.closeMyInvoices = closeMyInvoices;
 window.renderMyInvoices = renderMyInvoices;
 window.sendWhatsApp = sendWhatsApp;
+window.replyToMessage = replyToMessage;
 window.exportSalesReport = exportSalesReport;
 window.exportNoInvoiceReport = exportNoInvoiceReport;
 window.exportClientStatusReport = exportClientStatusReport;
