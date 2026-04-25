@@ -112,8 +112,8 @@
   <section id="login-screen" class="screen active">
     <div class="logoBox">
       <img src="./nilco-logo.png" alt="NILCO" />
-      <div class="brand">NILCO INT </div>
-      <div class="slogan">بضاعة صح × ستاند صح × مكان صح = طلبية صح</div>
+      <div class="brand">NILCO INT.</div>
+      <div class="slogan">بضاعة صح × ستاند صح × مكان صح = طلبية مضمونة</div>
     </div>
     <div class="wrap">
       <div class="card">
@@ -161,17 +161,36 @@
         </div>
         <div id="inventory-box" class="hidden">
           <div class="field" style="margin-bottom:8px">
-            <label>بحث الصنف (اسم / باركود / كود)</label>
+            <label>بحث مساعد (اسم / باركود / كود)</label>
             <div style="display:flex;gap:6px">
               <input id="inv-product-search" class="input small" placeholder="اسكان الباركود أو ابحث..." />
               <button class="btn btn-soft" onclick="invSearchProduct()">بحث</button>
               <button class="btn btn-soft" onclick="openScanner('inventory')" style="font-size:16px;padding:6px 10px">📷</button>
-              <button class="btn btn-primary" onclick="invAddLine()">إضافة</button>
             </div>
           </div>
+          <div class="saleRow" style="margin-bottom:8px">
+            <div class="field" style="margin:0">
+              <label>الصنف</label>
+              <select id="inv-product-select" class="small" onchange="onInventoryProductChange()"></select>
+            </div>
+            <div class="field" style="margin:0">
+              <label>جرد العميل</label>
+              <input id="inv-client-qty" class="input small" type="text" inputmode="numeric" placeholder="0" oninput="onInventoryProductChange()" />
+            </div>
+            <div class="field" style="margin:0">
+              <label>ستوك المخزن</label>
+              <input id="inv-stock-view" class="input small" disabled />
+            </div>
+            <div class="field" style="margin:0">
+              <label>ط. مقترحة</label>
+              <input id="inv-suggested-order" class="input small" type="text" inputmode="numeric" placeholder="0" oninput="onInventorySuggestedInput()" />
+            </div>
+            <button class="btn btn-primary" onclick="invAddLine()">إضافة</button>
+          </div>
+          <div id="inv-stock-note" class="sub" style="margin-bottom:8px"></div>
           <div class="item" style="background:#fbfdff;cursor:default;overflow-x:auto">
             <table>
-              <thead><tr><th>الصنف</th><th>الباركود</th><th>جرد العميل</th><th>الاستوك</th><th>الطلبية</th><th></th></tr></thead>
+              <thead><tr><th>الصنف</th><th>الباركود</th><th>جرد العميل</th><th>ستوك المخزن</th><th>الطلبية المقترحة</th><th></th></tr></thead>
               <tbody id="inventory-lines"></tbody>
             </table>
           </div>
@@ -283,9 +302,9 @@
     </div>
     <div id="invoice-detail-body"></div>
     <div class="btn-row" style="margin-top:12px">
-      <button class="btn btn-soft" onclick="exportDetailInvoiceExcel()">Excel</button>
-      <button class="btn btn-print" onclick="printDetailInvoice()">طباعة</button>
-      <button class="btn btn-whatsapp" onclick="sendDetailWhatsApp()">واتساب</button>
+      <button id="detail-export-btn" class="btn btn-soft" onclick="exportDetailInvoiceExcel()">Excel</button>
+      <button id="detail-print-btn" class="btn btn-print" onclick="printDetailInvoice()">طباعة</button>
+      <button id="detail-whatsapp-btn" class="btn btn-whatsapp" onclick="sendDetailWhatsApp()">واتساب</button>
     </div>
   </div>
 </div>

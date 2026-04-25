@@ -8,7 +8,7 @@ const API_KEY = 'nilco123';
 const STORAGE_KEY = 'nilco-int-v2';
 const SESSION_KEY = STORAGE_KEY + '-session';
 const DRAFT_KEY = STORAGE_KEY + '-draft';
-const LOW_STOCK_THRESHOLD = 100;
+const LOW_STOCK_THRESHOLD = 20;
 const CLIENTS_OVERWRITE_GRACE_MS = 8000;
 const COLLECTION_OVERWRITE_GRACE_MS = 8000;
 const SYNC_POLL_INTERVAL_MS = 15000;
@@ -75,8 +75,10 @@ const state = {
   reportTo: new Date().toISOString().slice(0,10),
   reportMonth: new Date().toISOString().slice(0,7),
   lastSavedInvoice: null,
+  lastSavedInventory: null,
   pendingConfirmAction: null,
   viewingInvoice: null,
+  viewingInventory: null,
   serverOnline: false
 };
 
@@ -493,8 +495,11 @@ function setupRepScreen(){
   renderRepClients();
   toggleStatusMode();
   filterProducts();
+  renderInventoryProductOptions();
+  onInventoryProductChange();
   setInvoiceDiscount(state.workingInvoiceDiscount);
   renderInvoiceLines();
+  renderInventoryLines();
   hideWhatsAppBtn();
   saveSession();
 }
@@ -791,13 +796,36 @@ function renderMyInvoices(){
     if(to && d > to) return false;
     return true;
   });
+  const inventories = (state.data.inventories || []).filter(inv => {
+    if(!isAdmin && inv.repId !== repId) return false;
+    const d = String(inv.createdAt).slice(0,10);
+    if(from && d < from) return false;
+    if(to && d > to) return false;
+    return true;
+  });
   const total = invoices.reduce((s,x) => s + Number(x.total||0), 0);
-  let html = `<div style="margin-bottom:10px;font-weight:700">عدد الفواتير: ${invoices.length} — الإجمالي: ${money(total)}</div>`;
-  if(!invoices.length){
-    html += '<div class="muted">لا توجد فواتير في هذه الفترة</div>';
+  const records = [
+    ...invoices.map(inv => ({type:'invoice', createdAt: inv.createdAt, data: inv})),
+    ...inventories.map(inv => ({type:'inventory', createdAt: inv.createdAt, data: inv}))
+  ].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  let html = `<div style="margin-bottom:10px;font-weight:700">عدد الفواتير: ${invoices.length} — عدد الجرد: ${inventories.length} — إجمالي الفواتير: ${money(total)}</div>`;
+  if(!records.length){
+    html += '<div class="muted">لا توجد فواتير أو سجلات جرد في هذه الفترة</div>';
   } else {
     html += '<div class="list">';
-    invoices.forEach(inv => {
+    records.forEach(record => {
+      if(record.type === 'inventory') {
+        const inventory = record.data;
+        html += `<div class="item" onclick="viewInventoryDetail('${inventory.id}')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="title">${escapeHtml(inventory.clientName)}</div>
+            <span class="tag warn">جرد</span>
+          </div>
+          <div class="sub">${escapeHtml(inventory.repName)} — ${String(inventory.createdAt).slice(0,10)} — ${inventory.lines ? inventory.lines.length : 0} صنف</div>
+        </div>`;
+        return;
+      }
+      const inv = record.data;
       html += `<div class="item" onclick="viewInvoiceDetail('${inv.id}')">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div class="title">${escapeHtml(inv.customer)}</div>
@@ -816,6 +844,10 @@ function viewInvoiceDetail(invId){
   const inv = state.data.invoices.find(i => i.id === invId);
   if(!inv) return;
   state.viewingInvoice = inv;
+  state.viewingInventory = null;
+  if(byId('detail-print-btn')) byId('detail-print-btn').style.display = '';
+  if(byId('detail-export-btn')) byId('detail-export-btn').textContent = 'Excel';
+  if(byId('detail-whatsapp-btn')) byId('detail-whatsapp-btn').textContent = 'واتساب';
   byId('inv-detail-title').textContent = 'فاتورة #' + (inv.invoiceNumber || '—');
   let html = `
     <div style="margin-bottom:8px">
@@ -838,9 +870,39 @@ function viewInvoiceDetail(invId){
   byId('invoice-detail-body').innerHTML = html;
   byId('invoice-detail-modal').classList.add('active');
 }
-function closeInvoiceDetail(){ byId('invoice-detail-modal').classList.remove('active'); state.viewingInvoice = null; }
+function viewInventoryDetail(invId){
+  const inv = (state.data.inventories || []).find(i => i.id === invId);
+  if(!inv) return;
+  state.viewingInventory = inv;
+  state.viewingInvoice = null;
+  if(byId('detail-print-btn')) byId('detail-print-btn').style.display = 'none';
+  if(byId('detail-export-btn')) byId('detail-export-btn').textContent = 'Excel الجرد';
+  if(byId('detail-whatsapp-btn')) byId('detail-whatsapp-btn').textContent = 'مشاركة الجرد';
+  byId('inv-detail-title').textContent = 'جرد العميل';
+  byId('invoice-detail-body').innerHTML = `
+    <div style="margin-bottom:8px">
+      <div><strong>العميل:</strong> ${escapeHtml(inv.clientName)}</div>
+      <div><strong>المندوب:</strong> ${escapeHtml(inv.repName)}</div>
+      <div><strong>التاريخ:</strong> ${String(inv.createdAt).slice(0,10)}</div>
+    </div>
+    <div class="inv-detail">
+      <table>
+        <thead><tr><th>الصنف</th><th>الباركود</th><th>جرد العميل</th><th>ستوك المخزن</th><th>الطلبية المقترحة</th></tr></thead>
+        <tbody>
+          ${(inv.lines || []).map(line => `<tr><td>${escapeHtml(line.name)}</td><td style="font-size:10px">${escapeHtml(line.barcode || line.code || '—')}</td><td>${line.clientQty}</td><td>${line.stockQty > 0 ? line.stockQty : '0 — غير متاح'}</td><td>${line.suggestedOrder}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  byId('invoice-detail-modal').classList.add('active');
+}
+function closeInvoiceDetail(){
+  byId('invoice-detail-modal').classList.remove('active');
+  state.viewingInvoice = null;
+  state.viewingInventory = null;
+}
 
 function exportDetailInvoiceExcel(){
+  if(state.viewingInventory) return exportInventoryExcel(state.viewingInventory);
   if(!state.viewingInvoice) return;
   exportInvoiceExcelForInv(state.viewingInvoice);
 }
@@ -849,6 +911,7 @@ function printDetailInvoice(){
   printInvoiceData(state.viewingInvoice);
 }
 function sendDetailWhatsApp(){
+  if(state.viewingInventory) return sendInventoryWhatsApp(state.viewingInventory);
   if(!state.viewingInvoice) return;
   sendWhatsAppForInvoice(state.viewingInvoice);
 }
@@ -1738,76 +1801,211 @@ function closeScanner(){
 }
 
 /* ===== INVENTORY / جرد ===== */
-function invSearchProduct(){
-  const q = byId('inv-product-search').value.trim().toLowerCase();
-  if(!q) return;
-  const p = state.data.products.find(x =>
-    (x.barcode && x.barcode.toLowerCase() === q) ||
-    (x.code && x.code.toLowerCase() === q) ||
-    (x.name && x.name.toLowerCase().includes(q))
-  );
-  if(!p) return alert('لم يتم العثور على المنتج');
-  // Check if already added
-  if(state.workingInventory.find(x => x.productId === p.id)){
-    byId('inv-product-search').value = '';
-    return alert('هذا المنتج مضاف بالفعل');
-  }
-  state._invFoundProduct = p;
-  byId('inv-product-search').value = p.name + ' [' + (p.barcode||'') + ']';
+function getInventoryProducts(){
+  return Array.isArray(state.data.products) ? state.data.products : [];
 }
-function invAddLine(){
-  const q = byId('inv-product-search').value.trim().toLowerCase();
-  let p = state._invFoundProduct;
-  if(!p && q){
-    p = state.data.products.find(x =>
-      (x.barcode && x.barcode.toLowerCase() === q) ||
-      (x.code && x.code.toLowerCase() === q) ||
-      (x.name && x.name.toLowerCase().includes(q))
-    );
+
+function calculateInventorySuggestedOrder(clientQty, stockQty){
+  const targetQty = LOW_STOCK_THRESHOLD;
+  const required = Math.max(0, targetQty - Math.max(0, Number(clientQty || 0)));
+  return Math.max(0, Math.min(Math.max(0, Number(stockQty || 0)), required));
+}
+
+function renderInventoryProductOptions(){
+  const select = byId('inv-product-select');
+  if(!select) return;
+  const products = getInventoryProducts();
+  const currentValue = select.value;
+  select.innerHTML = products.map(p => {
+    const stock = Number(p.stock || 0);
+    const stockLabel = stock > 0 ? ` — المخزن: ${stock}` : ' — غير متاح بالمخزن';
+    return `<option value="${p.id}">${escapeHtml(p.name || p.code || 'صنف')} ${stockLabel}</option>`;
+  }).join('') || '<option value="">لا توجد أصناف</option>';
+  if(currentValue && products.some(p => p.id === currentValue)) select.value = currentValue;
+}
+
+function getInventorySelectedProduct(){
+  const selectedId = byId('inv-product-select')?.value || state._invFoundProduct?.id || '';
+  return getInventoryProducts().find(p => p.id === selectedId) || null;
+}
+
+function updateInventoryDraftFields(product){
+  const stock = Number(product?.stock || 0);
+  const clientQty = Math.max(0, Number(byId('inv-client-qty')?.value || 0));
+  const suggested = calculateInventorySuggestedOrder(clientQty, stock);
+  if(byId('inv-stock-view')) byId('inv-stock-view').value = product ? stock : '';
+  if(byId('inv-suggested-order')) byId('inv-suggested-order').value = product ? suggested : '';
+  if(byId('inv-stock-note')) {
+    byId('inv-stock-note').textContent = !product ? '' : stock > 0 ? `الطلبية المقترحة محسوبة حتى حد ${LOW_STOCK_THRESHOLD} ومع مراعاة ستوك المخزن.` : 'ستوك المخزن = 0، يمكن تسجيل الجرد لكن لا توجد طلبية متاحة حالياً.';
+    byId('inv-stock-note').style.color = stock > 0 ? 'var(--muted)' : 'var(--danger)';
   }
-  if(!p) return alert('ابحث عن المنتج أولاً');
-  if(state.workingInventory.find(x => x.productId === p.id)) return alert('هذا المنتج مضاف بالفعل');
-  const stock = Number(p.stock || 0);
-  state.workingInventory.push({
-    productId: p.id, name: p.name, barcode: p.barcode||'', code: p.code||'',
-    clientQty: 0, stockQty: stock, suggestedOrder: 0
-  });
-  state._invFoundProduct = null;
+}
+
+function onInventoryProductChange(){
+  const product = getInventorySelectedProduct();
+  state._invFoundProduct = product;
+  updateInventoryDraftFields(product);
+}
+
+function onInventorySuggestedInput(){
+  const product = getInventorySelectedProduct();
+  if(!product) return;
+  const stock = Number(product.stock || 0);
+  const suggestedInput = byId('inv-suggested-order');
+  const value = Math.max(0, Number(suggestedInput?.value || 0));
+  if(suggestedInput) suggestedInput.value = String(Math.min(stock, value));
+}
+
+function buildInventoryLine(product, clientQty, suggestedOrder){
+  const stockQty = Math.max(0, Number(product?.stock || 0));
+  const parsedClientQty = Math.max(0, Number(clientQty || 0));
+  const autoSuggested = calculateInventorySuggestedOrder(parsedClientQty, stockQty);
+  const finalSuggested = Math.max(0, Math.min(stockQty, suggestedOrder == null || suggestedOrder === '' ? autoSuggested : Number(suggestedOrder || 0)));
+  return {
+    productId: product.id,
+    name: product.name || product.code || 'صنف',
+    barcode: product.barcode || '',
+    code: product.code || '',
+    clientQty: parsedClientQty,
+    stockQty,
+    suggestedOrder: finalSuggested,
+    warehouseStatus: stockQty > 0 ? 'متاح' : 'غير متاح'
+  };
+}
+
+function invSearchProduct(){
+  const q = (byId('inv-product-search')?.value || '').trim().toLowerCase();
+  if(!q) return;
+  const product = getInventoryProducts().find(x =>
+    (x.barcode && String(x.barcode).toLowerCase() === q) ||
+    (x.code && String(x.code).toLowerCase() === q) ||
+    (x.name && String(x.name).toLowerCase().includes(q))
+  );
+  if(!product) return alert('لم يتم العثور على المنتج');
+  const select = byId('inv-product-select');
+  if(select) select.value = product.id;
+  state._invFoundProduct = product;
+  byId('inv-product-search').value = product.name + (product.barcode ? ' [' + product.barcode + ']' : '');
+  onInventoryProductChange();
+}
+
+function invAddLine(){
+  const product = getInventorySelectedProduct();
+  if(!product) return alert('اختر الصنف أولاً');
+  if(state.workingInventory.find(x => x.productId === product.id)) return alert('هذا المنتج مضاف بالفعل');
+  const line = buildInventoryLine(
+    product,
+    byId('inv-client-qty')?.value || 0,
+    byId('inv-suggested-order')?.value || ''
+  );
+  state.workingInventory.push(line);
   byId('inv-product-search').value = '';
+  if(byId('inv-client-qty')) byId('inv-client-qty').value = '';
+  state._invFoundProduct = null;
+  renderInventoryProductOptions();
+  onInventoryProductChange();
   renderInventoryLines();
 }
+
 function renderInventoryLines(){
   const tbody = byId('inventory-lines');
-  const rows = state.workingInventory.map((l,i) => `<tr>
-    <td style="font-size:12px">${escapeHtml(l.name)}</td>
-    <td style="font-size:11px;color:var(--muted)">${escapeHtml(l.barcode||'—')}</td>
-    <td><input type="number" class="input small" style="width:60px;text-align:center" value="${l.clientQty}" onchange="invUpdateLine(${i},'clientQty',this.value)" inputmode="numeric" /></td>
-    <td style="text-align:center;font-weight:600;color:${l.stockQty>0?'var(--ok)':'var(--danger)'}">${l.stockQty}</td>
-    <td><input type="number" class="input small" style="width:60px;text-align:center" value="${l.suggestedOrder}" onchange="invUpdateLine(${i},'suggestedOrder',this.value)" inputmode="numeric" /></td>
-    <td><button class="btn btn-danger" style="font-size:11px;padding:2px 6px" onclick="invRemoveLine(${i})">×</button></td>
-  </tr>`).join('');
-  tbody.innerHTML = rows || '<tr><td colspan="6" class="muted">لا توجد أصناف</td></tr>';
+  if(!tbody) return;
+  const rows = state.workingInventory.map((line, i) => {
+    const stockCell = line.stockQty > 0
+      ? `<span style="font-weight:600;color:var(--ok)">${line.stockQty}</span>`
+      : `<span style="font-weight:700;color:var(--danger)">0 — غير متاح</span>`;
+    return `<tr>
+      <td style="font-size:12px">${escapeHtml(line.name)}</td>
+      <td style="font-size:11px;color:var(--muted)">${escapeHtml(line.barcode || line.code || '—')}</td>
+      <td><input type="number" class="input small" style="width:72px;text-align:center" value="${line.clientQty}" onchange="invUpdateLine(${i},'clientQty',this.value)" inputmode="numeric" /></td>
+      <td style="text-align:center">${stockCell}</td>
+      <td><input type="number" class="input small" style="width:84px;text-align:center" value="${line.suggestedOrder}" onchange="invUpdateLine(${i},'suggestedOrder',this.value)" inputmode="numeric" /></td>
+      <td><button class="btn btn-danger" style="font-size:11px;padding:2px 6px" onclick="invRemoveLine(${i})">×</button></td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML = rows || '<tr><td colspan="6" class="muted">لا توجد أصناف مضافة للجرد</td></tr>';
 }
+
 function invUpdateLine(i, field, val){
   if(!state.workingInventory[i]) return;
-  const num = Math.max(0, Number(val)||0);
-  if(field === 'suggestedOrder' && num > state.workingInventory[i].stockQty){
-    alert('الطلبية أكبر من الاستوك المتاح');
-    state.workingInventory[i][field] = state.workingInventory[i].stockQty;
-  } else {
-    state.workingInventory[i][field] = num;
+  const current = state.workingInventory[i];
+  const num = Math.max(0, Number(val) || 0);
+  if(field === 'clientQty') {
+    current.clientQty = num;
+    current.suggestedOrder = calculateInventorySuggestedOrder(num, current.stockQty);
+  } else if(field === 'suggestedOrder') {
+    current.suggestedOrder = Math.max(0, Math.min(current.stockQty, num));
+    if(num > current.stockQty) alert('الطلبية المقترحة أكبر من ستوك المخزن');
   }
+  current.warehouseStatus = current.stockQty > 0 ? 'متاح' : 'غير متاح';
   renderInventoryLines();
 }
+
 function invRemoveLine(i){
   state.workingInventory.splice(i,1);
   renderInventoryLines();
 }
+
 function clearInventory(){
   if(state.workingInventory.length && !confirm('هل تريد مسح الجرد؟')) return;
   state.workingInventory = [];
+  if(byId('inv-product-search')) byId('inv-product-search').value = '';
+  if(byId('inv-client-qty')) byId('inv-client-qty').value = '';
+  renderInventoryProductOptions();
+  onInventoryProductChange();
   renderInventoryLines();
 }
+
+function getInventoryRecordForAction(requireSaved=false){
+  if(state.viewingInventory) return state.viewingInventory;
+  if(state.lastSavedInventory) return state.lastSavedInventory;
+  if(requireSaved) return null;
+  const client = getSelectedClient();
+  if(!client || !state.workingInventory.length) return null;
+  return {
+    id: 'draft_inventory',
+    type: 'inventory',
+    clientId: client.id,
+    clientName: client.name,
+    repId: state.currentUser.id,
+    repName: state.currentUser.username,
+    lines: JSON.parse(JSON.stringify(state.workingInventory)),
+    createdAt: new Date().toISOString()
+  };
+}
+
+function buildInventoryWorkbook(record){
+  const wb = XLSX.utils.book_new();
+  const lines = Array.isArray(record?.lines) ? record.lines : [];
+  const data = [
+    ['NILCO INT. — جرد العميل'],
+    ['العميل', record?.clientName || '', '', 'التاريخ', String(record?.createdAt || '').slice(0,10)],
+    ['المندوب', record?.repName || '', '', 'عدد الأصناف', lines.length],
+    []
+  ];
+  data.push(['الصنف', 'الباركود', 'جرد العميل', 'ستوك المخزن', 'الطلبية المقترحة', 'الحالة']);
+  lines.forEach(line => {
+    const stockQty = Number(line.stockQty || 0);
+    data.push([
+      line.name || '',
+      line.barcode || line.code || '',
+      Number(line.clientQty || 0),
+      stockQty,
+      Number(line.suggestedOrder || 0),
+      stockQty > 0 ? 'متاح' : 'غير متاح بالمخزن'
+    ]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:28},{wch:18},{wch:14},{wch:14},{wch:18},{wch:18}];
+  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:5}}];
+  XLSX.utils.book_append_sheet(wb, ws, 'جرد');
+  const safeClientName = String(record?.clientName || 'عميل').replace(/[\\/:*?"<>|]/g, '_');
+  return {
+    wb,
+    fileName: `جرد_${safeClientName}_${String(record?.createdAt || new Date().toISOString()).slice(0,10)}.xlsx`
+  };
+}
+
 function saveInventory(){
   const client = getSelectedClient();
   if(!client) return alert('اختر العميل');
@@ -1826,58 +2024,38 @@ function saveInventory(){
   state.data.inventories.unshift(inv);
   markCollectionUpdated('inventories');
   state.lastSavedInventory = inv;
-  save(); syncToServer();
+  save();
+  syncToServer();
+  renderMyInvoices();
   showToast('تم حفظ الجرد بنجاح');
 }
-function exportInventoryExcel(){
+
+function exportInventoryExcel(record = null){
   if(typeof XLSX === 'undefined') return alert('مكتبة Excel لم تُحمّل');
-  const client = getSelectedClient();
-  if(!client || !state.workingInventory.length) return alert('أضف أصنافاً أولاً');
-  const wb = XLSX.utils.book_new();
-  const data = [];
-  data.push(['NILCO INT. — جرد العميل']);
-  data.push(['العميل:', client.name, '', 'التاريخ:', new Date().toISOString().slice(0,10)]);
-  data.push(['المندوب:', state.currentUser.username]);
-  data.push([]);
-  data.push(['الصنف', 'الباركود', 'جرد العميل', 'الاستوك', 'الطلبية المقترحة']);
-  state.workingInventory.forEach(l => {
-    data.push([l.name, l.barcode||'', l.clientQty, l.stockQty, l.suggestedOrder]);
-  });
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [{wch:30},{wch:18},{wch:14},{wch:12},{wch:18}];
-  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:4}}];
-  XLSX.utils.book_append_sheet(wb, ws, 'جرد');
-  XLSX.writeFile(wb, `جرد_${client.name}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  const inventoryRecord = record || getInventoryRecordForAction(false);
+  if(!inventoryRecord) return alert('احفظ الجرد أو أضف أصنافاً أولاً');
+  const { wb, fileName } = buildInventoryWorkbook(inventoryRecord);
+  XLSX.writeFile(wb, fileName);
 }
-function sendInventoryWhatsApp(){
+
+function sendInventoryWhatsApp(record = null){
   if(typeof XLSX === 'undefined') return alert('مكتبة Excel لم تُحمّل');
-  const client = getSelectedClient();
-  if(!client || !state.workingInventory.length) return alert('أضف أصنافاً أولاً');
-  const wb = XLSX.utils.book_new();
-  const data = [];
-  data.push(['NILCO INT. — جرد العميل']);
-  data.push(['العميل:', client.name, '', 'التاريخ:', new Date().toISOString().slice(0,10)]);
-  data.push(['المندوب:', state.currentUser.username]);
-  data.push([]);
-  data.push(['الصنف', 'الباركود', 'جرد العميل', 'الاستوك', 'الطلبية المقترحة']);
-  state.workingInventory.forEach(l => {
-    data.push([l.name, l.barcode||'', l.clientQty, l.stockQty, l.suggestedOrder]);
-  });
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [{wch:30},{wch:18},{wch:14},{wch:12},{wch:18}];
-  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:4}}];
-  XLSX.utils.book_append_sheet(wb, ws, 'جرد');
+  const inventoryRecord = record || getInventoryRecordForAction(true) || getInventoryRecordForAction(false);
+  if(!inventoryRecord) return alert('احفظ الجرد أو أضف أصنافاً أولاً');
+  const { wb, fileName } = buildInventoryWorkbook(inventoryRecord);
   const wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
   const blob = new Blob([wbout], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const fileName = `جرد_${client.name}_${new Date().toISOString().slice(0,10)}.xlsx`;
   const file = new File([blob], fileName, {type: blob.type});
   if(navigator.canShare && navigator.canShare({files:[file]})){
-    navigator.share({title:'جرد NILCO', text:`جرد العميل: ${client.name}`, files:[file]}).catch(()=>{});
+    navigator.share({title:'جرد NILCO', text:`جرد العميل: ${inventoryRecord.clientName}`, files:[file]}).catch(()=>{});
   } else {
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = fileName; a.click();
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
     URL.revokeObjectURL(url);
-    const text = `جرد NILCO\nالعميل: ${client.name}\nالمندوب: ${state.currentUser.username}\nالتاريخ: ${new Date().toISOString().slice(0,10)}\n\n(الجرد مرفق كملف Excel)`;
+    const text = `جرد NILCO\nالعميل: ${inventoryRecord.clientName}\nالمندوب: ${inventoryRecord.repName}\nالتاريخ: ${String(inventoryRecord.createdAt).slice(0,10)}\n\n(تم تنزيل ملف Excel للجرد)`;
     setTimeout(()=>{ window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }, 500);
   }
 }
@@ -2029,6 +2207,8 @@ async function pullFromServer(){
       }
       if(state.currentUser && state.currentUser.role === 'rep') {
         renderRepClients();
+        renderInventoryProductOptions();
+        onInventoryProductChange();
         filterProducts();
         renderRepMessages();
         checkNewMessages();
@@ -2310,6 +2490,8 @@ window.sendMessage = sendMessage;
 window.openScanner = openScanner;
 window.closeScanner = closeScanner;
 window.invSearchProduct = invSearchProduct;
+window.onInventoryProductChange = onInventoryProductChange;
+window.onInventorySuggestedInput = onInventorySuggestedInput;
 window.invAddLine = invAddLine;
 window.invUpdateLine = invUpdateLine;
 window.invRemoveLine = invRemoveLine;
@@ -2332,6 +2514,7 @@ window.exportSalesReport = exportSalesReport;
 window.exportNoInvoiceReport = exportNoInvoiceReport;
 window.exportClientStatusReport = exportClientStatusReport;
 window.viewInvoiceDetail = viewInvoiceDetail;
+window.viewInventoryDetail = viewInventoryDetail;
 window.closeInvoiceDetail = closeInvoiceDetail;
 window.exportDetailInvoiceExcel = exportDetailInvoiceExcel;
 window.printDetailInvoice = printDetailInvoice;
