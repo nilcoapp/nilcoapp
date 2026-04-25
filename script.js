@@ -1904,25 +1904,56 @@ function checkNewMessages(){
 let _html5QrScanner = null;
 let _scannerTarget = null; // 'invoice' or 'inventory'
 let _scannerActive = false;
+let _scannerStarting = false;
+let _scannerStopping = false;
 let _lastScannedBarcode = '';
 let _lastScannedAt = 0;
 let _scannerCameras = [];
 let _scannerCameraIndex = -1;
+let _scannerTransitionPromise = Promise.resolve();
 
 function getScannerStatusElements(){
   return {
     resultEl: byId('scanner-result'),
     hintEl: byId('scanner-hint'),
     controlsEl: byId('scanner-controls'),
-    switchBtn: byId('scanner-switch-btn')
+    switchBtn: byId('scanner-switch-btn'),
+    invoiceBtn: byId('invoice-scan-btn'),
+    inventoryBtn: byId('inventory-scan-btn')
   };
+}
+
+function setScannerButtonsDisabled(disabled){
+  const { invoiceBtn, inventoryBtn, switchBtn } = getScannerStatusElements();
+  if(invoiceBtn) invoiceBtn.disabled = !!disabled;
+  if(inventoryBtn) inventoryBtn.disabled = !!disabled;
+  if(switchBtn) switchBtn.disabled = !!disabled || _scannerCameras.length < 2 || !_scannerActive;
 }
 
 function updateScannerControls(){
   const { controlsEl, switchBtn } = getScannerStatusElements();
   const hasMultiple = _scannerCameras.length > 1;
   if(controlsEl) controlsEl.classList.toggle('hidden', !hasMultiple);
-  if(switchBtn) switchBtn.disabled = !hasMultiple || !_scannerActive;
+  if(switchBtn) switchBtn.disabled = !hasMultiple || !_scannerActive || _scannerStarting || _scannerStopping;
+  setScannerButtonsDisabled(_scannerStarting || _scannerStopping);
+}
+
+async function waitForScannerIdle(){
+  try {
+    await _scannerTransitionPromise;
+  } catch(e) {}
+}
+
+function runScannerTransition(task){
+  _scannerTransitionPromise = _scannerTransitionPromise
+    .catch(() => {})
+    .then(task);
+  return _scannerTransitionPromise;
+}
+
+function resetScannerPreview(){
+  const reader = byId('scanner-reader');
+  if(reader) reader.innerHTML = '';
 }
 
 function findProductByBarcode(barcode){
@@ -1974,22 +2005,39 @@ async function startScannerWithConfig(cameraConfig){
 
 async function startScannerCamera(cameraConfig, statusText){
   const { resultEl } = getScannerStatusElements();
-  if(resultEl) resultEl.textContent = statusText || 'جارٍ فتح الكاميرا...';
-  await startScannerWithConfig(cameraConfig);
-  _scannerActive = true;
+  _scannerStarting = true;
   updateScannerControls();
-  if(resultEl) resultEl.textContent = 'الكاميرا جاهزة. وجّهها نحو الباركود.';
+  if(resultEl) resultEl.textContent = statusText || 'جارٍ فتح الكاميرا...';
+  try {
+    await startScannerWithConfig(cameraConfig);
+    _scannerActive = true;
+    if(resultEl) resultEl.textContent = 'الكاميرا جاهزة. وجّهها نحو الباركود.';
+  } finally {
+    _scannerStarting = false;
+    updateScannerControls();
+  }
 }
 
 async function stopScanner(keepModalOpen=false){
-  if(!keepModalOpen) byId('scanner-modal').style.display = 'none';
-  if(_html5QrScanner){
-    try { await _html5QrScanner.stop(); } catch(e) {}
-    try { await _html5QrScanner.clear(); } catch(e) {}
-    _html5QrScanner = null;
+  if(_scannerStopping) {
+    await waitForScannerIdle();
+    return;
   }
-  _scannerActive = false;
+  _scannerStopping = true;
   updateScannerControls();
+  if(!keepModalOpen) byId('scanner-modal').style.display = 'none';
+  try {
+    if(_html5QrScanner){
+      try { await _html5QrScanner.stop(); } catch(e) {}
+      try { await _html5QrScanner.clear(); } catch(e) {}
+      _html5QrScanner = null;
+    }
+  } finally {
+    resetScannerPreview();
+    _scannerActive = false;
+    _scannerStopping = false;
+    updateScannerControls();
+  }
 }
 
 async function startPreferredScannerCamera(){
@@ -2004,21 +2052,24 @@ async function startPreferredScannerCamera(){
 }
 
 async function switchScannerCamera(){
-  if(_scannerCameras.length < 2) return;
+  if(_scannerCameras.length < 2 || _scannerStarting || _scannerStopping) return;
   const { resultEl, hintEl } = getScannerStatusElements();
-  try {
-    _scannerCameraIndex = (_scannerCameraIndex + 1) % _scannerCameras.length;
-    if(resultEl) resultEl.textContent = 'جارٍ تبديل الكاميرا...';
-    await stopScanner(true);
-    await startScannerCamera(_scannerCameras[_scannerCameraIndex].id, 'جارٍ فتح الكاميرا...');
-  } catch(err) {
-    if(resultEl) resultEl.textContent = 'تعذر تبديل الكاميرا';
-    if(hintEl) hintEl.textContent = 'إذا استمر التعذر، أغلق السكان وافتحه من جديد أو استخدم الإدخال اليدوي.';
-    console.error('switchScannerCamera failed', err);
-  }
+  await runScannerTransition(async () => {
+    try {
+      _scannerCameraIndex = (_scannerCameraIndex + 1) % _scannerCameras.length;
+      if(resultEl) resultEl.textContent = 'جارٍ تبديل الكاميرا...';
+      await stopScanner(true);
+      await startScannerCamera(_scannerCameras[_scannerCameraIndex].id, 'جارٍ فتح الكاميرا...');
+    } catch(err) {
+      if(resultEl) resultEl.textContent = 'تعذر تبديل الكاميرا';
+      if(hintEl) hintEl.textContent = 'إذا استمر التعذر، أغلق السكان وافتحه من جديد أو استخدم الإدخال اليدوي.';
+      console.error('switchScannerCamera failed', err);
+    }
+  });
 }
 
 async function openScanner(target){
+  if(_scannerStarting || _scannerStopping) return;
   _scannerTarget = target;
   const { resultEl, hintEl } = getScannerStatusElements();
   if(resultEl) resultEl.textContent = '';
@@ -2041,27 +2092,30 @@ async function openScanner(target){
     return;
   }
 
-  if(_scannerActive) await stopScanner(true);
-
-  try {
-    _scannerCameras = await Html5Qrcode.getCameras();
-    updateScannerControls();
-    if(_scannerCameras.length) {
-      await startPreferredScannerCamera();
-    } else {
-      await startScannerCamera({ facingMode: { ideal: 'environment' } }, 'جارٍ طلب إذن الكاميرا...');
-    }
-  } catch(err) {
+  await runScannerTransition(async () => {
+    if(_scannerActive) await stopScanner(true);
     try {
-      await startScannerCamera({ facingMode: { ideal: 'environment' } }, 'جارٍ فتح الكاميرا...');
-    } catch(fallbackErr) {
-      const message = String(fallbackErr?.message || fallbackErr || err?.message || err || 'خطأ غير معروف');
-      if(resultEl) resultEl.textContent = 'تعذر فتح الكاميرا: ' + message;
-      if(hintEl) hintEl.textContent = 'إذا استمر التعذر، استخدم إدخال الباركود اليدوي.';
-      _scannerActive = false;
+      _scannerCameras = await Html5Qrcode.getCameras();
       updateScannerControls();
+      if(_scannerCameras.length) {
+        await startPreferredScannerCamera();
+      } else {
+        await startScannerCamera({ facingMode: { ideal: 'environment' } }, 'جارٍ طلب إذن الكاميرا...');
+      }
+    } catch(err) {
+      try {
+        await startScannerCamera({ facingMode: { ideal: 'environment' } }, 'جارٍ فتح الكاميرا...');
+      } catch(fallbackErr) {
+        const message = String(fallbackErr?.message || fallbackErr || err?.message || err || 'خطأ غير معروف');
+        if(resultEl) resultEl.textContent = 'تعذر فتح الكاميرا: ' + message;
+        if(hintEl) hintEl.textContent = 'إذا استمر التعذر، استخدم إدخال الباركود اليدوي.';
+        _scannerActive = false;
+        _scannerStarting = false;
+        _scannerStopping = false;
+        updateScannerControls();
+      }
     }
-  }
+  });
 }
 
 async function onScanSuccess(barcode){
@@ -2078,7 +2132,9 @@ async function onScanSuccess(barcode){
 }
 
 async function closeScanner(){
-  await stopScanner(false);
+  await runScannerTransition(async () => {
+    await stopScanner(false);
+  });
 }
 
 /* ===== INVENTORY / جرد ===== */
