@@ -1909,14 +1909,10 @@ let selectedCameraId = '';
 let scannerStarting = false;
 let scannerStopping = false;
 let scannerCameras = [];
-let scannerCameraIndex = -1;
 let scannerLastBarcode = '';
 let scannerLastScanAt = 0;
 let scannerTransition = Promise.resolve();
 let scannerLibraryPromise = null;
-let scannerTrack = null;
-let scannerTorchOn = false;
-let scannerTorchAvailable = false;
 const SCANNER_CDN_CANDIDATES = [
   'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js',
   'https://unpkg.com/@zxing/browser@0.1.5/umd/zxing-browser.min.js',
@@ -1932,8 +1928,6 @@ function getScannerStatusElements(){
     errorEl: byId('scanner-error'),
     hintEl: byId('scanner-hint'),
     controlsEl: byId('scanner-controls'),
-    switchBtn: byId('scanner-switch-btn'),
-    torchBtn: byId('scanner-torch-btn'),
     retryBtn: byId('scanner-retry-btn'),
     manualInput: byId('scanner-manual-input'),
     invoiceBtn: byId('invoice-scan-btn'),
@@ -1947,24 +1941,16 @@ function queueScannerTransition(task){
 }
 
 function setScannerBusy(disabled){
-  const { invoiceBtn, inventoryBtn, switchBtn, retryBtn, torchBtn } = getScannerStatusElements();
+  const { invoiceBtn, inventoryBtn, retryBtn } = getScannerStatusElements();
   if(invoiceBtn) invoiceBtn.disabled = !!disabled;
   if(inventoryBtn) inventoryBtn.disabled = !!disabled;
-  if(switchBtn) switchBtn.disabled = !!disabled || scannerCameras.length < 2 || !scannerActive;
   if(retryBtn) retryBtn.disabled = !!disabled;
-  if(torchBtn) torchBtn.disabled = !!disabled || !scannerTorchAvailable || !scannerActive;
 }
 
 function updateScannerControls(){
-  const { controlsEl, switchBtn, retryBtn, torchBtn, errorEl } = getScannerStatusElements();
-  const hasMultiple = scannerCameras.length > 1;
+  const { controlsEl, errorEl } = getScannerStatusElements();
   const hasError = !!(errorEl?.textContent || '').trim();
-  if(controlsEl) controlsEl.classList.toggle('hidden', !hasMultiple && !scannerTorchAvailable && !hasError);
-  if(switchBtn) switchBtn.disabled = !hasMultiple || !scannerActive || scannerStarting || scannerStopping;
-  if(torchBtn) {
-    torchBtn.classList.toggle('hidden', !scannerTorchAvailable);
-    torchBtn.textContent = scannerTorchOn ? 'إطفاء الفلاش' : 'فلاش';
-  }
+  if(controlsEl) controlsEl.classList.toggle('hidden', !hasError);
   setScannerBusy(scannerStarting || scannerStopping);
 }
 
@@ -1974,6 +1960,7 @@ function resetScannerUi(message=''){
   if(errorEl) errorEl.textContent = '';
   if(hintEl) hintEl.textContent = 'وجّه الكاميرا نحو الباركود وانتظر الالتقاط.';
   if(manualInput) manualInput.value = '';
+  updateScannerControls();
 }
 
 function setScannerError(message){
@@ -1981,6 +1968,7 @@ function setScannerError(message){
   if(resultEl) resultEl.textContent = '';
   if(errorEl) errorEl.textContent = message || '';
   if(hintEl && message) hintEl.textContent = 'إذا تعذر السكان، استخدم الإدخال اليدوي بالأسفل.';
+  updateScannerControls();
 }
 
 function getZXingGlobal(){
@@ -2027,7 +2015,10 @@ function loadExternalScript(src){
 }
 
 async function ensureScannerLibrary(forceReload=false){
-  if(hasScannerLibrary() && !forceReload) return getZXingGlobal();
+  if(hasScannerLibrary() && !forceReload) {
+    console.log('[scanner] scanner library loaded');
+    return getZXingGlobal();
+  }
   if(forceReload) scannerLibraryPromise = null;
   if(scannerLibraryPromise) return scannerLibraryPromise;
   scannerLibraryPromise = (async () => {
@@ -2036,7 +2027,10 @@ async function ensureScannerLibrary(forceReload=false){
       try {
         await loadExternalScript(src);
         const zxing = getZXingGlobal();
-        if(zxing?.BrowserMultiFormatReader) return zxing;
+        if(zxing?.BrowserMultiFormatReader) {
+          console.log('[scanner] scanner library loaded');
+          return zxing;
+        }
       } catch(err) {
         lastError = err;
       }
@@ -2065,9 +2059,6 @@ function stopScannerVideoTracks(){
     video.removeAttribute('src');
     video.load?.();
   }
-  scannerTrack = null;
-  scannerTorchAvailable = false;
-  scannerTorchOn = false;
 }
 
 function findProductByBarcode(barcode){
@@ -2079,10 +2070,13 @@ function findProductByBarcode(barcode){
 function applyScannedBarcode(target, barcode){
   const normalized = cleanExcelText(barcode);
   const product = findProductByBarcode(normalized);
+  console.log('[scanner] raw barcode result:', normalized);
   if(!product) {
-    setScannerError('لم يتم العثور على صنف مطابق للباركود');
+    console.log('[scanner] product match: not found');
+    setScannerError('الباركود غير موجود');
     return false;
   }
+  console.log('[scanner] product match: found', { id: product.id, name: product.name });
   if(target === 'inventory'){
     state.inventoryBrandFilter = normalizeProductBrand(product.brand || product.productList || 'Nilco');
     renderInventoryProductOptions();
@@ -2104,32 +2098,12 @@ function applyScannedBarcode(target, barcode){
   return true;
 }
 
-function getPreferredCameraIndex(){
-  const preferredIndex = scannerCameras.findIndex(camera => /back|rear|environment|wide|ultra/i.test(camera.label || ''));
-  return preferredIndex >= 0 ? preferredIndex : 0;
-}
-
 async function loadScannerCameras(){
   const zxing = await ensureScannerLibrary();
   if(!zxing || !zxing.BrowserMultiFormatReader) {
     throw new Error('مكتبة السكان غير متاحة');
   }
-  const hints = new Map();
-  if(zxing.DecodeHintType && zxing.BarcodeFormat) {
-    hints.set(zxing.DecodeHintType.POSSIBLE_FORMATS, [
-      zxing.BarcodeFormat.CODE_128,
-      zxing.BarcodeFormat.EAN_13,
-      zxing.BarcodeFormat.EAN_8,
-      zxing.BarcodeFormat.UPC_A,
-      zxing.BarcodeFormat.UPC_E,
-      zxing.BarcodeFormat.ITF
-    ]);
-    hints.set(zxing.DecodeHintType.TRY_HARDER, true);
-  }
-  scannerReader = scannerReader || new zxing.BrowserMultiFormatReader(hints, {
-    delayBetweenScanAttempts: 60,
-    delayBetweenScanSuccess: 500
-  });
+  scannerReader = scannerReader || new zxing.BrowserMultiFormatReader();
   if(typeof scannerReader.listVideoInputDevices === 'function') {
     scannerCameras = await scannerReader.listVideoInputDevices();
   } else if(zxing.BrowserCodeReader?.listVideoInputDevices) {
@@ -2137,9 +2111,10 @@ async function loadScannerCameras(){
   } else {
     scannerCameras = [];
   }
-  scannerCameraIndex = scannerCameras.length ? getPreferredCameraIndex() : -1;
-  selectedCameraId = scannerCameraIndex >= 0 ? scannerCameras[scannerCameraIndex].deviceId : '';
-  updateScannerControls();
+  const preferred = scannerCameras.find(camera => /back|rear|environment/i.test(camera.label || '')) || scannerCameras[0] || null;
+  selectedCameraId = preferred?.deviceId || '';
+  console.log('[scanner] camera devices found:', scannerCameras.map(c => ({ id: c.deviceId, label: c.label })));
+  console.log('[scanner] selected camera id:', selectedCameraId || 'environment');
 }
 
 async function startScanner(deviceId=''){
@@ -2150,32 +2125,21 @@ async function startScanner(deviceId=''){
   if(resultEl) resultEl.textContent = 'جارٍ فتح الكاميرا...';
   try {
     const zxing = await ensureScannerLibrary();
-    if(!scannerReader) await loadScannerCameras();
+    if(!scannerReader) scannerReader = new zxing.BrowserMultiFormatReader();
     stopScannerVideoTracks();
     await new Promise(resolve => setTimeout(resolve, 120));
     selectedCameraId = deviceId || selectedCameraId || '';
-    const constraints = selectedCameraId ? {
-      video: {
-        deviceId: { exact: selectedCameraId },
-        width: { ideal: 1920 },
-        height: { ideal: 1080 }
-      }
-    } : {
-      video: {
-        facingMode: { ideal: 'environment' },
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
-        advanced: [{ focusMode: 'continuous' }]
-      }
-    };
-    scannerControls = await scannerReader.decodeFromConstraints(constraints, video, (result, err) => {
+    console.log('[scanner] scan started');
+    scannerControls = await scannerReader.decodeFromConstraints({
+      video: selectedCameraId ? { deviceId: { exact: selectedCameraId } } : { facingMode: 'environment' }
+    }, video, (result) => {
       if(result?.getText) handleScannerSuccess(result.getText());
     });
-    const stream = video?.srcObject;
-    scannerTrack = stream?.getVideoTracks?.()[0] || null;
-    await configureScannerTrack();
     scannerActive = true;
     if(resultEl) resultEl.textContent = 'الكاميرا جاهزة. وجّهها نحو الباركود.';
+  } catch(err) {
+    console.error('[scanner] start failed:', err);
+    throw err;
   } finally {
     scannerStarting = false;
     updateScannerControls();
@@ -2197,27 +2161,12 @@ async function stopScanner(keepModalOpen=false){
     stopScannerVideoTracks();
     await new Promise(resolve => setTimeout(resolve, 120));
     scannerActive = false;
+    console.log('[scanner] scanner stopped');
   } finally {
     scannerStopping = false;
     updateScannerControls();
     if(!keepModalOpen && getScannerStatusElements().modal) getScannerStatusElements().modal.style.display = 'none';
   }
-}
-
-async function switchScannerCamera(){
-  if(scannerCameras.length < 2 || scannerStarting || scannerStopping) return;
-  await queueScannerTransition(async () => {
-    try {
-      scannerCameraIndex = (scannerCameraIndex + 1) % scannerCameras.length;
-      selectedCameraId = scannerCameras[scannerCameraIndex].deviceId;
-      resetScannerUi('جارٍ تبديل الكاميرا...');
-      await stopScanner(true);
-      await startScanner(selectedCameraId);
-    } catch(err) {
-      setScannerError('تعذر تبديل الكاميرا');
-      console.error('switchScannerCamera failed', err);
-    }
-  });
 }
 
 async function openScanner(target){
@@ -2248,7 +2197,7 @@ async function openScanner(target){
     } catch(err) {
       const message = String(err?.message || err || 'خطأ غير معروف');
       setScannerError('تعذر فتح الكاميرا: ' + message);
-      console.error('openScanner failed', err);
+      console.error('[scanner] open failed:', err);
     }
   });
 }
@@ -2260,15 +2209,10 @@ async function handleScannerSuccess(barcode){
   if(normalized === scannerLastBarcode && (now - scannerLastScanAt) < 1500) return;
   scannerLastBarcode = normalized;
   scannerLastScanAt = now;
+  const matched = applyScannedBarcode(scannerMode, normalized);
+  if(!matched) return;
   resetScannerUi('تم المسح: ' + normalized);
-  const target = scannerMode;
-  const matched = findProductByBarcode(normalized);
-  if(!matched) {
-    setScannerError('الباركود مقروء لكن غير موجود في الأصناف');
-    return;
-  }
   await closeScanner();
-  applyScannedBarcode(target, normalized);
 }
 
 async function closeScanner(){
@@ -2284,48 +2228,6 @@ function applyManualScannerBarcode(){
   handleScannerSuccess(barcode);
 }
 
-async function configureScannerTrack(){
-  if(!scannerTrack || typeof scannerTrack.getCapabilities !== 'function') return;
-  const capabilities = scannerTrack.getCapabilities() || {};
-  scannerTorchAvailable = !!capabilities.torch;
-  const constraints = { advanced: [] };
-  if(Array.isArray(capabilities.focusMode) && capabilities.focusMode.includes('continuous')) {
-    constraints.advanced.push({ focusMode: 'continuous' });
-  }
-  if(typeof capabilities.zoom?.max === 'number' && capabilities.zoom.max >= 1.5) {
-    constraints.advanced.push({ zoom: Math.min(capabilities.zoom.max, 2) });
-  }
-  if(constraints.advanced.length) {
-    try { await scannerTrack.applyConstraints(constraints); } catch(e) {}
-  }
-}
-
-async function attemptScannerFocus(){
-  if(!scannerTrack || typeof scannerTrack.getCapabilities !== 'function') return;
-  const capabilities = scannerTrack.getCapabilities() || {};
-  const advanced = [];
-  if(Array.isArray(capabilities.focusMode)) {
-    if(capabilities.focusMode.includes('single-shot')) advanced.push({ focusMode: 'single-shot' });
-    else if(capabilities.focusMode.includes('continuous')) advanced.push({ focusMode: 'continuous' });
-  }
-  if(!advanced.length) return;
-  try {
-    await scannerTrack.applyConstraints({ advanced });
-    showToast('تمت محاولة ضبط التركيز');
-  } catch(e) {}
-}
-
-async function toggleScannerTorch(){
-  if(!scannerTrack || !scannerTorchAvailable) return;
-  scannerTorchOn = !scannerTorchOn;
-  try {
-    await scannerTrack.applyConstraints({ advanced: [{ torch: scannerTorchOn }] });
-  } catch(e) {
-    scannerTorchOn = !scannerTorchOn;
-  }
-  updateScannerControls();
-}
-
 async function retryScannerLibrary(){
   resetScannerUi('جارٍ تحميل مكتبة السكان...');
   try {
@@ -2334,6 +2236,7 @@ async function retryScannerLibrary(){
     if(scannerMode) openScanner(scannerMode);
   } catch(err) {
     setScannerError('تعذر تحميل مكتبة السكان. استخدم الإدخال اليدوي أو أعد المحاولة.');
+    console.error('[scanner] library retry failed:', err);
   }
 }
 
@@ -3034,11 +2937,8 @@ window.deleteUser = deleteUser;
 window.sendMessage = sendMessage;
 window.openScanner = openScanner;
 window.closeScanner = closeScanner;
-window.switchScannerCamera = switchScannerCamera;
 window.applyManualScannerBarcode = applyManualScannerBarcode;
 window.retryScannerLibrary = retryScannerLibrary;
-window.toggleScannerTorch = toggleScannerTorch;
-window.attemptScannerFocus = attemptScannerFocus;
 window.invSearchProduct = invSearchProduct;
 window.onInventoryProductChange = onInventoryProductChange;
 window.onInventorySuggestedInput = onInventorySuggestedInput;
