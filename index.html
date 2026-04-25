@@ -168,6 +168,14 @@
               <button class="btn btn-soft" onclick="openScanner('inventory')" style="font-size:16px;padding:6px 10px">📷</button>
             </div>
           </div>
+          <div class="field" style="margin-bottom:8px">
+            <label>قائمة المنتجات</label>
+            <select id="inventory-brand-filter" class="small" onchange="setProductBrandFilter('inventory', this.value)">
+              <option value="all">الكل</option>
+              <option value="Nilco">Nilco</option>
+              <option value="Rocco">Rocco</option>
+            </select>
+          </div>
           <div class="saleRow" style="margin-bottom:8px">
             <div class="field" style="margin:0">
               <label>الصنف</label>
@@ -213,6 +221,14 @@
                 <button class="btn btn-soft" onclick="filterProducts()">بحث</button>
                 <button class="btn btn-soft" onclick="openScanner('invoice')" style="font-size:16px;padding:6px 10px">📷</button>
               </div>
+            </div>
+            <div class="field" style="margin-bottom:8px">
+              <label>قائمة المنتجات</label>
+              <select id="product-brand-filter" class="small" onchange="setProductBrandFilter('invoice', this.value)">
+                <option value="all">الكل</option>
+                <option value="Nilco">Nilco</option>
+                <option value="Rocco">Rocco</option>
+              </select>
             </div>
             <div class="saleRow">
               <div class="field" style="margin:0"><label>الصنف</label><select id="product-select" class="small" onchange="onSelectProduct()"></select></div>

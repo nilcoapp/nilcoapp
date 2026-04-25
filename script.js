@@ -12,6 +12,7 @@ const LOW_STOCK_THRESHOLD = 20;
 const CLIENTS_OVERWRITE_GRACE_MS = 8000;
 const COLLECTION_OVERWRITE_GRACE_MS = 8000;
 const SYNC_POLL_INTERVAL_MS = 15000;
+const PRODUCT_BRANDS = ['Nilco', 'Rocco'];
 const COLLECTION_TIMESTAMP_FIELDS = {
   clients: 'clientsLastUpdatedAt',
   products: 'productsLastUpdatedAt',
@@ -67,6 +68,9 @@ const state = {
   workingInvoice: [],
   workingInvoiceDiscount: 0,
   workingInventory: [],
+  productBrandFilter: 'all',
+  inventoryBrandFilter: 'all',
+  stockBrandFilter: 'all',
   filteredProducts: [],
   productOptionsCacheKey: '',
   repClientOptionsCacheKey: '',
@@ -239,6 +243,7 @@ function loadData(){
       repMatchType: undefined
     };
   });
+  state.data.products = state.data.products.map(p => normalizeProductRecord(p));
   save();
 }
 
@@ -293,8 +298,124 @@ function escapeHtml(s){
   return String(s ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 }
 
+function normalizeHeaderKey(value){
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/[._-]+/g, ' ')
+    .replace(/[()]/g, '');
+}
+
+function cleanExcelText(value){
+  return String(value == null ? '' : value).replace(/\.0$/,'').trim();
+}
+
+function cleanExcelNumber(value){
+  if(value == null || value === '') return 0;
+  const n = Number(String(value).replace(/,/g,'').trim());
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeProductBrand(value){
+  const raw = String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  if(!raw) return 'Nilco';
+  if(raw.includes('rocco')) return 'Rocco';
+  if(raw.includes('nilco')) return 'Nilco';
+  return PRODUCT_BRANDS.find(b => b.toLowerCase() === raw) || 'Nilco';
+}
+
+function getProductBrandFilterOptions(){
+  return ['all', ...PRODUCT_BRANDS];
+}
+
+function getProductBrandLabel(value){
+  return value === 'all' ? 'الكل' : value;
+}
+
+function normalizeProductRecord(product = {}){
+  const brand = normalizeProductBrand(product.brand || product.productList || '');
+  return {
+    ...product,
+    id: product.id || ('p_' + Date.now()),
+    code: product.code || '',
+    name: product.name || product.code || 'صنف',
+    barcode: cleanExcelText(product.barcode || ''),
+    price: Number(product.price || 0),
+    stock: Number(product.stock || 0),
+    brand,
+    productList: brand
+  };
+}
+
+function getActiveBrandFilter(type='invoice'){
+  if(type === 'inventory') return state.inventoryBrandFilter || 'all';
+  if(type === 'stock') return state.stockBrandFilter || 'all';
+  return state.productBrandFilter || 'all';
+}
+
+function getFilteredProductsByBrand(products, brandFilter='all'){
+  const list = Array.isArray(products) ? products : [];
+  if(!brandFilter || brandFilter === 'all') return list;
+  return list.filter(p => normalizeProductBrand(p.brand || p.productList || '') === brandFilter);
+}
+
+function readExcelColumn(row, keys){
+  const rowKeys = Object.keys(row || {});
+  for(const wanted of keys){
+    const found = rowKeys.find(k => normalizeHeaderKey(k) === normalizeHeaderKey(wanted));
+    if(found && row[found] !== '' && row[found] != null) return row[found];
+  }
+  return '';
+}
+
 function isLowStock(stock){
   return Number(stock || 0) <= LOW_STOCK_THRESHOLD;
+}
+
+function setProductBrandFilter(type, value){
+  const normalized = value === 'Nilco' || value === 'Rocco' ? value : 'all';
+  if(type === 'inventory') {
+    state.inventoryBrandFilter = normalized;
+    renderInventoryProductOptions();
+    onInventoryProductChange();
+    return;
+  }
+  if(type === 'stock') {
+    state.stockBrandFilter = normalized;
+    if(state.currentUser && state.currentUser.role !== 'rep' && state.deskTab === 'stock') renderDesk();
+    return;
+  }
+  state.productBrandFilter = normalized;
+  filterProducts();
+}
+
+function parseMasterProductRow(row){
+  const barcode = cleanExcelText(readExcelColumn(row, ['Row Labels','Barcode','row labels','الباركود','باركود']));
+  const name = cleanExcelText(readExcelColumn(row, ['Arabic discr.','Arabic discr','Arabic Description','Arabic Description.','Description','اسم الصنف','الصنف']));
+  const price = cleanExcelNumber(readExcelColumn(row, ['Price','price','السعر','سعر البيع']));
+  const brand = normalizeProductBrand(readExcelColumn(row, ['Brand','brand','Category','Brand/category']));
+  const stockRaw = readExcelColumn(row, ['Stock','stock','Stock New','stock New','الرصيد','الكمية']);
+  const hasStock = stockRaw !== '' && stockRaw != null;
+  return {
+    barcode,
+    name,
+    price,
+    brand,
+    productList: brand,
+    stock: hasStock ? cleanExcelNumber(stockRaw) : null,
+    code: cleanExcelText(readExcelColumn(row, ['Item code','Item Code','Code','code','كود الصنف','كود']))
+  };
+}
+
+function parseStockProductRow(row){
+  return {
+    barcode: cleanExcelText(readExcelColumn(row, ['Barcode','Row Labels','barcode','row labels','الباركود','باركود'])),
+    code: cleanExcelText(readExcelColumn(row, ['Item code','Item Code','Code','code','كود الصنف','كود'])),
+    stock: cleanExcelNumber(readExcelColumn(row, ['stock New','Stock New','stock new','Stock','stock','الرصيد','الكمية'])),
+    priceRaw: readExcelColumn(row, ['Price','price','السعر']),
+    hasPrice: readExcelColumn(row, ['Price','price','السعر']) !== ''
+  };
 }
 
 function getRepUsers(){
@@ -497,6 +618,10 @@ function setupRepScreen(){
   filterProducts();
   renderInventoryProductOptions();
   onInventoryProductChange();
+  const invoiceFilter = byId('product-brand-filter');
+  if(invoiceFilter) invoiceFilter.value = getActiveBrandFilter('invoice');
+  const inventoryFilter = byId('inventory-brand-filter');
+  if(inventoryFilter) inventoryFilter.value = getActiveBrandFilter('inventory');
   setInvoiceDiscount(state.workingInvoiceDiscount);
   renderInvoiceLines();
   renderInventoryLines();
@@ -568,14 +693,17 @@ function saveFollowup(){
 
 function filterProducts(){
   const q = (byId('product-search').value || '').trim().toLowerCase();
-  const products = state.data.products.filter(p => !q || String(p.name||'').toLowerCase().includes(q) || String(p.barcode||'').includes(q) || String(p.code||'').includes(q));
+  const brandFilter = getActiveBrandFilter('invoice');
+  const products = getFilteredProductsByBrand(state.data.products, brandFilter).filter(p => !q || String(p.name||'').toLowerCase().includes(q) || String(p.barcode||'').includes(q) || String(p.code||'').includes(q));
   state.filteredProducts = products;
-  const optionsMarkup = products.map(p => `<option value="${p.id}">${escapeHtml(p.name)}${isLowStock(p.stock)?' - غير متاح':''}</option>`).join('');
-  const key = `${q}|${products.length}|${products.map(p => `${p.id}:${p.stock}`).join(',')}`;
+  const optionsMarkup = products.map(p => `<option value="${p.id}">${escapeHtml(p.name)} — ${escapeHtml(normalizeProductBrand(p.brand || p.productList || ''))}${isLowStock(p.stock)?' - غير متاح':''}</option>`).join('');
+  const key = `${brandFilter}|${q}|${products.length}|${products.map(p => `${p.id}:${p.stock}`).join(',')}`;
   if(state.productOptionsCacheKey !== key) {
     byId('product-select').innerHTML = optionsMarkup;
     state.productOptionsCacheKey = key;
   }
+  const filterSelect = byId('product-brand-filter');
+  if(filterSelect && filterSelect.value !== brandFilter) filterSelect.value = brandFilter;
   onSelectProduct();
 }
 
@@ -1200,13 +1328,18 @@ function exportClientStatusReport(){
 /* ===== STOCK ===== */
 function renderStock(){
   const canImport = state.currentUser.role === 'admin' || state.currentUser.role === 'supervisor';
+  const filteredProducts = getFilteredProductsByBrand(state.data.products, getActiveBrandFilter('stock'));
   return `
     <div class="card">
       <div class="title">الاستوك</div>
-      <div class="sub">عدد الأصناف: ${state.data.products.length} — أصناف أقل من 100 تظهر في الرئيسية</div>
+      <div class="sub">عدد الأصناف: ${state.data.products.length} — المعروض: ${filteredProducts.length} — أصناف أقل من 100 تظهر في الرئيسية</div>
       ${canImport ? `
         <div class="field" style="margin-top:10px">
-          <label>رفع استوك من Excel / CSV</label>
+          <label>استيراد ماستر المنتجات (Nilco / Rocco)</label>
+          <input type="file" accept=".xlsx,.xls,.csv" onchange="importProductMasterExcel(event)" />
+        </div>
+        <div class="field" style="margin-top:10px">
+          <label>رفع كميات الاستوك فقط</label>
           <input type="file" accept=".xlsx,.xls,.csv" onchange="importStockExcel(event)" />
         </div>
         <div class="hr"></div>
@@ -1216,94 +1349,104 @@ function renderStock(){
           <div class="field"><label>كود الصنف</label><input id="new-product-code" class="input" /></div>
           <div class="field"><label>الباركود</label><input id="new-product-barcode" class="input" /></div>
           <div class="field"><label>السعر</label><input id="new-product-price" class="input" type="number" step="0.01" /></div>
+          <div class="field"><label>القائمة</label><select id="new-product-brand" class="input"><option value="Nilco">Nilco</option><option value="Rocco">Rocco</option></select></div>
           <div class="field"><label>الرصيد</label><input id="new-product-stock" class="input" type="number" step="1" /></div>
         </div>
         <div class="btn-row"><button class="btn btn-primary" onclick="addProduct()">إضافة صنف</button></div>
       ` : ''}
     </div>
     <div class="card">
+      <div class="field" style="margin-bottom:10px">
+        <label>فلتر القائمة</label>
+        <select class="input" onchange="setProductBrandFilter('stock', this.value)">
+          ${getProductBrandFilterOptions().map(option => `<option value="${option}" ${getActiveBrandFilter('stock')===option?'selected':''}>${getProductBrandLabel(option)}</option>`).join('')}
+        </select>
+      </div>
       <table>
-        <thead><tr><th>الكود</th><th>الصنف</th><th>الباركود</th><th>السعر</th><th>الرصيد</th></tr></thead>
+        <thead><tr><th>القائمة</th><th>الكود</th><th>الصنف</th><th>الباركود</th><th>السعر</th><th>الرصيد</th></tr></thead>
         <tbody>
-          ${state.data.products.map(p => `<tr><td>${escapeHtml(p.code||'')}</td><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.barcode||'')}</td><td>${money(p.price)}</td><td style="font-weight:700;color:${isLowStock(p.stock)?'var(--danger)':Number(p.stock)<100?'var(--warn)':'var(--ok)'}">${p.stock}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">لا توجد أصناف</td></tr>'}
+          ${filteredProducts.map(p => `<tr><td>${escapeHtml(normalizeProductBrand(p.brand || p.productList || ''))}</td><td>${escapeHtml(p.code||'')}</td><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.barcode||'')}</td><td>${money(p.price)}</td><td style="font-weight:700;color:${isLowStock(p.stock)?'var(--danger)':Number(p.stock)<100?'var(--warn)':'var(--ok)'}">${p.stock}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">لا توجد أصناف</td></tr>'}
         </tbody>
       </table>
     </div>`;
 }
 
-function importStockExcel(ev){
+async function importProductMasterExcel(ev){
   const file = ev.target.files && ev.target.files[0];
   if(!file) return;
   if(typeof XLSX === 'undefined') return alert('مكتبة Excel لم تُحمّل');
-  const normalizeKey = k => String(k || '').trim().toLowerCase().replace(/\s+/g,' ').replace(/[\/_-]+/g,' ');
-  const pick = (row, keys) => {
-    const rowKeys = Object.keys(row || {});
-    for(const wanted of keys){
-      const found = rowKeys.find(k => normalizeKey(k) === normalizeKey(wanted));
-      if(found && row[found] !== '' && row[found] != null) return row[found];
-    }
-    return '';
-  };
-  const cleanText = v => String(v == null ? '' : v).replace(/\.0$/,'').trim();
-  const cleanNumber = v => { if(v == null || v === '') return 0; const n = Number(String(v).replace(/,/g,'').trim()); return Number.isFinite(n) ? n : 0; };
+  const buffer = await file.arrayBuffer();
+  const wb = XLSX.read(buffer, {type:'array'});
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+  const parsed = rows.map(parseMasterProductRow).filter(p => p.barcode || p.name);
+  if(!parsed.length) return alert('لم يتم العثور على ماستر أصناف صالح. تأكد من الأعمدة.');
 
-  const reader = new FileReader();
-  reader.onload = e => {
-    const wb = XLSX.read(e.target.result, {type:'array'});
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
-    const products = rows.map((r, idx) => ({
-      id: 'p' + (idx+1),
-      code: cleanText(pick(r, ['Item code','Item Code','item code','code','Code','كود الصنف','كود'])),
-      name: cleanText(pick(r, ['Arabic Description','arabic description','Description','description','name','Name','اسم الصنف','الصنف'])),
-      price: cleanNumber(pick(r, ['Egp retail include vat','egp retail include vat','Price','price','سعر البيع','السعر'])),
-      stock: cleanNumber(pick(r, ['stock New','Stock New','stock new','stock','Stock','الرصيد','الكمية'])),
-      barcode: cleanText(pick(r, ['Barcode','barcode','الباركود','باركود']))
-    })).filter(x => x.name || x.code || x.barcode);
-
-    if(!products.length){
-      alert('لم يتم العثور على أصناف. تأكد من أسماء الأعمدة');
+  let addedCount = 0;
+  let updatedCount = 0;
+  parsed.forEach((row, idx) => {
+    const existing = state.data.products.find(product => row.barcode && product.barcode && product.barcode === row.barcode);
+    if(existing){
+      existing.price = row.price || existing.price || 0;
+      existing.brand = row.brand;
+      existing.productList = row.brand;
+      if(row.code && !existing.code) existing.code = row.code;
+      if(row.stock != null) existing.stock = Number(row.stock);
+      updatedCount++;
       return;
     }
+    state.data.products.push(normalizeProductRecord({
+      id: 'p_' + (Date.now() + idx),
+      code: row.code || '',
+      name: row.name || row.barcode || ('صنف ' + (idx + 1)),
+      barcode: row.barcode || '',
+      price: row.price || 0,
+      stock: row.stock != null ? Number(row.stock) : 0,
+      brand: row.brand,
+      productList: row.brand
+    }));
+    addedCount++;
+  });
+  markCollectionUpdated('products');
+  save();
+  await syncToServer();
+  renderDesk();
+  if(ev.target) ev.target.value = '';
+  showToast(`تم تحديث الماستر: جديد ${addedCount} | محدث ${updatedCount}`, 4000);
+}
 
-    if(state.data.products.length > 0){
-      let updatedCount = 0;
-      products.forEach(newP => {
-        const existing = state.data.products.find(ep =>
-          (newP.code && ep.code && String(ep.code).trim() === String(newP.code).trim()) ||
-          (newP.barcode && ep.barcode && String(ep.barcode).trim() === String(newP.barcode).trim()) ||
-          (newP.name && ep.name && String(ep.name).trim() === String(newP.name).trim())
-        );
-        if(existing){
-          existing.stock = Number(newP.stock || 0);
-          if(newP.price) existing.price = Number(newP.price || 0);
-          updatedCount++;
-        }
-      });
-      markCollectionUpdated('products');
-      save();
-      syncToServer();
-      renderDesk();
-      if(ev.target) ev.target.value = '';
-      showToast('تم تحديث ' + updatedCount + ' صنف');
-    } else {
-      state.data.products = products.map((p, i) => ({
-        id: p.id || ('p' + (i+1)),
-        code: p.code || '',
-        name: p.name || p.code || ('صنف ' + (i+1)),
-        price: Number(p.price || 0),
-        stock: Number(p.stock || 0),
-        barcode: p.barcode || ''
-      }));
-      markCollectionUpdated('products');
-      save();
-      syncToServer();
-      renderDesk();
-      if(ev.target) ev.target.value = '';
-      showToast('تم تحميل ' + state.data.products.length + ' صنف');
+async function importStockExcel(ev){
+  const file = ev.target.files && ev.target.files[0];
+  if(!file) return;
+  if(typeof XLSX === 'undefined') return alert('مكتبة Excel لم تُحمّل');
+  const buffer = await file.arrayBuffer();
+  const wb = XLSX.read(buffer, {type:'array'});
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+  const parsed = rows.map(parseStockProductRow).filter(row => row.barcode || row.code);
+  if(!parsed.length) return alert('لم يتم العثور على صفوف استوك صالحة. تأكد من الأعمدة.');
+  if(!state.data.products.length) return alert('استورد ماستر المنتجات أولاً قبل رفع كميات الاستوك.');
+
+  let updatedCount = 0;
+  let unmatchedCount = 0;
+  parsed.forEach(row => {
+    const existing = state.data.products.find(product =>
+      (row.barcode && product.barcode && product.barcode === row.barcode) ||
+      (!row.barcode && row.code && product.code && String(product.code).trim() === String(row.code).trim())
+    );
+    if(!existing) {
+      unmatchedCount++;
+      return;
     }
-  };
-  reader.readAsArrayBuffer(file);
+    existing.stock = Number(row.stock || 0);
+    updatedCount++;
+  });
+  markCollectionUpdated('products');
+  save();
+  await syncToServer();
+  renderDesk();
+  if(ev.target) ev.target.value = '';
+  showToast(`تم تحديث كميات الاستوك: ${updatedCount} | غير مطابق: ${unmatchedCount}`, 4000);
 }
 
 function addProduct(){
@@ -1312,8 +1455,9 @@ function addProduct(){
   const barcode = byId('new-product-barcode')?.value.trim();
   const price = Number(byId('new-product-price')?.value || 0);
   const stock = Number(byId('new-product-stock')?.value || 0);
+  const brand = normalizeProductBrand(byId('new-product-brand')?.value || 'Nilco');
   if(!name) return alert('اكتب اسم الصنف');
-  state.data.products.unshift({ id:'p_'+Date.now(), code, name, barcode, price: Number.isFinite(price)?price:0, stock: Number.isFinite(stock)?stock:0 });
+  state.data.products.unshift(normalizeProductRecord({ id:'p_'+Date.now(), code, name, barcode, price: Number.isFinite(price)?price:0, stock: Number.isFinite(stock)?stock:0, brand, productList: brand }));
   markCollectionUpdated('products');
   save();
   syncToServer();
@@ -1802,7 +1946,7 @@ function closeScanner(){
 
 /* ===== INVENTORY / جرد ===== */
 function getInventoryProducts(){
-  return Array.isArray(state.data.products) ? state.data.products : [];
+  return getFilteredProductsByBrand(Array.isArray(state.data.products) ? state.data.products : [], getActiveBrandFilter('inventory'));
 }
 
 function calculateInventorySuggestedOrder(clientQty, stockQty){
@@ -1819,9 +1963,12 @@ function renderInventoryProductOptions(){
   select.innerHTML = products.map(p => {
     const stock = Number(p.stock || 0);
     const stockLabel = stock > 0 ? ` — المخزن: ${stock}` : ' — غير متاح بالمخزن';
-    return `<option value="${p.id}">${escapeHtml(p.name || p.code || 'صنف')} ${stockLabel}</option>`;
+    return `<option value="${p.id}">${escapeHtml(p.name || p.code || 'صنف')} — ${escapeHtml(normalizeProductBrand(p.brand || p.productList || ''))}${stockLabel}</option>`;
   }).join('') || '<option value="">لا توجد أصناف</option>';
   if(currentValue && products.some(p => p.id === currentValue)) select.value = currentValue;
+  const filterSelect = byId('inventory-brand-filter');
+  const brandFilter = getActiveBrandFilter('inventory');
+  if(filterSelect && filterSelect.value !== brandFilter) filterSelect.value = brandFilter;
 }
 
 function getInventorySelectedProduct(){
@@ -2080,6 +2227,9 @@ function cloneSyncValue(value){
 
 function normalizeSyncedArray(collectionName, items){
   const list = Array.isArray(items) ? items : [];
+  if(collectionName === 'products'){
+    return list.map(product => normalizeProductRecord(product || {}));
+  }
   if(collectionName === 'clients'){
     return list.map(client => {
       const normalizedClient = normalizeClientRepLink(client || {});
@@ -2472,6 +2622,8 @@ window.removeLine = removeLine;
 window.saveInvoice = saveInvoice;
 window.exportInvoiceExcel = exportInvoiceExcel;
 window.setDeskTab = setDeskTab;
+window.setProductBrandFilter = setProductBrandFilter;
+window.importProductMasterExcel = importProductMasterExcel;
 window.importStockExcel = importStockExcel;
 window.addProduct = addProduct;
 window.importClientsExcel = importClientsExcel;
