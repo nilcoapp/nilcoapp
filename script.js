@@ -1914,6 +1914,9 @@ let scannerLastBarcode = '';
 let scannerLastScanAt = 0;
 let scannerTransition = Promise.resolve();
 let scannerLibraryPromise = null;
+let scannerTrack = null;
+let scannerTorchOn = false;
+let scannerTorchAvailable = false;
 const SCANNER_CDN_CANDIDATES = [
   'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js',
   'https://unpkg.com/@zxing/browser@0.1.5/umd/zxing-browser.min.js',
@@ -1930,6 +1933,7 @@ function getScannerStatusElements(){
     hintEl: byId('scanner-hint'),
     controlsEl: byId('scanner-controls'),
     switchBtn: byId('scanner-switch-btn'),
+    torchBtn: byId('scanner-torch-btn'),
     retryBtn: byId('scanner-retry-btn'),
     manualInput: byId('scanner-manual-input'),
     invoiceBtn: byId('invoice-scan-btn'),
@@ -1943,18 +1947,24 @@ function queueScannerTransition(task){
 }
 
 function setScannerBusy(disabled){
-  const { invoiceBtn, inventoryBtn, switchBtn, retryBtn } = getScannerStatusElements();
+  const { invoiceBtn, inventoryBtn, switchBtn, retryBtn, torchBtn } = getScannerStatusElements();
   if(invoiceBtn) invoiceBtn.disabled = !!disabled;
   if(inventoryBtn) inventoryBtn.disabled = !!disabled;
   if(switchBtn) switchBtn.disabled = !!disabled || scannerCameras.length < 2 || !scannerActive;
   if(retryBtn) retryBtn.disabled = !!disabled;
+  if(torchBtn) torchBtn.disabled = !!disabled || !scannerTorchAvailable || !scannerActive;
 }
 
 function updateScannerControls(){
-  const { controlsEl, switchBtn, retryBtn } = getScannerStatusElements();
+  const { controlsEl, switchBtn, retryBtn, torchBtn, errorEl } = getScannerStatusElements();
   const hasMultiple = scannerCameras.length > 1;
-  if(controlsEl) controlsEl.classList.toggle('hidden', !hasMultiple && !retryBtn);
+  const hasError = !!(errorEl?.textContent || '').trim();
+  if(controlsEl) controlsEl.classList.toggle('hidden', !hasMultiple && !scannerTorchAvailable && !hasError);
   if(switchBtn) switchBtn.disabled = !hasMultiple || !scannerActive || scannerStarting || scannerStopping;
+  if(torchBtn) {
+    torchBtn.classList.toggle('hidden', !scannerTorchAvailable);
+    torchBtn.textContent = scannerTorchOn ? 'إطفاء الفلاش' : 'فلاش';
+  }
   setScannerBusy(scannerStarting || scannerStopping);
 }
 
@@ -2055,6 +2065,9 @@ function stopScannerVideoTracks(){
     video.removeAttribute('src');
     video.load?.();
   }
+  scannerTrack = null;
+  scannerTorchAvailable = false;
+  scannerTorchOn = false;
 }
 
 function findProductByBarcode(barcode){
@@ -2067,8 +2080,8 @@ function applyScannedBarcode(target, barcode){
   const normalized = cleanExcelText(barcode);
   const product = findProductByBarcode(normalized);
   if(!product) {
-    showToast('لم يتم العثور على صنف مطابق للباركود');
-    return;
+    setScannerError('لم يتم العثور على صنف مطابق للباركود');
+    return false;
   }
   if(target === 'inventory'){
     state.inventoryBrandFilter = normalizeProductBrand(product.brand || product.productList || 'Nilco');
@@ -2078,7 +2091,7 @@ function applyScannedBarcode(target, barcode){
     byId('inv-product-search').value = normalized;
     onInventoryProductChange();
     showToast('تم اختيار ' + product.name);
-    return;
+    return true;
   }
   state.productBrandFilter = normalizeProductBrand(product.brand || product.productList || 'Nilco');
   filterProducts();
@@ -2088,6 +2101,7 @@ function applyScannedBarcode(target, barcode){
   onSelectProduct();
   byId('qty-input')?.focus();
   showToast('تم اختيار ' + product.name);
+  return true;
 }
 
 function getPreferredCameraIndex(){
@@ -2100,7 +2114,22 @@ async function loadScannerCameras(){
   if(!zxing || !zxing.BrowserMultiFormatReader) {
     throw new Error('مكتبة السكان غير متاحة');
   }
-  scannerReader = scannerReader || new zxing.BrowserMultiFormatReader();
+  const hints = new Map();
+  if(zxing.DecodeHintType && zxing.BarcodeFormat) {
+    hints.set(zxing.DecodeHintType.POSSIBLE_FORMATS, [
+      zxing.BarcodeFormat.CODE_128,
+      zxing.BarcodeFormat.EAN_13,
+      zxing.BarcodeFormat.EAN_8,
+      zxing.BarcodeFormat.UPC_A,
+      zxing.BarcodeFormat.UPC_E,
+      zxing.BarcodeFormat.ITF
+    ]);
+    hints.set(zxing.DecodeHintType.TRY_HARDER, true);
+  }
+  scannerReader = scannerReader || new zxing.BrowserMultiFormatReader(hints, {
+    delayBetweenScanAttempts: 60,
+    delayBetweenScanSuccess: 500
+  });
   if(typeof scannerReader.listVideoInputDevices === 'function') {
     scannerCameras = await scannerReader.listVideoInputDevices();
   } else if(zxing.BrowserCodeReader?.listVideoInputDevices) {
@@ -2121,13 +2150,30 @@ async function startScanner(deviceId=''){
   if(resultEl) resultEl.textContent = 'جارٍ فتح الكاميرا...';
   try {
     const zxing = await ensureScannerLibrary();
-    if(!scannerReader) scannerReader = new zxing.BrowserMultiFormatReader();
+    if(!scannerReader) await loadScannerCameras();
     stopScannerVideoTracks();
     await new Promise(resolve => setTimeout(resolve, 120));
     selectedCameraId = deviceId || selectedCameraId || '';
-    scannerControls = await scannerReader.decodeFromVideoDevice(selectedCameraId || undefined, video, (result, err) => {
+    const constraints = selectedCameraId ? {
+      video: {
+        deviceId: { exact: selectedCameraId },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      }
+    } : {
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        advanced: [{ focusMode: 'continuous' }]
+      }
+    };
+    scannerControls = await scannerReader.decodeFromConstraints(constraints, video, (result, err) => {
       if(result?.getText) handleScannerSuccess(result.getText());
     });
+    const stream = video?.srcObject;
+    scannerTrack = stream?.getVideoTracks?.()[0] || null;
+    await configureScannerTrack();
     scannerActive = true;
     if(resultEl) resultEl.textContent = 'الكاميرا جاهزة. وجّهها نحو الباركود.';
   } finally {
@@ -2216,6 +2262,11 @@ async function handleScannerSuccess(barcode){
   scannerLastScanAt = now;
   resetScannerUi('تم المسح: ' + normalized);
   const target = scannerMode;
+  const matched = findProductByBarcode(normalized);
+  if(!matched) {
+    setScannerError('الباركود مقروء لكن غير موجود في الأصناف');
+    return;
+  }
   await closeScanner();
   applyScannedBarcode(target, normalized);
 }
@@ -2231,6 +2282,48 @@ function applyManualScannerBarcode(){
   const barcode = cleanExcelText(byId('scanner-manual-input')?.value || '');
   if(!barcode) return alert('اكتب الباركود أولاً');
   handleScannerSuccess(barcode);
+}
+
+async function configureScannerTrack(){
+  if(!scannerTrack || typeof scannerTrack.getCapabilities !== 'function') return;
+  const capabilities = scannerTrack.getCapabilities() || {};
+  scannerTorchAvailable = !!capabilities.torch;
+  const constraints = { advanced: [] };
+  if(Array.isArray(capabilities.focusMode) && capabilities.focusMode.includes('continuous')) {
+    constraints.advanced.push({ focusMode: 'continuous' });
+  }
+  if(typeof capabilities.zoom?.max === 'number' && capabilities.zoom.max >= 1.5) {
+    constraints.advanced.push({ zoom: Math.min(capabilities.zoom.max, 2) });
+  }
+  if(constraints.advanced.length) {
+    try { await scannerTrack.applyConstraints(constraints); } catch(e) {}
+  }
+}
+
+async function attemptScannerFocus(){
+  if(!scannerTrack || typeof scannerTrack.getCapabilities !== 'function') return;
+  const capabilities = scannerTrack.getCapabilities() || {};
+  const advanced = [];
+  if(Array.isArray(capabilities.focusMode)) {
+    if(capabilities.focusMode.includes('single-shot')) advanced.push({ focusMode: 'single-shot' });
+    else if(capabilities.focusMode.includes('continuous')) advanced.push({ focusMode: 'continuous' });
+  }
+  if(!advanced.length) return;
+  try {
+    await scannerTrack.applyConstraints({ advanced });
+    showToast('تمت محاولة ضبط التركيز');
+  } catch(e) {}
+}
+
+async function toggleScannerTorch(){
+  if(!scannerTrack || !scannerTorchAvailable) return;
+  scannerTorchOn = !scannerTorchOn;
+  try {
+    await scannerTrack.applyConstraints({ advanced: [{ torch: scannerTorchOn }] });
+  } catch(e) {
+    scannerTorchOn = !scannerTorchOn;
+  }
+  updateScannerControls();
 }
 
 async function retryScannerLibrary(){
@@ -2944,6 +3037,8 @@ window.closeScanner = closeScanner;
 window.switchScannerCamera = switchScannerCamera;
 window.applyManualScannerBarcode = applyManualScannerBarcode;
 window.retryScannerLibrary = retryScannerLibrary;
+window.toggleScannerTorch = toggleScannerTorch;
+window.attemptScannerFocus = attemptScannerFocus;
 window.invSearchProduct = invSearchProduct;
 window.onInventoryProductChange = onInventoryProductChange;
 window.onInventorySuggestedInput = onInventorySuggestedInput;
