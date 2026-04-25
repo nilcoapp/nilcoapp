@@ -662,8 +662,6 @@ function toggleStatusMode(){
   byId('followup-box').classList.toggle('hidden', mode !== 'followup');
   byId('sale-box').classList.toggle('hidden', mode !== 'invoice');
   byId('inventory-box').classList.toggle('hidden', mode !== 'inventory');
-  const repMessagesBtn = byId('rep-messages-open-btn');
-  if(repMessagesBtn) repMessagesBtn.classList.toggle('hidden', mode !== 'invoice');
   saveSession();
 }
 
@@ -1908,6 +1906,24 @@ let _scannerTarget = null; // 'invoice' or 'inventory'
 let _scannerActive = false;
 let _lastScannedBarcode = '';
 let _lastScannedAt = 0;
+let _scannerCameras = [];
+let _scannerCameraIndex = -1;
+
+function getScannerStatusElements(){
+  return {
+    resultEl: byId('scanner-result'),
+    hintEl: byId('scanner-hint'),
+    controlsEl: byId('scanner-controls'),
+    switchBtn: byId('scanner-switch-btn')
+  };
+}
+
+function updateScannerControls(){
+  const { controlsEl, switchBtn } = getScannerStatusElements();
+  const hasMultiple = _scannerCameras.length > 1;
+  if(controlsEl) controlsEl.classList.toggle('hidden', !hasMultiple);
+  if(switchBtn) switchBtn.disabled = !hasMultiple || !_scannerActive;
+}
 
 function findProductByBarcode(barcode){
   const normalized = cleanExcelText(barcode);
@@ -1956,13 +1972,61 @@ async function startScannerWithConfig(cameraConfig){
   );
 }
 
+async function startScannerCamera(cameraConfig, statusText){
+  const { resultEl } = getScannerStatusElements();
+  if(resultEl) resultEl.textContent = statusText || 'جارٍ فتح الكاميرا...';
+  await startScannerWithConfig(cameraConfig);
+  _scannerActive = true;
+  updateScannerControls();
+  if(resultEl) resultEl.textContent = 'الكاميرا جاهزة. وجّهها نحو الباركود.';
+}
+
+async function stopScanner(keepModalOpen=false){
+  if(!keepModalOpen) byId('scanner-modal').style.display = 'none';
+  if(_html5QrScanner){
+    try { await _html5QrScanner.stop(); } catch(e) {}
+    try { await _html5QrScanner.clear(); } catch(e) {}
+    _html5QrScanner = null;
+  }
+  _scannerActive = false;
+  updateScannerControls();
+}
+
+async function startPreferredScannerCamera(){
+  const preferredCamera = _scannerCameras.find(camera => /back|rear|environment|wide/i.test(camera.label || ''));
+  if(preferredCamera){
+    _scannerCameraIndex = Math.max(0, _scannerCameras.findIndex(camera => camera.id === preferredCamera.id));
+    await startScannerCamera(preferredCamera.id, 'جارٍ فتح الكاميرا الخلفية...');
+    return;
+  }
+  _scannerCameraIndex = _scannerCameras.length ? 0 : -1;
+  await startScannerCamera({ facingMode: { ideal: 'environment' } }, 'جارٍ طلب أفضل كاميرا متاحة...');
+}
+
+async function switchScannerCamera(){
+  if(_scannerCameras.length < 2) return;
+  const { resultEl, hintEl } = getScannerStatusElements();
+  try {
+    _scannerCameraIndex = (_scannerCameraIndex + 1) % _scannerCameras.length;
+    if(resultEl) resultEl.textContent = 'جارٍ تبديل الكاميرا...';
+    await stopScanner(true);
+    await startScannerCamera(_scannerCameras[_scannerCameraIndex].id, 'جارٍ فتح الكاميرا...');
+  } catch(err) {
+    if(resultEl) resultEl.textContent = 'تعذر تبديل الكاميرا';
+    if(hintEl) hintEl.textContent = 'إذا استمر التعذر، أغلق السكان وافتحه من جديد أو استخدم الإدخال اليدوي.';
+    console.error('switchScannerCamera failed', err);
+  }
+}
+
 async function openScanner(target){
   _scannerTarget = target;
-  const resultEl = byId('scanner-result');
-  const hintEl = byId('scanner-hint');
+  const { resultEl, hintEl } = getScannerStatusElements();
   if(resultEl) resultEl.textContent = '';
   if(hintEl) hintEl.textContent = 'وجّه الكاميرا نحو الباركود وانتظر الالتقاط.';
   byId('scanner-modal').style.display = 'flex';
+  _scannerCameras = [];
+  _scannerCameraIndex = -1;
+  updateScannerControls();
 
   if(typeof Html5Qrcode === 'undefined') {
     if(resultEl) resultEl.textContent = 'مكتبة السكانر لم تُحمّل';
@@ -1977,28 +2041,25 @@ async function openScanner(target){
     return;
   }
 
-  if(_scannerActive) await closeScanner();
-  _scannerActive = true;
+  if(_scannerActive) await stopScanner(true);
 
   try {
-    const cameras = await Html5Qrcode.getCameras();
-    const preferredCamera = cameras.find(camera => /back|rear|environment/i.test(camera.label || '')) || cameras[0];
-    if(resultEl) resultEl.textContent = preferredCamera ? 'جارٍ فتح الكاميرا…' : 'جارٍ طلب إذن الكاميرا…';
-    if(preferredCamera?.id) {
-      await startScannerWithConfig(preferredCamera.id);
+    _scannerCameras = await Html5Qrcode.getCameras();
+    updateScannerControls();
+    if(_scannerCameras.length) {
+      await startPreferredScannerCamera();
     } else {
-      await startScannerWithConfig({ facingMode: 'environment' });
+      await startScannerCamera({ facingMode: { ideal: 'environment' } }, 'جارٍ طلب إذن الكاميرا...');
     }
-    if(resultEl) resultEl.textContent = 'الكاميرا جاهزة. وجّهها نحو الباركود.';
   } catch(err) {
     try {
-      await startScannerWithConfig({ facingMode: 'environment' });
-      if(resultEl) resultEl.textContent = 'الكاميرا جاهزة. وجّهها نحو الباركود.';
+      await startScannerCamera({ facingMode: { ideal: 'environment' } }, 'جارٍ فتح الكاميرا...');
     } catch(fallbackErr) {
       const message = String(fallbackErr?.message || fallbackErr || err?.message || err || 'خطأ غير معروف');
       if(resultEl) resultEl.textContent = 'تعذر فتح الكاميرا: ' + message;
       if(hintEl) hintEl.textContent = 'إذا استمر التعذر، استخدم إدخال الباركود اليدوي.';
       _scannerActive = false;
+      updateScannerControls();
     }
   }
 }
@@ -2017,13 +2078,7 @@ async function onScanSuccess(barcode){
 }
 
 async function closeScanner(){
-  byId('scanner-modal').style.display = 'none';
-  if(_html5QrScanner){
-    try { await _html5QrScanner.stop(); } catch(e) {}
-    try { await _html5QrScanner.clear(); } catch(e) {}
-    _html5QrScanner = null;
-  }
-  _scannerActive = false;
+  await stopScanner(false);
 }
 
 /* ===== INVENTORY / جرد ===== */
@@ -2723,6 +2778,7 @@ window.deleteUser = deleteUser;
 window.sendMessage = sendMessage;
 window.openScanner = openScanner;
 window.closeScanner = closeScanner;
+window.switchScannerCamera = switchScannerCamera;
 window.invSearchProduct = invSearchProduct;
 window.onInventoryProductChange = onInventoryProductChange;
 window.onInventorySuggestedInput = onInventorySuggestedInput;
