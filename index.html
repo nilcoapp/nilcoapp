@@ -371,6 +371,7 @@
     <div id="scanner-hint" class="sub" style="text-align:center;margin-bottom:8px;color:var(--muted)">وجّه الكاميرا نحو الباركود وانتظر الالتقاط.</div>
     <div id="scanner-controls" class="btn-row hidden" style="justify-content:center;margin-bottom:8px">
       <button id="scanner-switch-btn" class="btn btn-soft btn-compact" onclick="switchScannerCamera()">تبديل الكاميرا</button>
+      <button id="scanner-retry-btn" class="btn btn-soft btn-compact" onclick="retryScannerLibrary()">إعادة المحاولة</button>
     </div>
     <div id="scanner-reader" style="width:100%">
       <video id="scanner-video" muted playsinline autoplay style="width:100%;background:#eef4fb;border-radius:12px;min-height:220px"></video>
@@ -389,7 +390,6 @@
 
 <div class="watermark">Emad A.Elnasser — NILCO V2.0</div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js"></script>
 <script src="./script.js"></script>
 </body>
 </html>

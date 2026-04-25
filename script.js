@@ -1913,6 +1913,13 @@ let scannerCameraIndex = -1;
 let scannerLastBarcode = '';
 let scannerLastScanAt = 0;
 let scannerTransition = Promise.resolve();
+let scannerLibraryPromise = null;
+const SCANNER_CDN_CANDIDATES = [
+  'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js',
+  'https://unpkg.com/@zxing/browser@0.1.5/umd/zxing-browser.min.js',
+  'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js',
+  'https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js'
+];
 
 function getScannerStatusElements(){
   return {
@@ -1923,6 +1930,7 @@ function getScannerStatusElements(){
     hintEl: byId('scanner-hint'),
     controlsEl: byId('scanner-controls'),
     switchBtn: byId('scanner-switch-btn'),
+    retryBtn: byId('scanner-retry-btn'),
     manualInput: byId('scanner-manual-input'),
     invoiceBtn: byId('invoice-scan-btn'),
     inventoryBtn: byId('inventory-scan-btn')
@@ -1935,16 +1943,17 @@ function queueScannerTransition(task){
 }
 
 function setScannerBusy(disabled){
-  const { invoiceBtn, inventoryBtn, switchBtn } = getScannerStatusElements();
+  const { invoiceBtn, inventoryBtn, switchBtn, retryBtn } = getScannerStatusElements();
   if(invoiceBtn) invoiceBtn.disabled = !!disabled;
   if(inventoryBtn) inventoryBtn.disabled = !!disabled;
   if(switchBtn) switchBtn.disabled = !!disabled || scannerCameras.length < 2 || !scannerActive;
+  if(retryBtn) retryBtn.disabled = !!disabled;
 }
 
 function updateScannerControls(){
-  const { controlsEl, switchBtn } = getScannerStatusElements();
+  const { controlsEl, switchBtn, retryBtn } = getScannerStatusElements();
   const hasMultiple = scannerCameras.length > 1;
-  if(controlsEl) controlsEl.classList.toggle('hidden', !hasMultiple);
+  if(controlsEl) controlsEl.classList.toggle('hidden', !hasMultiple && !retryBtn);
   if(switchBtn) switchBtn.disabled = !hasMultiple || !scannerActive || scannerStarting || scannerStopping;
   setScannerBusy(scannerStarting || scannerStopping);
 }
@@ -1962,6 +1971,74 @@ function setScannerError(message){
   if(resultEl) resultEl.textContent = '';
   if(errorEl) errorEl.textContent = message || '';
   if(hintEl && message) hintEl.textContent = 'إذا تعذر السكان، استخدم الإدخال اليدوي بالأسفل.';
+}
+
+function getZXingGlobal(){
+  return window.ZXingBrowser || window.ZXing || null;
+}
+
+function hasScannerLibrary(){
+  const zxing = getZXingGlobal();
+  return !!(zxing && zxing.BrowserMultiFormatReader);
+}
+
+function loadExternalScript(src){
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[data-scanner-src="${src}"]`);
+    if(existing) {
+      if(existing.getAttribute('data-loaded') === 'true') {
+        resolve();
+        return;
+      }
+      if(existing.getAttribute('data-failed') === 'true') {
+        existing.remove();
+      } else {
+      existing.addEventListener('load', resolve, { once:true });
+      existing.addEventListener('error', () => reject(new Error('load failed')), { once:true });
+      return;
+      }
+    }
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.defer = true;
+    script.crossOrigin = 'anonymous';
+    script.setAttribute('data-scanner-src', src);
+    script.onload = () => {
+      script.setAttribute('data-loaded', 'true');
+      resolve();
+    };
+    script.onerror = () => {
+      script.setAttribute('data-failed', 'true');
+      reject(new Error('load failed'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureScannerLibrary(forceReload=false){
+  if(hasScannerLibrary() && !forceReload) return getZXingGlobal();
+  if(forceReload) scannerLibraryPromise = null;
+  if(scannerLibraryPromise) return scannerLibraryPromise;
+  scannerLibraryPromise = (async () => {
+    let lastError = null;
+    for(const src of SCANNER_CDN_CANDIDATES){
+      try {
+        await loadExternalScript(src);
+        const zxing = getZXingGlobal();
+        if(zxing?.BrowserMultiFormatReader) return zxing;
+      } catch(err) {
+        lastError = err;
+      }
+    }
+    throw lastError || new Error('تعذر تحميل مكتبة السكان');
+  })();
+  try {
+    return await scannerLibraryPromise;
+  } catch(err) {
+    scannerLibraryPromise = null;
+    throw err;
+  }
 }
 
 function stopScannerVideoTracks(){
@@ -2019,14 +2096,15 @@ function getPreferredCameraIndex(){
 }
 
 async function loadScannerCameras(){
-  if(!window.ZXingBrowser || !window.ZXingBrowser.BrowserMultiFormatReader) {
+  const zxing = await ensureScannerLibrary();
+  if(!zxing || !zxing.BrowserMultiFormatReader) {
     throw new Error('مكتبة السكان غير متاحة');
   }
-  scannerReader = scannerReader || new ZXingBrowser.BrowserMultiFormatReader();
+  scannerReader = scannerReader || new zxing.BrowserMultiFormatReader();
   if(typeof scannerReader.listVideoInputDevices === 'function') {
     scannerCameras = await scannerReader.listVideoInputDevices();
-  } else if(window.ZXingBrowser.BrowserCodeReader?.listVideoInputDevices) {
-    scannerCameras = await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+  } else if(zxing.BrowserCodeReader?.listVideoInputDevices) {
+    scannerCameras = await zxing.BrowserCodeReader.listVideoInputDevices();
   } else {
     scannerCameras = [];
   }
@@ -2042,7 +2120,8 @@ async function startScanner(deviceId=''){
   updateScannerControls();
   if(resultEl) resultEl.textContent = 'جارٍ فتح الكاميرا...';
   try {
-    if(!scannerReader) scannerReader = new ZXingBrowser.BrowserMultiFormatReader();
+    const zxing = await ensureScannerLibrary();
+    if(!scannerReader) scannerReader = new zxing.BrowserMultiFormatReader();
     stopScannerVideoTracks();
     await new Promise(resolve => setTimeout(resolve, 120));
     selectedCameraId = deviceId || selectedCameraId || '';
@@ -2105,10 +2184,6 @@ async function openScanner(target){
   selectedCameraId = '';
   updateScannerControls();
 
-  if(!window.ZXingBrowser || !window.ZXingBrowser.BrowserMultiFormatReader) {
-    setScannerError('مكتبة السكان لم تُحمّل');
-    return;
-  }
   if(!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
     setScannerError('الكاميرا تحتاج اتصالًا آمنًا HTTPS أو localhost.');
     return;
@@ -2121,6 +2196,7 @@ async function openScanner(target){
   await queueScannerTransition(async () => {
     await stopScanner(true);
     try {
+      await ensureScannerLibrary();
       await loadScannerCameras();
       await startScanner(selectedCameraId);
     } catch(err) {
@@ -2155,6 +2231,17 @@ function applyManualScannerBarcode(){
   const barcode = cleanExcelText(byId('scanner-manual-input')?.value || '');
   if(!barcode) return alert('اكتب الباركود أولاً');
   handleScannerSuccess(barcode);
+}
+
+async function retryScannerLibrary(){
+  resetScannerUi('جارٍ تحميل مكتبة السكان...');
+  try {
+    await ensureScannerLibrary(true);
+    showToast('تم تحميل مكتبة السكان');
+    if(scannerMode) openScanner(scannerMode);
+  } catch(err) {
+    setScannerError('تعذر تحميل مكتبة السكان. استخدم الإدخال اليدوي أو أعد المحاولة.');
+  }
 }
 
 /* ===== INVENTORY / جرد ===== */
@@ -2856,6 +2943,7 @@ window.openScanner = openScanner;
 window.closeScanner = closeScanner;
 window.switchScannerCamera = switchScannerCamera;
 window.applyManualScannerBarcode = applyManualScannerBarcode;
+window.retryScannerLibrary = retryScannerLibrary;
 window.invSearchProduct = invSearchProduct;
 window.onInventoryProductChange = onInventoryProductChange;
 window.onInventorySuggestedInput = onInventorySuggestedInput;

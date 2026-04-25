@@ -30,6 +30,10 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   if (e.request.url.includes('/api/')) return;
   const url = new URL(e.request.url);
+  if (url.origin !== self.location.origin) {
+    e.respondWith(fetch(e.request, { cache: 'no-store' }));
+    return;
+  }
   const isAppShellRequest =
     e.request.mode === 'navigate' ||
     ['/', '/index.html', '/script.js', '/manifest.webmanifest'].includes(url.pathname);
