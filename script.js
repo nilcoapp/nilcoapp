@@ -149,7 +149,7 @@ function restoreSession(){
     state.currentUser = user;
     state.deskTab = session.deskTab || 'dashboard';
     if(user.role === 'rep') {
-      byId('rep-title').innerHTML = 'NILCO <span class="sync-indicator" id="sync-dot"></span>';
+      byId('rep-title').textContent = 'NILCO';
       setupRepScreen();
       show('rep-screen');
       if(byId('rep-sector') && session.repSector){
@@ -265,7 +265,7 @@ async function login(){
   state.currentUser = state.data.users.find(u => u.id === userId && u.active !== false) || user;
   saveSession();
   if(state.currentUser.role === 'rep'){
-    byId('rep-title').innerHTML = 'NILCO <span class="sync-indicator" id="sync-dot"></span>';
+      byId('rep-title').textContent = 'NILCO';
     setupRepScreen();
     show('rep-screen');
   } else {
@@ -1905,43 +1905,125 @@ function checkNewMessages(){
 /* ===== BARCODE CAMERA SCANNER ===== */
 let _html5QrScanner = null;
 let _scannerTarget = null; // 'invoice' or 'inventory'
+let _scannerActive = false;
+let _lastScannedBarcode = '';
+let _lastScannedAt = 0;
 
-function openScanner(target){
-  _scannerTarget = target;
-  byId('scanner-result').textContent = '';
-  byId('scanner-modal').style.display = 'flex';
-  if(typeof Html5Qrcode === 'undefined') return alert('مكتبة السكانر لم تُحمّل');
-  _html5QrScanner = new Html5Qrcode('scanner-reader');
-  _html5QrScanner.start(
-    { facingMode: 'environment' },
-    { fps: 10, qrbox: { width: 250, height: 150 } },
-    (decodedText) => {
-      onScanSuccess(decodedText);
-    },
-    () => {}
-  ).catch(err => {
-    byId('scanner-result').textContent = 'تعذر فتح الكاميرا: ' + err;
-  });
+function findProductByBarcode(barcode){
+  const normalized = cleanExcelText(barcode);
+  if(!normalized) return null;
+  return (state.data.products || []).find(product => cleanExcelText(product.barcode) === normalized) || null;
 }
-function onScanSuccess(barcode){
-  byId('scanner-result').textContent = 'تم المسح: ' + barcode;
-  closeScanner();
-  if(_scannerTarget === 'invoice'){
-    byId('product-search').value = barcode;
-    filterProducts();
-  } else if(_scannerTarget === 'inventory'){
-    byId('inv-product-search').value = barcode;
-    invSearchProduct();
-    invAddLine();
+
+function applyScannedBarcode(target, barcode){
+  const normalized = cleanExcelText(barcode);
+  const product = findProductByBarcode(normalized);
+  if(!product) {
+    showToast('لم يتم العثور على صنف مطابق للباركود');
+    return;
+  }
+  if(target === 'inventory'){
+    state.inventoryBrandFilter = normalizeProductBrand(product.brand || product.productList || 'Nilco');
+    renderInventoryProductOptions();
+    const inventorySelect = byId('inv-product-select');
+    if(inventorySelect) inventorySelect.value = product.id;
+    byId('inv-product-search').value = normalized;
+    onInventoryProductChange();
+    showToast('تم اختيار ' + product.name);
+    return;
+  }
+  state.productBrandFilter = normalizeProductBrand(product.brand || product.productList || 'Nilco');
+  filterProducts();
+  const productSelect = byId('product-select');
+  if(productSelect) productSelect.value = product.id;
+  byId('product-search').value = normalized;
+  onSelectProduct();
+  byId('qty-input')?.focus();
+  showToast('تم اختيار ' + product.name);
+}
+
+async function startScannerWithConfig(cameraConfig){
+  if(!_html5QrScanner) _html5QrScanner = new Html5Qrcode('scanner-reader');
+  await _html5QrScanner.start(
+    cameraConfig,
+    {
+      fps: 10,
+      qrbox: { width: 260, height: 160 },
+      aspectRatio: 1.777
+    },
+    (decodedText) => onScanSuccess(decodedText),
+    () => {}
+  );
+}
+
+async function openScanner(target){
+  _scannerTarget = target;
+  const resultEl = byId('scanner-result');
+  const hintEl = byId('scanner-hint');
+  if(resultEl) resultEl.textContent = '';
+  if(hintEl) hintEl.textContent = 'وجّه الكاميرا نحو الباركود وانتظر الالتقاط.';
+  byId('scanner-modal').style.display = 'flex';
+
+  if(typeof Html5Qrcode === 'undefined') {
+    if(resultEl) resultEl.textContent = 'مكتبة السكانر لم تُحمّل';
+    return;
+  }
+  if(!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    if(resultEl) resultEl.textContent = 'الكاميرا تحتاج اتصالًا آمنًا HTTPS أو localhost.';
+    return;
+  }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if(resultEl) resultEl.textContent = 'المتصفح لا يدعم فتح الكاميرا. استخدم إدخال الباركود يدويًا.';
+    return;
+  }
+
+  if(_scannerActive) await closeScanner();
+  _scannerActive = true;
+
+  try {
+    const cameras = await Html5Qrcode.getCameras();
+    const preferredCamera = cameras.find(camera => /back|rear|environment/i.test(camera.label || '')) || cameras[0];
+    if(resultEl) resultEl.textContent = preferredCamera ? 'جارٍ فتح الكاميرا…' : 'جارٍ طلب إذن الكاميرا…';
+    if(preferredCamera?.id) {
+      await startScannerWithConfig(preferredCamera.id);
+    } else {
+      await startScannerWithConfig({ facingMode: 'environment' });
+    }
+    if(resultEl) resultEl.textContent = 'الكاميرا جاهزة. وجّهها نحو الباركود.';
+  } catch(err) {
+    try {
+      await startScannerWithConfig({ facingMode: 'environment' });
+      if(resultEl) resultEl.textContent = 'الكاميرا جاهزة. وجّهها نحو الباركود.';
+    } catch(fallbackErr) {
+      const message = String(fallbackErr?.message || fallbackErr || err?.message || err || 'خطأ غير معروف');
+      if(resultEl) resultEl.textContent = 'تعذر فتح الكاميرا: ' + message;
+      if(hintEl) hintEl.textContent = 'إذا استمر التعذر، استخدم إدخال الباركود اليدوي.';
+      _scannerActive = false;
+    }
   }
 }
-function closeScanner(){
+
+async function onScanSuccess(barcode){
+  const normalized = cleanExcelText(barcode);
+  const now = Date.now();
+  if(!normalized) return;
+  if(normalized === _lastScannedBarcode && (now - _lastScannedAt) < 1500) return;
+  _lastScannedBarcode = normalized;
+  _lastScannedAt = now;
+  if(byId('scanner-result')) byId('scanner-result').textContent = 'تم المسح: ' + normalized;
+  const target = _scannerTarget;
+  await closeScanner();
+  applyScannedBarcode(target, normalized);
+}
+
+async function closeScanner(){
   byId('scanner-modal').style.display = 'none';
   if(_html5QrScanner){
-    _html5QrScanner.stop().catch(()=>{});
-    _html5QrScanner.clear();
+    try { await _html5QrScanner.stop(); } catch(e) {}
+    try { await _html5QrScanner.clear(); } catch(e) {}
     _html5QrScanner = null;
   }
+  _scannerActive = false;
 }
 
 /* ===== INVENTORY / جرد ===== */
