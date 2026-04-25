@@ -1913,12 +1913,6 @@ let scannerLastBarcode = '';
 let scannerLastScanAt = 0;
 let scannerTransition = Promise.resolve();
 let scannerLibraryPromise = null;
-const SCANNER_CDN_CANDIDATES = [
-  'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js',
-  'https://unpkg.com/@zxing/browser@0.1.5/umd/zxing-browser.min.js',
-  'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js',
-  'https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js'
-];
 
 function getScannerStatusElements(){
   return {
@@ -1980,63 +1974,37 @@ function hasScannerLibrary(){
   return !!(zxing && zxing.BrowserMultiFormatReader);
 }
 
-function loadExternalScript(src){
-  return new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[data-scanner-src="${src}"]`);
-    if(existing) {
-      if(existing.getAttribute('data-loaded') === 'true') {
-        resolve();
-        return;
-      }
-      if(existing.getAttribute('data-failed') === 'true') {
-        existing.remove();
-      } else {
-      existing.addEventListener('load', resolve, { once:true });
-      existing.addEventListener('error', () => reject(new Error('load failed')), { once:true });
-      return;
-      }
-    }
-    const script = document.createElement('script');
-    script.src = src;
-    script.async = true;
-    script.defer = true;
-    script.crossOrigin = 'anonymous';
-    script.setAttribute('data-scanner-src', src);
-    script.onload = () => {
-      script.setAttribute('data-loaded', 'true');
-      resolve();
-    };
-    script.onerror = () => {
-      script.setAttribute('data-failed', 'true');
-      reject(new Error('load failed'));
-    };
-    document.head.appendChild(script);
-  });
-}
-
 async function ensureScannerLibrary(forceReload=false){
   if(hasScannerLibrary() && !forceReload) {
     console.log('[scanner] scanner library loaded');
     return getZXingGlobal();
   }
-  if(forceReload) scannerLibraryPromise = null;
+  if(forceReload && 'serviceWorker' in navigator) {
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.update()));
+    } catch(e) {}
+  }
   if(scannerLibraryPromise) return scannerLibraryPromise;
-  scannerLibraryPromise = (async () => {
-    let lastError = null;
-    for(const src of SCANNER_CDN_CANDIDATES){
-      try {
-        await loadExternalScript(src);
-        const zxing = getZXingGlobal();
-        if(zxing?.BrowserMultiFormatReader) {
-          console.log('[scanner] scanner library loaded');
-          return zxing;
-        }
-      } catch(err) {
-        lastError = err;
+  scannerLibraryPromise = new Promise((resolve, reject) => {
+    let attempts = 0;
+    const tick = () => {
+      const zxing = getZXingGlobal();
+      if(zxing?.BrowserMultiFormatReader) {
+        console.log('[scanner] scanner library loaded');
+        resolve(zxing);
+        return;
       }
-    }
-    throw lastError || new Error('تعذر تحميل مكتبة السكان');
-  })();
+      attempts += 1;
+      if(attempts >= 20) {
+        scannerLibraryPromise = null;
+        reject(new Error('تعذر تحميل مكتبة السكان'));
+        return;
+      }
+      setTimeout(tick, 150);
+    };
+    tick();
+  });
   try {
     return await scannerLibraryPromise;
   } catch(err) {
@@ -2115,6 +2083,7 @@ async function loadScannerCameras(){
   selectedCameraId = preferred?.deviceId || '';
   console.log('[scanner] camera devices found:', scannerCameras.map(c => ({ id: c.deviceId, label: c.label })));
   console.log('[scanner] selected camera id:', selectedCameraId || 'environment');
+  updateScannerControls();
 }
 
 async function startScanner(deviceId=''){
@@ -2175,7 +2144,6 @@ async function openScanner(target){
   if(modal) modal.style.display = 'flex';
   resetScannerUi('');
   scannerCameras = [];
-  scannerCameraIndex = -1;
   selectedCameraId = '';
   updateScannerControls();
 
